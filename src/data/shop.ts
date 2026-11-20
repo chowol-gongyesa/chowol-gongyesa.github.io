@@ -5,22 +5,22 @@ export const SHOP = {
   name: '초월공예사',
   prefix: '', // 상호 위에 얹는 호(성창공예는 '거목'). 표시는 BrandCrown.astro — TODO: 쓸지 정하기
   nameEn: 'CHOWOL CRAFT', // TODO: 영문 표기 사장님께 확인
-  owner: '', // TODO: 대표 이름
-  address: '', // TODO: 주소
-  addressShort: '',
+  owner: '정영순', // 대표 (명함·사업자등록증)
+  address: '경기도 광주시 초월읍 경충대로963번길 35',
+  addressShort: '경기 광주시 초월읍 경충대로963번길 35',
   hours: '', // TODO: 영업시간
   closed: '', // TODO: 휴무일
-  tel: { label: '', href: '' }, // TODO: 가게 전화 (예: { label: '02-000-0000', href: 'tel:020000000' })
-  tel2: { label: '', href: '' }, // 두 번째 전화가 없으면 이 항목과 쓰는 곳을 지우기
-  mobile: { label: '', href: '', sms: '' }, // TODO: 휴대폰
+  tel: { label: '031-797-0783', href: 'tel:0317970783' }, // 가게 전화 (명함)
+  tel2: { label: '', href: '' }, // 두 번째 전화 없음 → 쓰는 곳 정리 필요. 팩스 031-797-0784 (명함)
+  mobile: { label: '010-5216-4554', href: 'tel:01052164554', sms: 'sms:01052164554' }, // 명함에 가장 크게 적힌 번호
 };
 
 // 해외에서도 걸리는 국제 번호 (외국어 페이지에서 사용) — TODO
 const INTL = {
-  tel: '',
+  tel: 'tel:+82317970783',
   tel2: '',
-  mobile: '',
-  sms: '',
+  mobile: 'tel:+821052164554',
+  sms: 'sms:+821052164554',
 };
 
 /** 언어에 맞는 가게 정보 (주소·영업시간 문구, 전화 표기) */
