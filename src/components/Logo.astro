@@ -1,16 +1,23 @@
 ---
-import BrandCrown from '~/components/common/BrandCrown.astro';
-import Mark from '~/components/common/Mark.astro';
+// 로고: 실제 가게 간판 그대로 — 굵은 흰 글씨 '초월공예사' 아래(옆)에 흰 띠의 빨간 '로구로 전문'.
+// 외국어 페이지에서도 상호는 한글 그대로 두고, 띠의 글자만 그 나라 말로 바꿉니다.
 import { SHOP } from '~/data/shop';
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang?: Lang;
+  size?: 'md' | 'lg';
+}
+const { lang = 'ko', size = 'md' } = Astro.props;
+const t = useT(lang);
 ---
 
-<span class="self-center ml-2 rtl:ml-0 rtl:mr-2 flex items-center gap-2.5 whitespace-nowrap">
-  <Mark class="h-9 w-9 md:h-8 md:w-8 text-primary shrink-0" />
-  <span class="inline-flex flex-col gap-1">
-    <BrandCrown class="text-sm md:text-[13px] text-[#f3d9a4]" />
-    <span class="font-heading text-xl md:text-lg leading-none font-bold gold-text tracking-[0.04em]">{SHOP.name}</span>
-  </span>
-  <span class="hidden sm:inline lg:hidden xl:inline self-end pb-px text-[11px] tracking-[0.08em] text-primary/80"
-    >{SHOP.nameEn}</span
-  >
+<span
+  class:list={[
+    'inline-flex items-center gap-2.5 whitespace-nowrap text-white',
+    size === 'lg' ? 'text-[2.4rem]' : 'text-[1.55rem] md:text-[1.7rem]',
+  ]}
+>
+  <span class="brand-name leading-none tracking-[0.02em]">{SHOP.name}</span>
+  <span class="logo-pill pill text-[0.42em] translate-y-[0.06em]">{t.pill}</span>
 </span>

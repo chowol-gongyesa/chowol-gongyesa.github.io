@@ -9,10 +9,20 @@ export interface Props {
   text?: string;
   url?: string | URL;
   class?: string;
+  /** 파란 바탕(바닥글) 위에서 쓸 때: 흰 테 단추 */
+  onSign?: boolean;
 }
 
 const t = useT(langFromPath(Astro.url.pathname)).share;
-const { text = '', url = new URL(Astro.url.pathname, SITE.site), class: className = 'inline-block' } = Astro.props;
+const {
+  text = '',
+  url = new URL(Astro.url.pathname, SITE.site),
+  class: className = 'inline-block',
+  onSign = false,
+} = Astro.props;
+const btn = onSign
+  ? 'inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-white/60 px-4 text-sm font-bold text-white hover:border-white hover:bg-white/10'
+  : 'inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-sign px-4 text-sm font-bold text-sign hover:bg-sign hover:text-white';
 ---
 
 <aw-social-share
@@ -27,16 +37,16 @@ const { text = '', url = new URL(Astro.url.pathname, SITE.site), class: classNam
     <button
       type="button"
       data-aw-share
-      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/40 px-4 text-sm text-heading hover:bg-primary/15"
+      class={btn}
     >
-      <Icon name="tabler:share" class="h-5 w-5 text-primary" />{t.share}
+      <Icon name="tabler:share" class="h-5 w-5" />{t.share}
     </button>
     <button
       type="button"
       data-aw-copy
-      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/40 px-4 text-sm text-heading hover:bg-primary/15"
+      class={btn}
     >
-      <Icon name="tabler:link" class="h-5 w-5 text-primary" /><span data-aw-copy-label aria-live="polite">{t.copy}</span
+      <Icon name="tabler:link" class="h-5 w-5" /><span data-aw-copy-label aria-live="polite">{t.copy}</span
       >
     </button>
   </div>

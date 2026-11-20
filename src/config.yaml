@@ -11,7 +11,7 @@ metadata:
   title:
     default: 초월공예사 — 자동 로구로 전문
     template: '%s — 초월공예사'
-  description: '초월공예사. 자동 로구로 전문. (TODO: 가게 정보를 받으면 고쳐 쓰기)'
+  description: '경기도 광주시 초월읍 초월공예사. 40년 경력의 로구로 공방으로, 자동 로구로로 가구 다리·난간 동자·봉·원목 공을 같은 모양으로 대량 생산합니다. 개인 주문도 받습니다. 상담전화 010-8548-7264.'
   robots:
     index: true
     follow: true
@@ -33,7 +33,8 @@ i18n:
 
 apps:
   blog:
-    isEnabled: true
+    # 소식(블로그)은 꺼 둠. 글을 쓰게 되면 true로 바꾸고 src/data/post/에 글을 넣으세요.
+    isEnabled: false
     postsPerPage: 8
 
     post:
@@ -69,4 +70,4 @@ analytics:
       id: null # or "G-XXXXXXXXXX"
 
 ui:
-  theme: 'dark:only' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"
+  theme: 'light:only' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"

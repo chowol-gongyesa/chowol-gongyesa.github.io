@@ -38,3 +38,7 @@ smartplace/
 
 # 사장님께 받은 원본 자료 (사업자등록증 같은 개인 자료가 섞일 수 있음)
 incoming/
+
+# 개발 서버 기록 (Claude가 오류를 읽는 용도)
+dev.log
+build.log

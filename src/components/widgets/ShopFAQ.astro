@@ -7,8 +7,9 @@ import { langFromPath, useT } from '~/i18n';
 
 export interface Props {
   id?: string;
+  class?: string;
 }
-const { id = 'faq' } = Astro.props;
+const { id = 'faq', class: className = '' } = Astro.props;
 const f = useT(langFromPath(Astro.url.pathname)).faq;
 
 const schema = {
@@ -22,22 +23,18 @@ const schema = {
 };
 ---
 
-<section id={id} class="px-4 py-16 md:py-24 scroll-mt-16">
-  <div class="max-w-3xl mx-auto">
-    <div class="text-center mb-10">
-      <h2 class="font-heading text-3xl md:text-4xl font-bold text-heading" data-split>{f.title}</h2>
-      <div class="ruler mx-auto my-6 max-w-md"></div>
-      <p class="text-muted text-pretty">{f.lead}</p>
-    </div>
+<section id={id} class={`px-4 py-16 md:py-24 lg:px-6 ${className}`}>
+  <div class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_2fr] lg:gap-14">
+    <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{f.title}</h2>
     <div class="faq-list">
       {
         f.items.map((item, index) => (
           <details class="faq-item" open={index === 0}>
             <summary>
-              <span class="faq-q">{item.q}</span>
-              <Icon name="tabler:plus" class="faq-icon h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+              <span>{item.q}</span>
+              <Icon name="tabler:plus" class="faq-icon h-5 w-5 shrink-0 text-sign" aria-hidden="true" />
             </summary>
-            <p class="faq-a text-pretty">{item.a}</p>
+            <p class="faq-a">{item.a}</p>
           </details>
         ))
       }

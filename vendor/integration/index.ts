@@ -12,7 +12,7 @@ export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegra
 
     hooks: {
       'astro:config:setup': async ({
-        // command,
+        command,
         config,
         // injectRoute,
         // isRestart,
@@ -32,7 +32,9 @@ export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegra
           site: SITE.site,
           base: SITE.base,
 
-          trailingSlash: SITE.trailingSlash ? 'always' : 'never',
+          // 개발 서버(npm run dev)에서는 'ignore': 'always'면 사진 주소(/_image)가 404가 되어 사진이 안 나옴.
+          // 배포용 빌드는 config.yaml 설정 그대로.
+          trailingSlash: command === 'dev' ? 'ignore' : SITE.trailingSlash ? 'always' : 'never',
 
           vite: {
             plugins: [

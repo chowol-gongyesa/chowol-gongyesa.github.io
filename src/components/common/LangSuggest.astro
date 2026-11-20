@@ -16,12 +16,12 @@ const offers = FOREIGN_LOCALES.map((l) => ({ lang: l, href: switchPath(path, l),
     <div class="lang-suggest" aria-live="polite" hidden data-lang-suggest>
       {offers.map((o) => (
         <div data-offer={o.lang} lang={o.lang === 'zh' ? 'zh-CN' : o.lang} hidden>
-          <p class="text-sm text-heading">{o.text}</p>
+          <p class="text-sm font-bold text-ink">{o.text}</p>
           <div class="mt-3 flex gap-2">
-            <a href={o.href} class="btn-primary !px-4 !py-2 text-sm" data-lang-link={o.lang}>
+            <a href={o.href} class="btn-primary !min-h-10 !px-4 text-sm" data-lang-link={o.lang}>
               {o.go}
             </a>
-            <button type="button" class="btn border-primary/40 !px-4 !py-2 text-sm text-heading" data-suggest-close>
+            <button type="button" class="btn-secondary !min-h-10 !px-4 text-sm" data-suggest-close>
               {o.close}
             </button>
           </div>
@@ -32,12 +32,12 @@ const offers = FOREIGN_LOCALES.map((l) => ({ lang: l, href: switchPath(path, l),
 }
 
 <script>
-  const SEEN = 'sc-lang';
+  const SEEN = 'cw-lang';
   const setup = () => {
     const box = document.querySelector<HTMLElement>('[data-lang-suggest]');
     if (!box) return;
     try {
-      if (localStorage.getItem(SEEN) ?? sessionStorage.getItem('sc-lang-suggested')) return;
+      if (localStorage.getItem(SEEN) ?? sessionStorage.getItem('cw-lang-suggested')) return;
     } catch {
       return;
     }
@@ -49,10 +49,9 @@ const offers = FOREIGN_LOCALES.map((l) => ({ lang: l, href: switchPath(path, l),
     if (!offer) return;
     offer.hidden = false;
     const show = () => {
-      if (document.documentElement.classList.contains('intro-active')) return window.setTimeout(show, 500);
       box.hidden = false;
       try {
-        sessionStorage.setItem('sc-lang-suggested', '1');
+        sessionStorage.setItem('cw-lang-suggested', '1');
       } catch {
         /* storage unavailable */
       }

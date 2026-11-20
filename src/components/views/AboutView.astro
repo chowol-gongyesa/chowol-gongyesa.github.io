@@ -1,12 +1,12 @@
 ---
-// 소개 페이지. 한국어(/about)와 다른 언어(/en/about 등) 페이지가 함께 씁니다.
+// 소개 페이지. 한국어(/about)와 다른 언어 페이지가 함께 씁니다.
+// ⚠️ 문장은 Claude가 쓴 것 → 정영순 대표님께 확인받기 (특히 청각장애 이야기)
 import Layout from '~/layouts/PageLayout.astro';
-import { YEARS } from '~/data/years';
 import Image from '~/components/common/Image.astro';
-import Mark from '~/components/common/Mark.astro';
+import PageHead from '~/components/widgets/PageHead.astro';
+import OwnerStory from '~/components/widgets/OwnerStory.astro';
+import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import VisitInfo from '~/components/widgets/VisitInfo.astro';
-import { Icon } from 'astro-icon/components';
-import { BLOG_URL } from '~/data/shop';
 import { useT, type Lang } from '~/i18n';
 
 export interface Props {
@@ -20,141 +20,65 @@ const metadata = {
   title: a.metaTitle,
   description: a.metaDescription,
 };
-
-const mosaic = [
-  { file: 'workshop-47', cls: 'col-span-2 row-span-2' },
-  { file: 'column-16', cls: '' },
-  { file: 'workshop-08', cls: '' },
-  { file: 'lathe-27', cls: 'row-span-2' },
-  { file: 'column-29', cls: '' },
-  { file: 'furniture-07', cls: 'col-span-2 md:col-span-1' },
-  { file: 'column-49', cls: 'col-span-2' },
-  { file: 'lathe-55', cls: 'col-span-2 md:col-span-1' },
-];
 ---
 
-<Layout metadata={metadata} lang={lang} crumb={t.nav.about}>
-  <section class="relative overflow-hidden px-4 pt-20 pb-14 md:pt-32 md:pb-20 text-center">
-    <div class="absolute inset-0" aria-hidden="true">
-      <Image
-        src="~/assets/images/works/column-14.jpg"
-        alt=""
-        widths={[768, 1600]}
-        sizes="100vw"
-        width={1600}
-        height={700}
-        layout="cover"
-        format="webp"
-        loading="eager"
-        class="h-full w-full object-cover parallax-img sepia-[0.4]"
-      />
-      <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-[#140f0b]"></div>
-    </div>
-    <div class="relative">
-      <p class="text-sm tracking-[0.08em] text-primary mb-3">{a.tag}</p>
-      <h1 class="font-heading text-4xl md:text-6xl font-bold text-heading" translate="no" data-split>성창공예</h1>
-      {lang !== 'ko' && <p class="mt-2 text-sm tracking-[0.4em] text-primary/80">{t.brand}</p>}
-      <div class="ruler mx-auto my-6 max-w-md"></div>
-      <p class="text-default/80">{a.lead}</p>
-    </div>
-  </section>
+<Layout metadata={metadata} lang={lang}>
+  <PageHead lang={lang} title={a.title} lead={a.lead} crumb={t.nav.about} />
 
-  <section class="px-4 py-14 md:py-20">
-    <div class="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 items-center">
-      <div class="relative max-w-md mx-auto w-full">
-        <div class="relative overflow-hidden rounded-xl border border-primary/25 aspect-[3/4]">
-          <Image
-            src="~/assets/images/works/workshop-184.jpg"
-            alt={a.shopAlt}
-            widths={[480, 800]}
-            sizes="(max-width: 1023px) 100vw, 448px"
-            width={800}
-            height={1066}
-            layout="cover"
-            format="webp"
-            class="photo-tone h-full w-full object-cover"
-          />
-        </div>
+  <section class="px-4 py-16 md:py-24 lg:px-6">
+    <div class="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div class="about-copy">
+        {a.paragraphs.map((p) => <p class="mb-6 text-lg text-ink/85 md:text-xl md:leading-relaxed" set:html={p} />)}
       </div>
-      <div class="space-y-6 text-lg leading-relaxed">
-        <p class="font-heading font-bold leading-none">
-          <span class="gold-text text-6xl md:text-7xl">{YEARS}</span><span class="text-2xl text-primary ml-1"
-            >{t.home.yearsUnit}</span
-          >
-          <span class="ml-3 align-middle text-sm tracking-[0.08em] text-primary">{a.yearsSide}</span>
-        </p>
-        <h2 class="font-heading text-3xl md:text-4xl font-bold text-heading text-balance">
-          {a.title1}<br /><span class="gold-text">{a.title2}</span>
-        </h2>
-        {a.paragraphs.map((p) => <p class="about-copy text-pretty" set:html={p} />)}
-        {
-          lang === 'ko' && (
-            <a
-              href={BLOG_URL}
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-2 text-base text-primary underline-offset-4 hover:underline"
-            >
-              <Icon name="tabler:notebook" class="h-5 w-5" aria-hidden="true" />
-              사장님이 쓰신 작업 일지 보기 (네이버 블로그)
-              <Icon name="tabler:external-link" class="h-4 w-4" aria-hidden="true" />
-            </a>
-          )
-        }
+      <div class="photo aspect-[4/5] max-h-[36rem] w-full md:max-w-[28rem] md:justify-self-end">
+        <Image
+          src="~/assets/images/works/chowol-06.jpg"
+          alt={a.photoAlt}
+          widths={[400, 600, 800]}
+          sizes="(max-width: 767px) 90vw, 448px"
+          width={600}
+          height={750}
+          layout="cover"
+          format="webp"
+          class="h-full w-full object-cover"
+        />
       </div>
     </div>
   </section>
 
-  <!-- 만드는 사람: 장인 인사말 (사진은 가게에서 찍은 사진을 받으면 넣을 예정) -->
-  <section class="relative overflow-hidden px-4 py-16 md:py-24 border-y border-primary/15 bg-dark">
-    <div class="relative max-w-3xl mx-auto text-center">
-      <p class="text-sm tracking-[0.08em] text-primary mb-4">{a.craftTag}</p>
-      <h2 class="font-heading text-3xl md:text-4xl font-bold text-heading text-balance leading-snug">
-        {a.craftTitle1}<br /><span class="gold-text">{a.craftTitle2}</span>
-      </h2>
-      <div class="gold-rule my-7 mx-auto max-w-xs"></div>
-      <div class="space-y-5 text-lg leading-relaxed text-default/90">
-        {a.craftParagraphs.map((p) => <p class="text-pretty [word-break:keep-all]" set:html={p} />)}
-      </div>
-      <p class="mt-10 inline-flex items-center gap-4 font-heading text-lg text-primary">
-        — {a.craftSign}
-        <Mark class="h-8 w-8 text-primary" />
-      </p>
-    </div>
-  </section>
+  <OwnerStory showLink={false} class="bg-white" />
 
-  <section class="px-4 py-20">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-10">
-        <p class="text-sm tracking-[0.08em] text-primary mb-3">{a.galleryTag}</p>
-        <h2 class="font-heading text-2xl md:text-4xl font-bold text-heading text-balance" data-split>
-          {a.galleryTitle}
-        </h2>
-        <div class="ruler mx-auto my-6 max-w-md"></div>
+  <!-- 작업장 -->
+  <section class="px-4 pt-16 md:pt-24 lg:px-6">
+    <div class="mx-auto grid max-w-7xl items-end gap-8 md:grid-cols-[1fr_1fr] lg:gap-16">
+      <div>
+        <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{a.placeTitle}</h2>
+        <p class="mt-4 max-w-xl text-lg text-muted">{a.placeText}</p>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 auto-rows-[140px] md:auto-rows-[190px] gap-3">
-        {
-          mosaic.map(({ file, cls }) => (
-            <div
-              class={`overflow-hidden rounded-lg border border-primary/20 reveal-wipe intersect intersect-once intersect-quarter ${cls}`}
-            >
-              <Image
-                src={`~/assets/images/works/${file}.jpg`}
-                alt=""
-                widths={[400, 800]}
-                sizes="(max-width: 767px) 50vw, 25vw"
-                width={800}
-                height={600}
-                layout="cover"
-                format="webp"
-                class="h-full w-full object-cover transition duration-700 hover:scale-105 sepia-[0.2] hover:sepia-0"
-              />
-            </div>
-          ))
-        }
+      <div class="photo aspect-[4/5] max-h-[30rem] w-full md:max-w-[24rem] md:justify-self-end">
+        <Image
+          src="~/assets/images/works/chowol-05.jpg"
+          alt={t.visit.sign}
+          widths={[360, 540, 720]}
+          sizes="(max-width: 767px) 90vw, 384px"
+          width={540}
+          height={675}
+          layout="cover"
+          format="webp"
+          class="h-full w-full object-cover object-top"
+        />
       </div>
     </div>
   </section>
 
   <VisitInfo />
+
+  <ReachPanel />
 </Layout>
+
+<style>
+  .about-copy :global(b) {
+    color: var(--sign);
+    font-weight: 700;
+  }
+</style>

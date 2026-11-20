@@ -1,0 +1,38 @@
+---
+// 대표 이야기 (홈, 소개 페이지). ⚠️ 문장은 Claude가 쓴 것 → 정영순 대표님께 확인받기
+// 청각장애 이야기는 사용자를 통해 대표님이 허락하심 (2026-11-20). 문구는 src/i18n/*.ts의 story
+import Image from '~/components/common/Image.astro';
+import { langFromPath, localize, useT } from '~/i18n';
+
+export interface Props {
+  /** 소개 페이지로 가는 단추 (소개 페이지 안에서는 끔) */
+  showLink?: boolean;
+  class?: string;
+}
+const { showLink = true, class: className = '' } = Astro.props;
+const lang = langFromPath(Astro.url.pathname);
+const t = useT(lang);
+---
+
+<section class={`px-4 py-16 md:py-24 lg:px-6 ${className}`}>
+  <div class="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+    <div class="photo aspect-[4/5] max-h-[34rem] w-full md:max-w-[28rem]">
+      <Image
+        src="~/assets/images/works/chowol-07.jpg"
+        alt={t.story.alt}
+        widths={[400, 600, 800]}
+        sizes="(max-width: 767px) 90vw, 448px"
+        width={600}
+        height={750}
+        layout="cover"
+        format="webp"
+        class="h-full w-full object-cover object-top"
+      />
+    </div>
+    <div>
+      <h2 class="display text-[clamp(2.2rem,4.6vw,3.6rem)] text-ink">{t.story.title}</h2>
+      {t.story.paragraphs.map((p) => <p class="mt-5 max-w-xl text-lg text-ink/85 md:text-xl md:leading-relaxed">{p}</p>)}
+      {showLink && <a href={localize(lang, '/about')} class="btn-secondary mt-8">{t.story.link}</a>}
+    </div>
+  </div>
+</section>

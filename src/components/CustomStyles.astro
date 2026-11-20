@@ -1,29 +1,41 @@
 ---
-// Fonts are loaded from Google Fonts in Layout.astro: Noto Sans KR for body
-// text and headings. Colors: warm walnut background with brass accents.
+// 색과 글꼴. 글꼴은 Layout.astro에서 Google Fonts로 불러옵니다.
+// 색은 실제 가게 간판에서 가져왔습니다: 파란 간판(--sign) + 흰 글씨, '로구로 전문' 띠의 빨강(--pill),
+// 깎은 원목 색(--wood). 바탕은 작업장 벽 같은 옅은 회색(--page).
+// 성창공예(어두운 원목색 + 황동색)와 일부러 다르게 잡았습니다.
 ---
 
 <style is:inline>
-  :root,
-  .dark {
-    --aw-font-sans: 'Noto Sans KR', sans-serif;
-    --aw-font-serif: 'Noto Serif KR', serif;
-    --aw-font-heading: 'Noto Sans KR', sans-serif;
+  :root {
+    --sign: #2246a6;
+    --sign-deep: #18337e;
+    --sign-ink: #0f2259;
+    --pill: #d63a2c;
+    --wood: #e7d3b0;
+    --wood-deep: #b9966a;
+    --ink: #172036;
+    --page: #eeefeb;
+    --paper: #ffffff;
+    --line: rgb(23 32 54 / 0.14);
 
-    --aw-color-primary: rgb(196 150 84);
-    --aw-color-secondary: rgb(168 122 62);
-    --aw-color-accent: rgb(224 186 120);
+    --aw-font-sans: 'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    --aw-font-serif: 'IBM Plex Sans KR', sans-serif;
+    --aw-font-heading: 'Black Han Sans', 'IBM Plex Sans KR', sans-serif;
 
-    --aw-color-text-heading: rgb(250 244 234);
-    --aw-color-text-default: rgb(238 229 215);
-    --aw-color-text-muted: rgb(238 229 215 / 78%);
-    --aw-color-bg-page: rgb(36 27 20);
+    --aw-color-primary: rgb(34 70 166);
+    --aw-color-secondary: rgb(24 51 126);
+    --aw-color-accent: rgb(214 58 44);
+    --aw-color-link: rgb(34 70 166);
 
-    --aw-color-bg-page-dark: rgb(28 21 15);
+    --aw-color-text-heading: rgb(23 32 54);
+    --aw-color-text-default: rgb(23 32 54);
+    --aw-color-text-muted: rgb(72 82 104);
+    --aw-color-bg-page: rgb(238 239 235);
+    --aw-color-bg-page-dark: rgb(24 51 126);
 
     ::selection {
-      background-color: rgb(196 150 84);
-      color: rgb(20 15 11);
+      background-color: #2246a6;
+      color: #ffffff;
     }
   }
 

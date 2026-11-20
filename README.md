@@ -8,15 +8,14 @@
 | -------------------------------- | ------------------------------------------------------- |
 | 전화번호·주소·영업시간·작업 분야 | `src/data/shop.ts`                                      |
 | 작업물 사진 목록·설명            | `src/data/works.ts` (사진은 `src/assets/images/works/`) |
-| 화면 문구                        | `src/i18n/ko.ts`                                        |
-| 소식(블로그) 글                  | `src/data/post/` 에 `.md` 파일 추가                     |
+| 화면 문구 (4개 언어)             | `src/i18n/ko.ts` `en.ts` `ja.ts` `zh.ts`                |
 | 색상·글꼴                        | `src/components/CustomStyles.astro`                     |
 
 ## 실행
 
 ```bash
-npm ci            # 처음 한 번
-npm run dev       # 개발 서버 http://localhost:4322
+npm ci            # 처음 한 번 (node_modules가 없을 때)
+npm run dev -- --port 4322   # 개발 서버 http://localhost:4322
 npm run build     # 배포용 빌드 확인
 npm run preview   # 빌드 결과 미리보기 (사진까지 확인)
 ```

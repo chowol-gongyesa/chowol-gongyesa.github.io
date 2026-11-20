@@ -1,13 +1,14 @@
 ---
 // 주문·문의 페이지. 한국어(/contact)와 다른 언어 페이지가 함께 씁니다.
+// 주문서는 서버 없이 작성 내용을 문자 메시지로 만들어 정영순 대표 휴대폰(문자)으로 보냅니다.
 import { Icon } from 'astro-icon/components';
 import Layout from '~/layouts/PageLayout.astro';
-import VisitInfo from '~/components/widgets/VisitInfo.astro';
-import OrderSteps from '~/components/widgets/OrderSteps.astro';
+import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
+import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import ShopFAQ from '~/components/widgets/ShopFAQ.astro';
-import ReviewGuide from '~/components/widgets/ReviewGuide.astro';
-import { SERVICES, shopFor } from '~/data/shop';
-import { useT, type Lang } from '~/i18n';
+import VisitInfo from '~/components/widgets/VisitInfo.astro';
+import { PRODUCTS, shopFor } from '~/data/shop';
+import { localize, useT, type Lang } from '~/i18n';
 
 export interface Props {
   lang: Lang;
@@ -23,14 +24,11 @@ const metadata = {
   description: c.metaDescription,
 };
 
-const field =
-  'w-full rounded-lg border border-primary/30 bg-[#1b140e] px-4 py-3 text-heading placeholder:text-muted/70 transition-colors focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40';
-
-// 문자 내용의 항목 이름: 사장님이 읽기 쉽게 한국어로, 외국어 페이지면 그 언어를 함께 적습니다.
+// 문자 내용의 항목 이름: 대표님이 읽기 쉽게 한국어로, 외국어 페이지면 그 언어를 함께 적습니다.
 const label = (key: 'name' | 'phone' | 'type' | 'qty' | 'size' | 'due' | 'message') =>
   lang === 'ko' ? ko[key] : `${ko[key]} / ${c[key]}`;
 const labels = {
-  header: lang === 'ko' ? `[${shop.name} ${ko.msgHeader}]` : `[${shop.name} ${ko.msgHeader} · ${c.msgHeader}]`,
+  header: lang === 'ko' ? `[초월공예사 ${ko.msgHeader}]` : `[초월공예사 ${ko.msgHeader} · ${c.msgHeader}]`,
   name: label('name'),
   phone: label('phone'),
   type: label('type'),
@@ -40,117 +38,92 @@ const labels = {
   message: label('message'),
   prompt: c.copyPrompt,
 };
-
-const cards = [
-  { href: shop.tel.href, icon: 'tabler:phone-call', small: c.shopPhone, big: shop.tel.label },
-  { href: shop.tel2.href, icon: 'tabler:phone', small: c.shopPhone, big: shop.tel2.label },
-  { href: shop.mobile.href, icon: 'tabler:device-mobile', small: c.mobilePhone, big: shop.mobile.label },
-  { href: shop.mobile.sms, icon: 'tabler:photo-up', small: c.sendFiles, big: c.sendSms },
-];
+// '만들 물건' 고르기: 외국어 페이지에서도 대표님이 알아보게 한국어 이름을 함께
+const koItems = useT('ko').products.items;
+const typeOptions = PRODUCTS.map((p) =>
+  lang === 'ko' ? koItems[p.key].title : `${t.products.items[p.key].title} (${koItems[p.key].title})`
+);
 ---
 
-<Layout metadata={metadata} lang={lang} crumb={t.nav.contact}>
-  <section class="px-4 pt-16 pb-10 md:pt-24 text-center wood-grain">
-    <h1 class="font-heading text-4xl md:text-6xl font-bold text-heading" data-split>{c.title}</h1>
-    <div class="ruler mx-auto my-6 max-w-md"></div>
-    <p class="text-muted max-w-2xl mx-auto text-pretty">{c.lead}</p>
-  </section>
+<Layout metadata={metadata} lang={lang}>
+  <ReachPanel asPageHead showFormLink={false}>
+    <Breadcrumbs
+      slot="top"
+      class="crumbs -ml-1 mb-6"
+      items={[{ text: t.nav.home, href: localize(lang, '/'), icon: 'tabler:home' }, { text: t.nav.contact }]}
+    />
+  </ReachPanel>
+  <div class="rail-strip" aria-hidden="true"></div>
 
-  <section class="px-4 py-12">
-    <div class="max-w-6xl mx-auto grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {
-        cards.map((card) => (
-          <a
-            href={card.href}
-            class="contact-card group relative overflow-hidden rounded-xl border border-primary/40 p-6 text-center transition-colors hover:bg-primary/10"
-          >
-            <Icon
-              name={card.icon}
-              class="w-10 h-10 mx-auto text-primary transition-transform duration-300 group-hover:-translate-y-1"
-            />
-            <p class="mt-3 text-muted text-sm">{card.small}</p>
-            <p class="font-heading text-2xl font-bold text-heading tabular-nums">{card.big}</p>
-          </a>
-        ))
-      }
-    </div>
-    <p class="text-center text-sm text-muted mt-4">{shop.hours} · {shop.closed}</p>
-    {c.intlNote && <p class="text-center text-sm text-primary/90 mt-2 text-pretty">{c.intlNote}</p>}
-  </section>
-
-  <OrderSteps actions={false} />
-
-  <!-- 주문서: 서버 없이 작성 내용을 문자 메시지로 만들어 보냅니다 -->
-  <section id="order" class="px-4 py-14 md:py-20 bg-dark border-y border-primary/15 scroll-mt-16">
-    <div class="order-sheet max-w-3xl mx-auto">
-      <div class="text-center mb-10">
-        <h2 class="font-heading text-3xl md:text-4xl font-bold text-heading">{c.formTitle}</h2>
-        <p class="mt-3 text-muted text-pretty" set:html={c.formLead} />
+  <!-- 주문서 -->
+  <section id="order" class="px-4 py-16 md:py-24 lg:px-6">
+    <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_2fr] lg:gap-14">
+      <div>
+        <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{c.formTitle}</h2>
+        <p class="mt-4 text-muted [&_b]:font-bold [&_b]:text-ink" set:html={c.formLead} />
+        <p class="mt-4 font-bold tabular-nums text-ink">{shop.mobile.label}</p>
       </div>
 
-      <form id="order-form" class="grid gap-5 sm:grid-cols-2" novalidate>
+      <form id="order-form" class="grid gap-5 border-t-2 border-ink pt-6 sm:grid-cols-2" novalidate>
         <label class="block">
-          <span class="text-sm text-muted">{c.name} <span class="text-primary" aria-label={c.required}>*</span></span>
-          <input name="name" required autocomplete="name" class={field} placeholder={c.namePh} />
+          <span class="text-sm font-bold text-ink">{c.name} <span class="text-pill" aria-label={c.required}>*</span></span>
+          <input name="name" required autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
         </label>
         <label class="block">
-          <span class="text-sm text-muted">{c.phone} <span class="text-primary" aria-label={c.required}>*</span></span>
+          <span class="text-sm font-bold text-ink">{c.phone} <span class="text-pill" aria-label={c.required}>*</span></span>
           <input
             name="phone"
             type="tel"
             required
             autocomplete="tel"
             inputmode="tel"
-            class={field}
+            class="field mt-1.5"
             placeholder={c.phonePh}
           />
         </label>
         <label class="block">
-          <span class="text-sm text-muted">{c.type}</span>
-          <select name="type" class={field}>
-            {SERVICES.map((service) => <option>{t.services[service.key].title}</option>)}
+          <span class="text-sm font-bold text-ink">{c.type}</span>
+          <select name="type" class="field mt-1.5">
+            {typeOptions.map((option) => <option>{option}</option>)}
             <option>{c.unsure}</option>
           </select>
         </label>
         <label class="block">
-          <span class="text-sm text-muted">{c.qty}</span>
-          <input name="qty" autocomplete="off" class={field} placeholder={c.qtyPh} />
+          <span class="text-sm font-bold text-ink">{c.qty}</span>
+          <input name="qty" autocomplete="off" class="field mt-1.5" placeholder={c.qtyPh} />
         </label>
         <label class="block">
-          <span class="text-sm text-muted">{c.size}</span>
-          <input name="size" autocomplete="off" class={field} placeholder={c.sizePh} />
+          <span class="text-sm font-bold text-ink">{c.size}</span>
+          <input name="size" autocomplete="off" class="field mt-1.5" placeholder={c.sizePh} />
         </label>
         <label class="block">
-          <span class="text-sm text-muted">{c.due}</span>
-          <input name="due" autocomplete="off" class={field} placeholder={c.duePh} />
+          <span class="text-sm font-bold text-ink">{c.due}</span>
+          <input name="due" autocomplete="off" class="field mt-1.5" placeholder={c.duePh} />
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-sm text-muted">{c.message} <span class="text-primary" aria-label={c.required}>*</span></span
-          >
-          <textarea name="message" required rows="5" autocomplete="off" class={field} placeholder={c.messagePh}
+          <span class="text-sm font-bold text-ink">{c.message} <span class="text-pill" aria-label={c.required}>*</span></span>
+          <textarea name="message" required rows="5" autocomplete="off" class="field mt-1.5" placeholder={c.messagePh}
           ></textarea>
         </label>
 
-        <p id="order-error" class="sm:col-span-2 hidden text-sm text-red-400" role="alert">{c.error}</p>
+        <p id="order-error" class="hidden font-bold text-pill sm:col-span-2" role="alert">{c.error}</p>
 
-        <div class="sm:col-span-2 flex flex-wrap gap-3 justify-center">
+        <div class="flex flex-wrap gap-3 sm:col-span-2">
           <button type="submit" data-action="sms" class="btn-primary">
-            <Icon name="tabler:message" class="w-5 h-5 mr-2" />{c.sms}
+            <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{c.sms}
           </button>
-          <button type="submit" data-action="copy" class="btn border-primary/60 text-heading hover:bg-primary/15">
-            <Icon name="tabler:copy" class="w-5 h-5 mr-2" />{c.copy}
+          <button type="submit" data-action="copy" class="btn-secondary">
+            <Icon name="tabler:copy" class="h-5 w-5" aria-hidden="true" />{c.copy}
           </button>
         </div>
-        <p id="order-copied" class="sm:col-span-2 hidden text-center text-sm text-primary" role="status">
+        <p id="order-copied" class="hidden font-bold text-sign sm:col-span-2" role="status">
           {c.copied(shop.mobile.label)}
         </p>
       </form>
     </div>
   </section>
 
-  <ShopFAQ />
-
-  {lang === 'ko' && <ReviewGuide />}
+  <ShopFAQ class="bg-white" />
 
   <VisitInfo />
 </Layout>

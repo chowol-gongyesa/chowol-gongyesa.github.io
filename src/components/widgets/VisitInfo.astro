@@ -1,108 +1,78 @@
 ---
-// 전화·문자·길찾기 버튼과 지도. 홈과 주문·문의 페이지에서 함께 씁니다.
+// 찾아오시는 길: 작업장 앞 사진, 주소·영업시간, 지도 앱 링크, 지도.
+// 네이버·카카오 지도에 가게가 아직 등록되지 않아 주소 검색 화면으로 연결합니다 (src/data/shop.ts의 MAP_LINKS).
 import { Icon } from 'astro-icon/components';
+import Image from '~/components/common/Image.astro';
 import OpenStatus from '~/components/common/OpenStatus.astro';
 import { MAP_LINKS, mapEmbed, shopFor } from '~/data/shop';
 import { langFromPath, useT } from '~/i18n';
 
-export interface Props {
-  id?: string;
-  showMap?: boolean;
-}
-
-const { id = 'visit', showMap = true } = Astro.props;
 const lang = langFromPath(Astro.url.pathname);
-const t = useT(lang).visit;
-const SHOP = shopFor(lang);
-const isKo = lang === 'ko';
+const v = useT(lang).visit;
+const shop = shopFor(lang);
+
+const mapLinks = [
+  { href: MAP_LINKS.naver, text: v.naver },
+  { href: MAP_LINKS.kakao, text: v.kakao },
+  { href: MAP_LINKS.google, text: v.google },
+];
+// 외국어 페이지에서는 구글 지도를 먼저
+if (lang !== 'ko') mapLinks.unshift(mapLinks.pop()!);
 ---
 
-<section id={id} class="relative px-4 py-16 md:py-24 wood-grain">
-  <div class="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-start">
+<section id="visit" class="px-4 py-16 md:py-24 lg:px-6">
+  <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
     <div>
-      <p class="text-sm tracking-[0.08em] text-primary mb-3">{t.tag}</p>
-      <h2 class="font-heading text-3xl md:text-4xl font-bold text-heading" data-split>{t.title}</h2>
-      <div class="gold-rule my-6 max-w-xs"></div>
-
-      <dl class="space-y-5 text-lg">
-        <div class="flex gap-4">
-          <dt><Icon name="tabler:map-pin" class="w-6 h-6 text-primary" /><span class="sr-only">{t.address}</span></dt>
-          <dd class="text-heading">
-            {SHOP.address}{
-              !isKo && (
-                <span class="block text-sm text-muted" lang="ko" translate="no">
-                  {shopFor('ko').address}
-                </span>
-              )
-            }
-          </dd>
-        </div>
-        <div class="flex gap-4">
-          <dt><Icon name="tabler:clock" class="w-6 h-6 text-primary" /><span class="sr-only">{t.hours}</span></dt>
-          <dd>
-            <span class="text-heading">{SHOP.hours}</span>
-            <span class="block text-sm text-muted">{SHOP.closed}</span>
-            <OpenStatus class="mt-3" />
-          </dd>
-        </div>
-        <div class="flex gap-4">
-          <dt><Icon name="tabler:phone" class="w-6 h-6 text-primary" /><span class="sr-only">{t.phone}</span></dt>
-          <dd class="flex flex-col items-start text-heading sm:block">
-            <a class="inline-flex min-h-11 items-center hover:text-primary" href={SHOP.tel.href}>{SHOP.tel.label}</a>
-            <span class="mx-2 hidden text-muted sm:inline">/</span>
-            <a class="inline-flex min-h-11 items-center hover:text-primary" href={SHOP.tel2.href}>{SHOP.tel2.label}</a>
-            <span class="mx-2 hidden text-muted sm:inline">/</span>
-            <a class="inline-flex min-h-11 items-center hover:text-primary" href={SHOP.mobile.href}
-              >{SHOP.mobile.label}</a
-            >
-          </dd>
-        </div>
-      </dl>
-
-      <div class="mt-8 grid grid-cols-2 gap-3 max-w-md">
-        <a href={SHOP.tel.href} class="btn-primary"
-          ><Icon name="tabler:phone-call" class="w-5 h-5 mr-2" />{t.shopCall}</a
-        >
-        <a href={SHOP.mobile.href} class="btn border-primary/60 text-heading hover:bg-primary/15"
-          ><Icon name="tabler:device-mobile" class="w-5 h-5 mr-2" />{t.mobileCall}</a
-        >
-        <a
-          href={MAP_LINKS.naver}
-          target="_blank"
-          rel="noopener"
-          class="btn border-white/25 text-heading hover:bg-white/10"
-          ><Icon name="tabler:map-2" class="w-5 h-5 mr-2" />{t.naver}</a
-        >
-        <a
-          href={MAP_LINKS.kakao}
-          target="_blank"
-          rel="noopener"
-          class="btn border-white/25 text-heading hover:bg-white/10"
-          ><Icon name="tabler:map-2" class="w-5 h-5 mr-2" />{t.kakao}</a
-        >
+      <div class="photo aspect-[6/5]">
+        <Image
+          src="~/assets/images/works/chowol-04.jpg"
+          alt={v.storeAlt}
+          widths={[480, 720, 960]}
+          sizes="(max-width: 1023px) 100vw, 560px"
+          width={960}
+          height={800}
+          layout="cover"
+          format="webp"
+          class="h-full w-full object-cover"
+        />
       </div>
-      {
-        t.note && (
-          <p class="mt-6 max-w-md rounded-lg border border-primary/20 bg-black/20 p-4 text-sm text-muted">{t.note}</p>
-        )
-      }
-      <p class="mt-3 text-sm text-muted">
-        <a href={MAP_LINKS.google} target="_blank" rel="noopener" class="underline hover:text-primary">{t.google}</a>
-      </p>
     </div>
 
-    {
-      showMap && (
-        <div class="overflow-hidden rounded-xl border border-primary/30 shadow-2xl shadow-black/40 aspect-[4/3]">
-          <iframe
-            title={t.mapTitle}
-            src={mapEmbed(lang)}
-            class="h-full w-full grayscale-[35%] sepia-[25%]"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          />
+    <div>
+      <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{v.title}</h2>
+      <dl class="mt-8 grid gap-6">
+        <div>
+          <dt class="text-sm font-bold text-muted">{v.address}</dt>
+          <dd class="mt-1 text-xl font-bold text-ink">{shop.address}</dd>
+          <dd class="mt-1 text-muted">{v.sign}</dd>
         </div>
-      )
-    }
+        <div>
+          <dt class="text-sm font-bold text-muted">{v.hours}</dt>
+          <dd class="mt-1 text-xl font-bold text-ink">{shop.hours}</dd>
+          <dd class="text-muted">{shop.closed}</dd>
+          <dd class="mt-3"><OpenStatus /></dd>
+        </div>
+      </dl>
+      <ul class="mt-8 flex flex-wrap gap-2">
+        {
+          mapLinks.map((link) => (
+            <li>
+              <a href={link.href} target="_blank" rel="noopener noreferrer" class="btn-secondary !min-h-11 !px-5 text-[0.95rem]">
+                <Icon name="tabler:map-pin" class="h-5 w-5" aria-hidden="true" />
+                {link.text}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+  <div class="mx-auto mt-10 max-w-7xl">
+    <iframe
+      title={v.mapTitle}
+      src={mapEmbed(lang)}
+      class="block h-[22rem] w-full border-0 bg-[#d9dad5] md:h-[26rem]"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
 </section>

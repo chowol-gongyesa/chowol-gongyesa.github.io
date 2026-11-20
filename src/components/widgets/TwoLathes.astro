@@ -1,0 +1,67 @@
+---
+// 두 가지 로구로 (자동 / 손) 소개 — 홈과 '만드는 것' 페이지에서 함께 씀. 문구는 src/i18n/*.ts의 machines
+import Image from '~/components/common/Image.astro';
+import { langFromPath, useT } from '~/i18n';
+
+export interface Props {
+  /** 자동 로구로·손 로구로 사진 (src/assets/images/works/ 파일) */
+  autoPhoto?: string;
+  handPhoto?: string;
+  class?: string;
+}
+const {
+  autoPhoto = '~/assets/images/works/chowol-06.jpg',
+  handPhoto = '~/assets/images/works/chowol-07.jpg',
+  class: className = '',
+} = Astro.props;
+const t = useT(langFromPath(Astro.url.pathname));
+const machines = [
+  { key: 'auto' as const, photo: autoPhoto },
+  { key: 'hand' as const, photo: handPhoto },
+];
+---
+
+<section class={`px-4 py-16 md:py-24 lg:px-6 ${className}`}>
+  <div class="mx-auto max-w-7xl">
+    <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{t.machines.title}</h2>
+    <p class="mt-3 text-lg text-muted">{t.machines.lead}</p>
+    <div class="mt-10 grid gap-12 md:grid-cols-2 md:gap-0 md:divide-x-2 md:divide-ink/15">
+      {
+        machines.map(({ key, photo }, index) => {
+          const m = t.machines[key];
+          return (
+            <article
+              class:list={[
+                'grid gap-6 sm:grid-cols-[0.8fr_1fr] md:grid-cols-1 xl:grid-cols-[0.75fr_1fr]',
+                index === 0 ? 'md:pr-10' : 'md:pl-10',
+              ]}
+            >
+              <div class="photo aspect-[4/5] max-h-[26rem]">
+                <Image
+                  src={photo}
+                  alt={m.alt}
+                  widths={[360, 540, 720]}
+                  sizes="(max-width: 767px) 90vw, 340px"
+                  width={540}
+                  height={675}
+                  layout="cover"
+                  format="webp"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 class="display text-[2rem] text-sign">{m.name}</h3>
+                <p class="mt-1 text-lg font-bold text-ink">{m.sub}</p>
+                <p class="mt-3 text-muted">{m.text}</p>
+                <ul class="block-list mt-5 grid gap-1.5 font-medium text-ink">
+                  {m.points.map((point) => <li>{point}</li>)}
+                </ul>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+    <slot />
+  </div>
+</section>

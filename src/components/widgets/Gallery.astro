@@ -1,8 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
-import Headline from '~/components/ui/Headline.astro';
-import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 import type { Gallery as Props } from '~/types';
 import { getImage } from 'astro:assets';
 import { findImage } from '~/utils/images';
@@ -17,15 +15,12 @@ const g = useT(langFromPath(Astro.url.pathname)).gallery;
 const {
   title = await Astro.slots.render('title'),
   subtitle = await Astro.slots.render('subtitle'),
-  tagline = await Astro.slots.render('tagline'),
   images = [],
   columns = 3,
   lightbox = true,
 
   id,
-  isDark = false,
   classes = {},
-  bg = await Astro.slots.render('bg'),
 } = Astro.props;
 
 // 크게 보기 창에 쓸, 잘리지 않은 큰 사진 (목록의 사진은 4:3으로 잘려 있음)
@@ -47,8 +42,16 @@ const columnsClass =
   columns === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : columns === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
 ---
 
-<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
-  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline as Record<string, string>} />
+<section id={id} class={`px-4 py-12 md:py-16 lg:px-6 scroll-mt-28 ${classes?.container ?? ''}`}>
+  <div class="mx-auto max-w-7xl">
+  {
+    (title || subtitle) && (
+      <div class="mb-8 flex flex-col gap-1 border-t-2 border-ink pt-5 md:flex-row md:items-baseline md:justify-between md:gap-6">
+        {title && <h2 class="display text-[clamp(1.7rem,3vw,2.4rem)] text-ink" set:html={title} />}
+        {subtitle && <p class="text-muted" set:html={subtitle} />}
+      </div>
+    )
+  }
 
   <aw-gallery>
     <ul
@@ -63,13 +66,12 @@ const columnsClass =
           <li
             class:list={[
               { 'is-stack': viewerPhotos[index].length > 1 },
-              'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
             ]}
           >
             <figure>
               <button
                 type="button"
-                class="group relative block w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-slate-800 ring-1 ring-primary/15 hover:ring-primary/60 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                class="group relative block w-full overflow-hidden bg-[#d9dad5] cursor-zoom-in"
                 data-aw-gallery-open={lightbox ? index : undefined}
                 data-aw-gallery-photos={JSON.stringify(viewerPhotos[index])}
                 disabled={!lightbox}
@@ -80,7 +82,7 @@ const columnsClass =
                 }
               >
                 <Image
-                  class="aspect-[4/3] w-full object-cover transition duration-700 sepia-[0.15] group-hover:sepia-0 group-hover:scale-[1.06]"
+                  class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                   widths={[320, 480, 640]}
                   sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 300px"
                   width={400}
@@ -98,9 +100,9 @@ const columnsClass =
                 )}
               </button>
               {caption && (
-                <figcaption class="mt-2 text-sm text-muted">
+                <figcaption class="mt-2 text-sm text-muted leading-snug">
                   {href ? (
-                    <a href={href} class="inline-flex items-center gap-1 hover:text-primary hover:underline">
+                    <a href={href} class="inline-flex items-center gap-1 hover:text-sign hover:underline">
                       {caption}
                       <Icon name="tabler:arrow-up-right" class="h-3.5 w-3.5" />
                     </a>
@@ -118,7 +120,7 @@ const columnsClass =
     {
       lightbox && (
         <dialog
-          class="m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-black/85 backdrop:backdrop-blur-sm open:flex open:flex-col"
+          class="m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 open:flex open:flex-col"
           aria-label={g.dialog}
         >
           <form method="dialog" class="absolute right-3 top-3 z-10">
@@ -161,7 +163,8 @@ const columnsClass =
       )
     }
   </aw-gallery>
-</WidgetWrapper>
+  </div>
+</section>
 
 <script>
   class AwGallery extends HTMLElement {
@@ -259,7 +262,7 @@ const columnsClass =
         const dir = dx < 0 ? 1 : -1;
         moveImg(-dir * stage.clientWidth, 180);
         setTimeout(() => {
-          // 단추를 누른 것처럼 처리 (효과음도 같이)
+          // 단추를 누른 것처럼 처리
           (dir > 0 ? nextButton : prevButton).click();
           moveImg(dir * 60);
           img.getBoundingClientRect();

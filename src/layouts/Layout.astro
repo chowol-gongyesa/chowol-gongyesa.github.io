@@ -10,18 +10,11 @@ import ApplyColorMode from '~/components/common/ApplyColorMode.astro';
 import Metadata from '~/components/common/Metadata.astro';
 import SiteVerification from '~/components/common/SiteVerification.astro';
 import Analytics from '~/components/common/Analytics.astro';
-import Intersect from '~/components/common/Intersect.astro';
-import PageTransition from '~/components/common/PageTransition.astro';
-import SoundSystem from '~/components/common/SoundSystem.astro';
-import CraftFX from '~/components/common/CraftFX.astro';
 import LangSuggest from '~/components/common/LangSuggest.astro';
-import CustomCursor from '~/components/common/CustomCursor.astro';
-import ShareFab from '~/components/common/ShareFab.astro';
 import { getCanonical } from '~/utils/permalinks';
 import { LANG_META, LOCALES, TRANSLATED_PAGES, langFromPath, localize, stripLang, useT, type Lang } from '~/i18n';
 
 // Comment the line below to disable View Transitions
-import PinchLock from '~/components/common/PinchLock.astro';
 import { ClientRouter } from 'astro:transitions';
 
 import type { MetaData as MetaDataType } from '~/types';
@@ -34,7 +27,7 @@ export interface Props {
 const { metadata: pageMeta = {}, lang = langFromPath(Astro.url.pathname) } = Astro.props;
 const { textDirection } = I18N;
 const t = useT(lang);
-// 외국어 페이지는 제목 뒤에 그 나라 말 가게 이름을 붙임 (예: 作品 — ソンチャン工芸)
+// 외국어 페이지는 제목 뒤에 그 나라 말 가게 이름을 붙임 (예: 作品 — チョウォル工芸社)
 const metadata =
   lang !== 'ko' && pageMeta.title && !pageMeta.ignoreTitleTemplate
     ? { ...pageMeta, title: `${pageMeta.title} — ${t.brand}`, ignoreTitleTemplate: true }
@@ -49,8 +42,7 @@ const alternates = TRANSLATED_PAGES.includes(page)
     ]
   : [];
 
-// 카톡·SNS에 주소를 공유할 때 보이는 미리보기 이미지 (언어별). 소식 글은 글마다 대표 사진을 씁니다.
-// 이미지를 다시 만들려면 HANDOFF.md의 '공유 이미지' 부분을 보세요.
+// 카톡·SNS에 주소를 공유할 때 보이는 미리보기 이미지 (언어별, scripts/make_og.py로 만듦)
 const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> = {
   ko: [{ url: '~/assets/images/og/og-ko.jpg', width: 1200, height: 630 }],
   en: [{ url: '~/assets/images/og/og-en.jpg', width: 1200, height: 630 }],
@@ -58,40 +50,20 @@ const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> 
   zh: [{ url: '~/assets/images/og/og-zh.jpg', width: 1200, height: 630 }],
 };
 
-// 언어마다 그 나라 글자 모양에 맞는 글꼴을 더 불러옵니다 (한국어 글꼴은 로고·도장 때문에 항상)
+// 글꼴: 제목은 간판 같은 Black Han Sans, 본문은 IBM Plex Sans KR.
+// 일본어·중국어 페이지는 그 나라 글자 모양에 맞는 글꼴을 더 불러옵니다.
 const extraFonts: Partial<Record<Lang, string>> = {
-  ja: '&family=Noto+Sans+JP:wght@400;500;700',
-  zh: '&family=Noto+Sans+SC:wght@400;500;700',
+  ja: '&family=Noto+Sans+JP:wght@400;700;900',
+  zh: '&family=Noto+Sans+SC:wght@400;700;900',
 };
-const fontHref = `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700${extraFonts[lang] ?? ''}&display=swap`;
-
-// 페이지를 옮길 때 내용이 바뀌는 모양 (keyframes는 tailwind.css의 pageOut / pageIn)
-const pageOut = { name: 'pageOut', duration: '0.3s', easing: 'cubic-bezier(0.4, 0, 1, 1)', fillMode: 'both' };
-const pageIn = {
-  name: 'pageIn',
-  duration: '0.6s',
-  delay: '0.12s',
-  easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)',
-  fillMode: 'both',
-};
-const pageAnimation = {
-  forwards: { old: pageOut, new: pageIn },
-  backwards: { old: pageOut, new: pageIn },
-};
+const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700${extraFonts[lang] ?? ''}&display=swap`;
 ---
 
 <!doctype html>
-<html
-  lang={LANG_META[lang].html}
-  dir={textDirection}
-  class="2xl:text-[20px]"
-  data-lang={lang}
-  transition:animate={pageAnimation}
-  transition:name="page"
->
+<html lang={LANG_META[lang].html} dir={textDirection} class="2xl:text-[19px]" data-lang={lang}>
   <head>
     <CommonMeta />
-    <meta name="theme-color" content="#140f0b" />
+    <meta name="theme-color" content="#2246a6" />
     <Favicons />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -113,17 +85,10 @@ const pageAnimation = {
     <slot name="head" />
   </head>
 
-  <body class="antialiased text-default bg-page tracking-tight min-h-screen flex flex-col">
+  <body class="antialiased text-default bg-page min-h-screen flex flex-col">
     <a href="#main" class="skip-link">{t.nav.skip}</a>
     <slot />
 
-    <Intersect />
-    <PageTransition />
-    <ShareFab lang={lang} />
-    <SoundSystem lang={lang} />
-    <CraftFX />
     <LangSuggest lang={lang} />
-    <CustomCursor />
-    <PinchLock />
   </body>
 </html>
