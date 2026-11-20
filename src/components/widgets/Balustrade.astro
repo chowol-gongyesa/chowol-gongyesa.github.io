@@ -1,46 +1,25 @@
 ---
-// 첫 화면 아래의 난간: 똑같은 모양의 난간 동자가 줄지어 선 모습.
-// '견본 하나로 같은 모양을 몇 개든'이라는 초월공예사의 일을 그림으로 보여 줍니다.
-// 페이지를 열면 동자가 하나씩 세워지고 마지막에 손잡이가 얹힙니다 (tailwind.css의 .balustrade).
-// 모양은 아래 r(y) — 높이 y(0~300)에서의 반지름 — 로 계산합니다. 숫자를 바꾸면 동자 모양이 바뀝니다.
+// 첫 화면 맨 아래의 난간: 자동 로구로로 깎은 것 같은 똑같은 동자들이 하나씩 내려와 서고, 위에 난간대가 얹힘.
+// 동자 모양은 src/utils/baluster.ts (입장 화면·복제 장면과 같은 모양).
+import { verticalPath } from '~/utils/baluster';
 
-const H = 300;
-const C = 18; // 가운데 선 (viewBox 폭 36)
-const r = (y: number): number => {
-  if (y < 40) return 14; // 위쪽 네모 머리
-  if (y < 44) return 14 - (y - 40); // 깎아 들어감
-  if (y < 58) return 10 + 3.5 * Math.sin((Math.PI * (y - 44)) / 14); // 구슬
-  if (y < 66) return 9 - ((y - 58) / 8) * 2.5; // 목
-  if (y < 232) return 6.5 + 9.5 * Math.sin(Math.PI * Math.pow((y - 66) / 166, 1.6)); // 배불뚝이 몸통
-  if (y < 236) return 6.5 + ((y - 232) / 4) * 3.5;
-  if (y < 248) return 10 + 3.5 * Math.sin((Math.PI * (y - 236)) / 12); // 아래 구슬
-  if (y < 252) return 10 + ((y - 248) / 4) * 4;
-  return 14; // 아래쪽 네모 받침
-};
-const left: string[] = [];
-const right: string[] = [];
-for (let y = 0; y <= H; y += 1) {
-  const rad = r(y);
-  left.push(`${(C - rad).toFixed(1)} ${y}`);
-  right.unshift(`${(C + rad).toFixed(1)} ${y}`);
-}
-const path = `M${left.join(' L')} L${right.join(' L')} Z`;
-
-const COUNT = 18;
+const COUNT = 22;
+const path = verticalPath();
 ---
 
 <div class="balustrade" aria-hidden="true">
-  <svg width="0" height="0" class="absolute" focusable="false">
+  <svg width="0" height="0" class="absolute">
     <defs>
-      <!-- 둥근 나무에 빛이 닿은 모양: 가장자리는 어둡고 왼쪽 가운데가 밝게 -->
-      <linearGradient id="cw-wood" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0" stop-color="#a98559"></stop>
-        <stop offset="0.28" stop-color="#f4e7cc"></stop>
-        <stop offset="0.55" stop-color="#e3cca4"></stop>
-        <stop offset="1" stop-color="#9c7a4f"></stop>
+      <linearGradient id="bl-wood" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#7d5a35"></stop>
+        <stop offset="0.28" stop-color="#e2c79a"></stop>
+        <stop offset="0.45" stop-color="#f6e8cc"></stop>
+        <stop offset="0.7" stop-color="#c9a271"></stop>
+        <stop offset="1" stop-color="#5f4226"></stop>
       </linearGradient>
-      <symbol id="cw-baluster" viewBox="0 0 36 300">
-        <path d={path} fill="url(#cw-wood)" stroke="rgb(15 34 89 / 0.35)" stroke-width="0.6"></path>
+      <symbol id="bl-baluster" viewBox="0 0 36 300">
+        <path d={path} fill="url(#bl-wood)"></path>
+        <path d={path} fill="none" stroke="rgb(60 40 20 / 0.35)" stroke-width="0.6"></path>
       </symbol>
     </defs>
   </svg>
@@ -48,11 +27,11 @@ const COUNT = 18;
   <div class="balusters">
     {
       Array.from({ length: COUNT }, (_, i) => (
-        <span class="baluster" style={`--i:${i}`}>
-          <svg viewBox="0 0 36 300" preserveAspectRatio="xMidYMax meet">
-            <use href="#cw-baluster" />
+        <div class="baluster" style={`--i:${i}`}>
+          <svg viewBox="0 0 36 300">
+            <use href="#bl-baluster" />
           </svg>
-        </span>
+        </div>
       ))
     }
   </div>

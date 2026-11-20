@@ -476,7 +476,7 @@ export const GROUPS: string[][] = [
   ['lathe-83', 'lathe-80', 'lathe-81', 'lathe-82', 'lathe-84', 'lathe-85'],
   ['lathe-03', 'lathe-02', 'lathe-51'],
   ['lathe-25', 'lathe-24'],
-  ['lathe-88', 'lathe-89'],
+  ['lathe-89', 'lathe-88'],
   ['lathe-103', 'lathe-104'],
   ['lathe-27', 'lathe-21'],
   ['column-14', 'column-16', 'column-111', 'column-112', 'column-122', 'column-123'],

@@ -1,7 +1,8 @@
 ---
-// 하위 페이지 머리: 위쪽 메뉴에서 이어지는 파란 간판 띠 + '홈 > 페이지' + 큰 제목.
-// 아래 가장자리의 원목색 띠는 홈 첫 화면 난간의 손잡이를 줄여 놓은 것입니다.
+// 하위 페이지 머리: 밤 작업장 쪽빛 바탕에 작업 사진이 어둡게 깔리고(스크롤하면 천천히 움직임),
+// '홈 > 페이지', 글자가 하나씩 떠오르는 큰 제목, 오른쪽 세로 글씨와 낙관. 아래 가장자리는 원목 띠.
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
+import Image from '~/components/common/Image.astro';
 import { localize, useT, type Lang } from '~/i18n';
 
 export interface Props {
@@ -9,20 +10,53 @@ export interface Props {
   title: string;
   lead?: string;
   crumb: string;
+  /** 바탕 사진 (예: '~/assets/images/works/chowol-06.jpg') */
+  image?: string;
+  /** 사진에서 보여 줄 부분 (CSS object-position) */
+  imagePos?: string;
+  /** 오른쪽 세로 글씨 */
+  vlabel?: string;
 }
-const { lang, title, lead, crumb } = Astro.props;
+const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel } = Astro.props;
 ---
 
-<section class="on-sign">
-  <div class="mx-auto max-w-7xl px-4 pt-3 pb-12 md:pb-16 lg:px-6">
+<section class="sec-night grain relative overflow-hidden">
+  {
+    image && (
+      <div class="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <Image
+          src={image}
+          alt=""
+          widths={[640, 1024, 1600]}
+          sizes="100vw"
+          width={1600}
+          height={900}
+          layout="cover"
+          format="webp"
+          loading="eager"
+          class="parallax h-full w-full object-cover opacity-40"
+          style={`object-position:${imagePos}`}
+        />
+        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgb(14_22_38/0.95),rgb(14_22_38/0.7)_55%,rgb(14_22_38/0.45)),linear-gradient(0deg,rgb(14_22_38/0.9),transparent_45%)]" />
+      </div>
+    )
+  }
+  <div class="relative z-[2] mx-auto max-w-7xl px-5 pt-5 pb-16 md:pb-24 lg:px-8">
     <Breadcrumbs
       class="crumbs -ml-1"
       items={[{ text: useT(lang).nav.home, href: localize(lang, '/'), icon: 'tabler:home' }, { text: crumb }]}
     />
-    <h1 class="display mt-6 text-[clamp(2.6rem,6.5vw,4.75rem)] text-white">{title}</h1>
-    {lead && <p class="mt-4 max-w-2xl text-lg text-white/85">{lead}</p>}
-    <slot />
+    <div class="mt-10 flex items-end justify-between gap-8 md:mt-16">
+      <div class="max-w-3xl">
+        <h1 class="display text-[clamp(3rem,7.5vw,5.8rem)] text-paper" data-split>{title}</h1>
+        {lead && <p class="mt-5 max-w-2xl text-lg leading-[1.9] text-paper/80">{lead}</p>}
+        <slot />
+      </div>
+      <div class="hidden shrink-0 flex-col items-center gap-5 md:flex" aria-hidden="true">
+        {vlabel && <p class="vtext text-[1.1rem] text-wood/80">{vlabel}</p>}
+        <span class="seal is-stamp" style="--seal:3.8rem;--delay:0.5s">초월</span>
+      </div>
+    </div>
   </div>
-  <div class="rail-strip" aria-hidden="true"></div>
+  <div class="rail-strip relative z-[2]" aria-hidden="true"></div>
 </section>
-

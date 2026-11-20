@@ -11,12 +11,13 @@ import type { MetaData } from '~/types';
 export interface Props {
   metadata?: MetaData;
   lang?: Lang;
+  headerOver?: boolean;
 }
 
-const { metadata, lang = langFromPath(Astro.url.pathname) } = Astro.props;
+const { metadata, lang = langFromPath(Astro.url.pathname), headerOver = false } = Astro.props;
 ---
 
-<Layout metadata={metadata} lang={lang}>
+<Layout metadata={metadata} lang={lang} headerOver={headerOver}>
   <slot name="head" slot="head" />
   {
     /*

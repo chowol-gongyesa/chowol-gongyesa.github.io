@@ -1,6 +1,7 @@
 ---
 // 대표 이야기 (홈, 소개 페이지). ⚠️ 문장은 Claude가 쓴 것 → 정영순 대표님께 확인받기
-// 청각장애 이야기는 사용자를 통해 대표님이 허락하심 (2026-11-20). 문구는 src/i18n/*.ts의 story
+// 대표님이 청각장애를 '집중'의 뜻으로 소개해도 좋다고 하셔서(2026-11-20, 사용자를 통해) 그 뜻을 살려 존중하는 말로 썼습니다.
+// 문구는 src/i18n/*.ts의 story
 import Image from '~/components/common/Image.astro';
 import { langFromPath, localize, useT } from '~/i18n';
 
@@ -12,27 +13,55 @@ export interface Props {
 const { showLink = true, class: className = '' } = Astro.props;
 const lang = langFromPath(Astro.url.pathname);
 const t = useT(lang);
+const s = t.story;
 ---
 
-<section class={`px-4 py-16 md:py-24 lg:px-6 ${className}`}>
-  <div class="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-    <div class="photo aspect-[4/5] max-h-[34rem] w-full md:max-w-[28rem]">
-      <Image
-        src="~/assets/images/works/chowol-07.jpg"
-        alt={t.story.alt}
-        widths={[400, 600, 800]}
-        sizes="(max-width: 767px) 90vw, 448px"
-        width={600}
-        height={750}
-        layout="cover"
-        format="webp"
-        class="h-full w-full object-cover object-top"
-      />
+<section class={`relative overflow-hidden px-5 py-20 md:py-28 lg:px-8 ${className}`} aria-labelledby="story-title">
+  <div class="mx-auto grid max-w-7xl items-center gap-12 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-20">
+    <div class="relative flex items-start gap-5 md:gap-7" data-reveal>
+      <div class="frame w-full max-w-[30rem]">
+        <div class="inner wipe aspect-[4/5]">
+          <Image
+            src="~/assets/images/works/chowol-07.jpg"
+            alt={s.alt}
+            widths={[400, 640, 900]}
+            sizes="(max-width: 767px) 88vw, 480px"
+            width={900}
+            height={1125}
+            layout="cover"
+            format="webp"
+            class="parallax h-full w-full object-cover object-[50%_30%]"
+          />
+        </div>
+      </div>
+      <p class="vtext rise hidden shrink-0 pt-6 text-[1.35rem] text-ink/80 sm:block lg:text-[1.55rem]" style="--d:0.5s">
+        {s.quote}
+      </p>
     </div>
-    <div>
-      <h2 class="display text-[clamp(2.2rem,4.6vw,3.6rem)] text-ink">{t.story.title}</h2>
-      {t.story.paragraphs.map((p) => <p class="mt-5 max-w-xl text-lg text-ink/85 md:text-xl md:leading-relaxed">{p}</p>)}
-      {showLink && <a href={localize(lang, '/about')} class="btn-secondary mt-8">{t.story.link}</a>}
+
+    <div data-reveal>
+      <h2 id="story-title" class="display text-[clamp(2.3rem,5vw,4rem)] text-ink" data-split>{s.title}</h2>
+      <div class="ruler-line rise mt-6 w-48 text-ink" style="--d:0.2s"></div>
+      <div class="mt-8 space-y-5 text-[1.08rem] leading-[2] text-ink-soft">
+        {
+          s.paragraphs.map((p, i) => (
+            <p class="rise" style={`--d:${0.25 + i * 0.12}s`}>
+              {p}
+            </p>
+          ))
+        }
+      </div>
+      <div class="rise mt-9 flex items-center gap-4" style="--d:0.65s">
+        <span class="seal" style="--seal:3.4rem">초월</span>
+        <span class="display text-[1.25rem] text-ink">{s.sign}</span>
+      </div>
+      {
+        showLink && (
+          <a href={localize(lang, '/about')} class="btn-line rise mt-9" style="--d:0.75s">
+            {s.link}
+          </a>
+        )
+      }
     </div>
   </div>
 </section>

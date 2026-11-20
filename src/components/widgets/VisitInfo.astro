@@ -20,10 +20,10 @@ const mapLinks = [
 if (lang !== 'ko') mapLinks.unshift(mapLinks.pop()!);
 ---
 
-<section id="visit" class="px-4 py-16 md:py-24 lg:px-6">
-  <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
-    <div>
-      <div class="photo aspect-[6/5]">
+<section id="visit" class="px-5 py-20 md:py-28 lg:px-8" aria-labelledby="visit-title">
+  <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+    <div data-reveal>
+      <div class="frame"><div class="inner wipe aspect-[6/5]">
         <Image
           src="~/assets/images/works/chowol-04.jpg"
           alt={v.storeAlt}
@@ -33,22 +33,22 @@ if (lang !== 'ko') mapLinks.unshift(mapLinks.pop()!);
           height={800}
           layout="cover"
           format="webp"
-          class="h-full w-full object-cover"
+          class="parallax h-full w-full object-cover"
         />
-      </div>
+      </div></div>
     </div>
 
     <div>
-      <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{v.title}</h2>
+      <h2 id="visit-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{v.title}</h2>
       <dl class="mt-8 grid gap-6">
         <div>
-          <dt class="text-sm font-bold text-muted">{v.address}</dt>
-          <dd class="mt-1 text-xl font-bold text-ink">{shop.address}</dd>
+          <dt class="text-[0.95rem] font-bold text-verm">{v.address}</dt>
+          <dd class="display mt-1 text-[1.55rem] leading-snug text-ink">{shop.address}</dd>
           <dd class="mt-1 text-muted">{v.sign}</dd>
         </div>
         <div>
-          <dt class="text-sm font-bold text-muted">{v.hours}</dt>
-          <dd class="mt-1 text-xl font-bold text-ink">{shop.hours}</dd>
+          <dt class="text-[0.95rem] font-bold text-verm">{v.hours}</dt>
+          <dd class="display mt-1 text-[1.55rem] text-ink">{shop.hours}</dd>
           <dd class="text-muted">{shop.closed}</dd>
           <dd class="mt-3"><OpenStatus /></dd>
         </div>
@@ -57,7 +57,7 @@ if (lang !== 'ko') mapLinks.unshift(mapLinks.pop()!);
         {
           mapLinks.map((link) => (
             <li>
-              <a href={link.href} target="_blank" rel="noopener noreferrer" class="btn-secondary !min-h-11 !px-5 text-[0.95rem]">
+              <a href={link.href} target="_blank" rel="noopener noreferrer" class="btn-line !min-h-11 !px-5 text-[0.95rem]">
                 <Icon name="tabler:map-pin" class="h-5 w-5" aria-hidden="true" />
                 {link.text}
               </a>
@@ -67,11 +67,11 @@ if (lang !== 'ko') mapLinks.unshift(mapLinks.pop()!);
       </ul>
     </div>
   </div>
-  <div class="mx-auto mt-10 max-w-7xl">
+  <div class="frame mx-auto mt-12 max-w-7xl">
     <iframe
       title={v.mapTitle}
       src={mapEmbed(lang)}
-      class="block h-[22rem] w-full border-0 bg-[#d9dad5] md:h-[26rem]"
+      class="block h-[22rem] w-full border-0 bg-[#d9cdb5] grayscale-[35%] sepia-[15%] md:h-[26rem]"
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>

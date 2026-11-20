@@ -11,6 +11,7 @@ export const getHeaderData = (lang: Lang = 'ko') => {
       { text: t.about, href: localize(lang, '/about') },
       { text: t.services, href: localize(lang, '/services') },
       { text: t.works, href: localize(lang, '/works') },
+      { text: t.woods, href: localize(lang, '/woods') },
       { text: t.contact, href: localize(lang, '/contact') },
     ],
     // 전화 단추는 상담전화로 (대표님 청각장애 — src/data/shop.ts 참고)
@@ -29,6 +30,7 @@ export const getFooterData = (lang: Lang = 'ko') => {
           { text: t.nav.about, href: localize(lang, '/about') },
           { text: t.nav.services, href: localize(lang, '/services') },
           { text: t.nav.works, href: localize(lang, '/works') },
+          { text: t.nav.woods, href: localize(lang, '/woods') },
           { text: t.nav.contact, href: localize(lang, '/contact') },
         ],
       },

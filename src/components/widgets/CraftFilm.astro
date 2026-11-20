@@ -1,0 +1,253 @@
+---
+// 홈의 작업 영상 (약 52초, 배경 음악). 화면에 절반쯤 들어오면 소리 없이 저절로 재생되고, '소리 켜기'로 소리를 켭니다.
+// 자막과 제목은 영상에 새기지 않고 사이트가 영상 위에 글자로 겹쳐 보여 줍니다 → 언어마다 자막이 바뀌고,
+// 문구는 src/i18n/ 의 film.cues 에서 고치면 됩니다. 아래 CUES의 숫자는 영상 속 장면 시간(초)입니다.
+// 영상: public/video/chowol-film.mp4(가로 16:9), chowol-film-mobile.mp4(휴대폰 세로 9:16)
+import { Icon } from 'astro-icon/components';
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const f = useT(lang).film;
+const c = f.cues;
+
+type Cue = { start: number; end: number; kind: 'title' | 'sub' | 'name' | 'end'; big?: string; small?: string; text?: string };
+const CUES: Cue[] = [
+  { start: 0.9, end: 4.3, kind: 'title', ...c.title },
+  { start: 4.9, end: 8.2, kind: 'sub', text: c.load },
+  { start: 8.6, end: 14.4, kind: 'sub', text: c.cut },
+  { start: 15.0, end: 17.6, kind: 'sub', text: c.done },
+  { start: 17.9, end: 21.6, kind: 'sub', text: c.parts },
+  { start: 22.3, end: 27.2, kind: 'sub', text: c.face },
+  { start: 27.7, end: 33.6, kind: 'sub', text: c.hands },
+  { start: 34.3, end: 38.2, kind: 'sub', text: c.montage1 },
+  { start: 38.5, end: 42.2, kind: 'sub', text: c.montage2 },
+  { start: 42.5, end: 46.0, kind: 'name', ...c.owner },
+  { start: 46.8, end: 51.4, kind: 'end', ...c.end },
+];
+---
+
+<section id="film" class="sec-night grain relative overflow-hidden py-20 md:py-28" aria-labelledby="film-title">
+  <div class="relative z-[2] mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-6 md:grid-cols-[1.1fr_1fr] md:items-end md:gap-12">
+      <h2 id="film-title" class="display text-[clamp(2.4rem,5.6vw,4.6rem)] text-paper" data-split>{f.title}</h2>
+      <p class="max-w-xl text-paper/80 md:pb-3">{f.lead}</p>
+    </div>
+
+    <div class="frame mx-auto mt-10 w-fit max-w-full md:mt-14 md:w-full" data-reveal>
+      <div
+        class="inner film-frame mx-auto aspect-[9/16] h-[min(78svh,160vw)] max-w-full md:aspect-video md:h-auto md:w-full"
+        data-film
+      >
+        <video
+          playsinline
+          muted
+          preload="none"
+          poster="/video/chowol-film-poster.jpg"
+          aria-label={f.label}
+          data-src-wide="/video/chowol-film.mp4"
+          data-src-tall="/video/chowol-film-mobile.mp4"
+          data-poster-tall="/video/chowol-film-mobile-poster.jpg"></video>
+
+        {
+          CUES.map((cue) => (
+            <div class="film-cue" data-kind={cue.kind} data-start={cue.start} data-end={cue.end} aria-hidden="true">
+              {cue.text ? (
+                <span>{cue.text}</span>
+              ) : (
+                <>
+                  <span class="cue-big">{cue.big}</span>
+                  <span class="cue-small">{cue.small}</span>
+                </>
+              )}
+            </div>
+          ))
+        }
+
+        <button type="button" class="film-bigplay" data-bigplay aria-label={f.play}>
+          <span><Icon name="tabler:player-play-filled" class="ml-1 h-9 w-9" aria-hidden="true" /></span>
+        </button>
+        <button
+          type="button"
+          class="film-unmute absolute top-4 right-4 z-[5] hidden items-center gap-2 rounded-full bg-verm px-4 py-2 text-sm font-bold text-white shadow-lg"
+          data-unmute
+        >
+          <Icon name="tabler:volume" class="h-5 w-5" aria-hidden="true" />{f.unmute}
+        </button>
+      </div>
+    </div>
+
+    <!-- 조작 단추 -->
+    <div class="mx-auto mt-4 flex max-w-full flex-wrap items-center gap-2 md:gap-3" data-film-controls>
+      <button type="button" class="film-btn" data-toggle aria-label={f.resume}>
+        <Icon name="tabler:player-play" class="icon-play h-5 w-5" aria-hidden="true" />
+        <Icon name="tabler:player-pause" class="icon-pause hidden h-5 w-5" aria-hidden="true" />
+      </button>
+      <span class="w-[5.6rem] text-center text-sm tabular-nums text-paper/75" data-time>0:00 / 0:52</span>
+      <input type="range" class="film-seek min-w-[6rem] flex-1" min="0" max="52" step="0.1" value="0" aria-label={f.seek} data-seek />
+      <button type="button" class="film-btn" data-mute aria-label={f.unmute}>
+        <Icon name="tabler:volume-off" class="icon-off h-5 w-5" aria-hidden="true" />
+        <Icon name="tabler:volume" class="icon-on hidden h-5 w-5" aria-hidden="true" />
+      </button>
+      <button type="button" class="film-btn" data-subs aria-pressed="true" data-on={f.subsOff} data-off={f.subsOn}>
+        <Icon name="tabler:badge-cc" class="h-5 w-5" aria-hidden="true" /><span class="hidden sm:inline">{f.subsOff}</span>
+      </button>
+      <button type="button" class="film-btn" data-fullscreen aria-label={f.fullscreen}>
+        <Icon name="tabler:maximize" class="h-5 w-5" aria-hidden="true" />
+      </button>
+    </div>
+
+    <!-- 화면 읽기 프로그램용 자막 전문 -->
+    <ol class="sr-only">
+      {CUES.map((cue) => <li>{cue.text ?? `${cue.big}, ${cue.small}`}</li>)}
+    </ol>
+  </div>
+</section>
+
+<script define:vars={{ labels: { play: f.resume, pause: f.pause, mute: f.mute, unmute: f.unmute } }}>
+  const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const setup = () => {
+    const frame = document.querySelector('[data-film]');
+    if (!frame || frame.dataset.ready) return;
+    frame.dataset.ready = '1';
+    const video = frame.querySelector('video');
+    const controls = document.querySelector('[data-film-controls]');
+    const cues = [...frame.querySelectorAll('.film-cue')].map((el) => ({
+      el,
+      start: Number(el.dataset.start),
+      end: Number(el.dataset.end),
+    }));
+    const btnToggle = controls.querySelector('[data-toggle]');
+    const btnMute = controls.querySelector('[data-mute]');
+    const btnSubs = controls.querySelector('[data-subs]');
+    const btnFull = controls.querySelector('[data-fullscreen]');
+    const seek = controls.querySelector('[data-seek]');
+    const time = controls.querySelector('[data-time]');
+    const bigplay = frame.querySelector('[data-bigplay]');
+    const unmute = frame.querySelector('[data-unmute]');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const saveData = navigator.connection && navigator.connection.saveData;
+    const tall = window.matchMedia('(max-width: 767px)').matches;
+    if (tall) video.poster = video.dataset.posterTall;
+    let loaded = false;
+    let userPaused = false;
+    let subs = true;
+    let seeking = false;
+
+    const ensureSrc = () => {
+      if (loaded) return;
+      loaded = true;
+      video.src = tall ? video.dataset.srcTall : video.dataset.srcWide;
+      video.preload = 'auto';
+    };
+    const syncButtons = () => {
+      const playing = !video.paused && !video.ended;
+      frame.classList.toggle('is-playing', playing || (loaded && !video.ended && video.currentTime > 0));
+      btnToggle.setAttribute('aria-label', playing ? labels.pause : labels.play);
+      btnToggle.querySelector('.icon-play').classList.toggle('hidden', playing);
+      btnToggle.querySelector('.icon-pause').classList.toggle('hidden', !playing);
+      btnMute.setAttribute('aria-label', video.muted ? labels.unmute : labels.mute);
+      btnMute.querySelector('.icon-off').classList.toggle('hidden', !video.muted);
+      btnMute.querySelector('.icon-on').classList.toggle('hidden', video.muted);
+      unmute.classList.toggle('hidden', !(playing && video.muted));
+      unmute.classList.toggle('inline-flex', playing && video.muted);
+    };
+    // 자막: 재생 중에는 화면 그리기마다 시간을 맞춤
+    const showCues = () => {
+      const t = video.currentTime;
+      for (const cue of cues) cue.el.classList.toggle('is-on', subs && t >= cue.start && t < cue.end);
+      if (!seeking) seek.value = String(t);
+      time.textContent = `${fmt(t)} / ${fmt(video.duration || 52)}`;
+    };
+    const loop = () => {
+      showCues();
+      if (!video.paused && !video.ended) requestAnimationFrame(loop);
+    };
+    video.addEventListener('play', () => {
+      requestAnimationFrame(loop);
+      syncButtons();
+    });
+    video.addEventListener('pause', syncButtons);
+    video.addEventListener('volumechange', syncButtons);
+    video.addEventListener('loadedmetadata', () => {
+      seek.max = String(video.duration);
+      showCues();
+    });
+    video.addEventListener('timeupdate', showCues);
+    video.addEventListener('ended', () => {
+      frame.classList.remove('is-playing');
+      userPaused = true;
+      syncButtons();
+    });
+
+    const start = (withSound) => {
+      ensureSrc();
+      if (withSound) video.muted = false;
+      if (video.ended) video.currentTime = 0;
+      userPaused = false;
+      video.play().catch(() => {
+        // 소리 있는 자동 재생이 막히면 소리 없이라도
+        video.muted = true;
+        video.play().catch(() => {});
+      });
+    };
+    bigplay.addEventListener('click', () => start(true));
+    unmute.addEventListener('click', () => {
+      video.muted = false;
+    });
+    btnToggle.addEventListener('click', () => {
+      if (video.paused || video.ended) start(false);
+      else {
+        userPaused = true;
+        video.pause();
+      }
+    });
+    video.addEventListener('click', () => {
+      if (!video.paused) {
+        userPaused = true;
+        video.pause();
+      } else start(false);
+    });
+    btnMute.addEventListener('click', () => {
+      video.muted = !video.muted;
+      if (video.paused && !video.muted) start(true);
+    });
+    btnSubs.addEventListener('click', () => {
+      subs = !subs;
+      btnSubs.setAttribute('aria-pressed', String(subs));
+      const label = btnSubs.querySelector('span');
+      if (label) label.textContent = subs ? btnSubs.dataset.on : btnSubs.dataset.off;
+      showCues();
+    });
+    seek.addEventListener('input', () => {
+      seeking = true;
+      ensureSrc();
+      video.currentTime = Number(seek.value);
+      showCues();
+    });
+    seek.addEventListener('change', () => (seeking = false));
+    btnFull.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (frame.requestFullscreen) frame.requestFullscreen().catch(() => {});
+      else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+    });
+
+    // 화면에 절반쯤 들어오면 소리 없이 재생, 벗어나면 멈춤
+    if (!reduce && !saveData) {
+      new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting && !userPaused) {
+            ensureSrc();
+            video.play().catch(() => {});
+          } else if (!entry.isIntersecting && !video.paused) video.pause();
+        },
+        { threshold: 0.5 }
+      ).observe(frame);
+    }
+    syncButtons();
+  };
+  setup();
+  document.addEventListener('astro:page-load', setup);
+</script>

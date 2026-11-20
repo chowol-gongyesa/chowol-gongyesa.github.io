@@ -1,0 +1,186 @@
+---
+// 입장 화면 (홈, 같은 방문 중 한 번만). 쪽빛 밤 작업장에서 —
+//  0.0초  돌아가는 네모난 각재 (결 무늬가 흘러 도는 것처럼 보임)
+//  0.95초 날이 왼쪽에서 오른쪽으로 지나가며 난간 동자 모양으로 깎임 + 나무 부스러기가 튐
+//  2.3초  깎인 부품 위아래로 같은 모양이 하나씩 늘어남 (= 견본 하나로 몇 개든 똑같이)
+//  2.55초 '초월공예사' 글자가 하나씩 떠오르고, 3.55초에 낙관이 찍힘
+//  4.9초(또는 화면을 누르면) 난간 살처럼 세로 띠들이 차례로 올라가며 첫 화면이 드러남
+// 움직임 줄이기 설정이면 움직임 없이 보여 주고 바로 넘어갑니다. 소리는 없습니다.
+import { horizontalPath } from '~/utils/baluster';
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang).intro;
+const SLATS = 12;
+const piece = horizontalPath(80, 480, 130, 2.2);
+const small = horizontalPath(80, 480, 0, 1.1);
+const COPIES = [-104, -70, 70, 104, -138, 138];
+const brand = Array.from('초월공예사');
+---
+
+<div id="intro" aria-hidden="true" data-intro>
+  <div class="intro-bg" style={`--slats:${SLATS}`} aria-hidden="true">
+    {Array.from({ length: SLATS }, (_, k) => <span class="intro-slat" style={`--k:${k}`} />)}
+  </div>
+  <div class="intro-stage" aria-hidden="true">
+    <svg class="lathe" viewBox="0 0 640 270" focusable="false">
+      <defs>
+        <linearGradient id="iw-wood" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#8f6a40"></stop>
+          <stop offset="0.3" stop-color="#f3e3c3"></stop>
+          <stop offset="0.55" stop-color="#e2c79a"></stop>
+          <stop offset="1" stop-color="#7d5a35"></stop>
+        </linearGradient>
+        <linearGradient id="iw-steel" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#5d6b80"></stop>
+          <stop offset="0.5" stop-color="#c3ccd8"></stop>
+          <stop offset="1" stop-color="#3a4558"></stop>
+        </linearGradient>
+        <clipPath id="iw-piece"><path d={piece}></path></clipPath>
+        <clipPath id="iw-blank"><rect x="80" y="93" width="480" height="74"></rect></clipPath>
+        <pattern id="iw-grain" width="480" height="14" patternUnits="userSpaceOnUse">
+          <path d="M0 3 Q120 1 240 4 T480 3 M0 9 Q160 11 320 8 T480 10" stroke="#a87d4c" stroke-width="1.1" fill="none" opacity="0.55"
+          ></path>
+        </pattern>
+      </defs>
+
+      <!-- 로구로의 양쪽 축 -->
+      <g class="centers">
+        <rect x="18" y="98" width="52" height="64" rx="5" fill="url(#iw-steel)"></rect>
+        <rect x="70" y="122" width="12" height="16" fill="#9aa6b7"></rect>
+        <rect x="570" y="104" width="52" height="52" rx="5" fill="url(#iw-steel)"></rect>
+        <path d="M570 130 L558 124 L558 136 Z" fill="#c3ccd8"></path>
+        <rect x="10" y="196" width="620" height="6" rx="3" fill="#2a3a5c"></rect>
+      </g>
+
+      <!-- 깎이는 부품: 날 왼쪽은 깎인 모양, 오른쪽은 아직 네모난 각재 -->
+      <g class="main-piece">
+        <g class="blank">
+          <rect x="80" y="70" width="480" height="120" fill="transparent"></rect>
+          <rect x="80" y="93" width="480" height="74" fill="url(#iw-wood)"></rect>
+          <g clip-path="url(#iw-blank)">
+            <rect class="spin-grain" x="80" y="79" width="480" height="102" fill="url(#iw-grain)"></rect>
+          </g>
+        </g>
+        <g class="turned">
+          <rect x="80" y="70" width="480" height="120" fill="transparent"></rect>
+          <path d={piece} fill="url(#iw-wood)"></path>
+          <g clip-path="url(#iw-piece)">
+            <rect class="spin-grain" x="80" y="79" width="480" height="102" fill="url(#iw-grain)"></rect>
+          </g>
+        </g>
+      </g>
+
+      <!-- 날 -->
+      <g class="cutter">
+        <path d="M80 236 L72 206 L88 206 Z" fill="#d8dee7"></path>
+        <rect x="70" y="236" width="20" height="26" fill="#55627a"></rect>
+      </g>
+
+      <!-- 같은 모양으로 늘어나는 부품 -->
+      <g class="copies">
+        {
+          COPIES.map((dy, k) => (
+            <g class="copy" style={`--k:${k};--from:${-dy}px`}>
+              <path d={small} transform={`translate(0 ${130 + dy})`} fill="url(#iw-wood)" opacity={Math.abs(dy) > 120 ? 0.5 : 0.85} />
+            </g>
+          ))
+        }
+      </g>
+    </svg>
+
+    <div class="intro-title" aria-hidden="true">
+      {brand.map((ch, i) => <span style={`--i:${i}`}>{ch}</span>)}
+    </div>
+    <p class="intro-sub">{t.sub}</p>
+    <span class="seal intro-seal">초월</span>
+  </div>
+  <p class="intro-hint">{t.hint}</p>
+  <div class="intro-chips" aria-hidden="true"></div>
+</div>
+
+<script is:inline>
+  // 같은 방문 중 이미 봤으면 그리기 전에 바로 없앰 (깜빡임 방지)
+  (function () {
+    var el = document.getElementById('intro');
+    try {
+      if (sessionStorage.getItem('cw-intro')) {
+        el && el.remove();
+        return;
+      }
+    } catch (e) {}
+    document.documentElement.classList.add('intro-active');
+  })();
+</script>
+
+<script>
+  const CHIP_COLORS = ['#f3e3c3', '#e2c79a', '#d8b47f', '#c99d66'];
+  const setup = () => {
+    const intro = document.querySelector<HTMLElement>('[data-intro]');
+    if (!intro || intro.dataset.ready) return;
+    intro.dataset.ready = '1';
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let closed = false;
+    const close = () => {
+      if (closed) return;
+      closed = true;
+      try {
+        sessionStorage.setItem('cw-intro', '1');
+      } catch {
+        /* storage unavailable */
+      }
+      intro.classList.add('is-out');
+      document.documentElement.classList.remove('intro-active');
+      window.setTimeout(() => intro.remove(), reduce ? 300 : 1500);
+    };
+
+    // 나무 부스러기: 날이 지나가는 동안 날 끝에서 튐
+    const chips = intro.querySelector<HTMLElement>('.intro-chips');
+    const svg = intro.querySelector<SVGSVGElement>('.lathe');
+    const startAt = performance.now();
+    const spawn = () => {
+      if (!chips || !svg || closed) return;
+      const elapsed = (performance.now() - startAt) / 1000;
+      if (elapsed > 2.3) return;
+      if (elapsed > 0.95) {
+        const p = Math.min(1, (elapsed - 0.95) / 1.35);
+        const box = svg.getBoundingClientRect();
+        const scale = box.width / 640;
+        const x = box.left + (80 + 480 * p) * scale;
+        const y = box.top + 168 * scale;
+        for (let i = 0; i < 3; i++) {
+          const chip = document.createElement('i');
+          const size = 2 + Math.random() * 4;
+          chip.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${size}px;height:${size * 0.6}px;background:${
+            CHIP_COLORS[Math.floor(Math.random() * CHIP_COLORS.length)]
+          };border-radius:2px;z-index:3;pointer-events:none`;
+          chips.appendChild(chip);
+          const dx = -20 - Math.random() * 140;
+          const dy = 30 + Math.random() * 120;
+          chip.animate(
+            [
+              { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+              { transform: `translate(${dx}px,${dy}px) rotate(${Math.random() * 720}deg)`, opacity: 0 },
+            ],
+            { duration: 600 + Math.random() * 500, easing: 'cubic-bezier(0.2,0.6,0.4,1)' }
+          ).onfinish = () => chip.remove();
+        }
+      }
+      requestAnimationFrame(spawn);
+    };
+    if (!reduce) requestAnimationFrame(spawn);
+
+    // 시작 후 0.8초 동안은 실수로 눌러 넘어가지 않게
+    window.setTimeout(() => {
+      intro.addEventListener('click', close);
+      document.addEventListener('keydown', close, { once: true });
+      window.addEventListener('wheel', close, { once: true, passive: true });
+      window.addEventListener('touchmove', close, { once: true, passive: true });
+    }, 800);
+    window.setTimeout(close, reduce ? 1200 : 4900);
+  };
+  document.addEventListener('astro:page-load', setup);
+</script>

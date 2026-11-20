@@ -1,41 +1,46 @@
 ---
-// 색과 글꼴. 글꼴은 Layout.astro에서 Google Fonts로 불러옵니다.
-// 색은 실제 가게 간판에서 가져왔습니다: 파란 간판(--sign) + 흰 글씨, '로구로 전문' 띠의 빨강(--pill),
-// 깎은 원목 색(--wood). 바탕은 작업장 벽 같은 옅은 회색(--page).
-// 성창공예(어두운 원목색 + 황동색)와 일부러 다르게 잡았습니다.
+// 색과 글꼴 — 테마 '쪽빛 공방' (2026-11-20 2차).
+// 쪽빛(남색): 가게 파란 간판을 전통 쪽물 색으로 깊게 / 백목: 깎은 원목 색 / 인주: 낙관의 주홍 / 한지: 밝은 바탕.
+// 글꼴: 제목은 목판 인쇄 느낌의 송명(Song Myung), 본문은 고운바탕(Gowun Batang), 로고만 간판 글꼴(Black Han Sans).
+// 성창공예(어두운 호두색 + 황동색 + 노토 명조)와 겹치지 않게 잡았습니다.
 ---
 
 <style is:inline>
   :root {
+    --night: #0e1626;
+    --night-2: #15213a;
+    --indigo: #1f3566;
     --sign: #2246a6;
-    --sign-deep: #18337e;
-    --sign-ink: #0f2259;
-    --pill: #d63a2c;
-    --wood: #e7d3b0;
-    --wood-deep: #b9966a;
-    --ink: #172036;
-    --page: #eeefeb;
-    --paper: #ffffff;
-    --line: rgb(23 32 54 / 0.14);
+    --paper: #f2eadb;
+    --paper-2: #e7dac2;
+    --wood: #e6cfa6;
+    --wood-light: #f1e2c6;
+    --wood-deep: #a9804f;
+    --walnut: #5a3e28;
+    --ink: #1d1f26;
+    --ink-soft: #514a3f;
+    --verm: #c4432f;
+    --verm-deep: #a3341f;
+    --line: rgb(29 31 38 / 0.16);
 
-    --aw-font-sans: 'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-    --aw-font-serif: 'IBM Plex Sans KR', sans-serif;
-    --aw-font-heading: 'Black Han Sans', 'IBM Plex Sans KR', sans-serif;
+    --aw-font-sans: 'Gowun Batang', 'Noto Serif KR', 'AppleMyungjo', serif;
+    --aw-font-serif: 'Gowun Batang', serif;
+    --aw-font-heading: 'Song Myung', 'Gowun Batang', serif;
 
-    --aw-color-primary: rgb(34 70 166);
-    --aw-color-secondary: rgb(24 51 126);
-    --aw-color-accent: rgb(214 58 44);
-    --aw-color-link: rgb(34 70 166);
+    --aw-color-primary: rgb(196 67 47);
+    --aw-color-secondary: rgb(31 53 102);
+    --aw-color-accent: rgb(196 67 47);
+    --aw-color-link: rgb(163 52 31);
 
-    --aw-color-text-heading: rgb(23 32 54);
-    --aw-color-text-default: rgb(23 32 54);
-    --aw-color-text-muted: rgb(72 82 104);
-    --aw-color-bg-page: rgb(238 239 235);
-    --aw-color-bg-page-dark: rgb(24 51 126);
+    --aw-color-text-heading: rgb(29 31 38);
+    --aw-color-text-default: rgb(29 31 38);
+    --aw-color-text-muted: rgb(81 74 63);
+    --aw-color-bg-page: rgb(242 234 219);
+    --aw-color-bg-page-dark: rgb(14 22 38);
 
     ::selection {
-      background-color: #2246a6;
-      color: #ffffff;
+      background-color: #c4432f;
+      color: #fff;
     }
   }
 

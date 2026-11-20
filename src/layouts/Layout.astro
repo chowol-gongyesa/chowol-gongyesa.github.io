@@ -11,6 +11,8 @@ import Metadata from '~/components/common/Metadata.astro';
 import SiteVerification from '~/components/common/SiteVerification.astro';
 import Analytics from '~/components/common/Analytics.astro';
 import LangSuggest from '~/components/common/LangSuggest.astro';
+import Effects from '~/components/common/Effects.astro';
+import PageShutter from '~/components/common/PageShutter.astro';
 import { getCanonical } from '~/utils/permalinks';
 import { LANG_META, LOCALES, TRANSLATED_PAGES, langFromPath, localize, stripLang, useT, type Lang } from '~/i18n';
 
@@ -22,9 +24,11 @@ import type { MetaData as MetaDataType } from '~/types';
 export interface Props {
   metadata?: MetaDataType;
   lang?: Lang;
+  /** 홈처럼 첫 화면이 영상이면 상단 메뉴를 투명하게 겹쳐 띄움 */
+  headerOver?: boolean;
 }
 
-const { metadata: pageMeta = {}, lang = langFromPath(Astro.url.pathname) } = Astro.props;
+const { metadata: pageMeta = {}, lang = langFromPath(Astro.url.pathname), headerOver = false } = Astro.props;
 const { textDirection } = I18N;
 const t = useT(lang);
 // 외국어 페이지는 제목 뒤에 그 나라 말 가게 이름을 붙임 (예: 作品 — チョウォル工芸社)
@@ -50,20 +54,25 @@ const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> 
   zh: [{ url: '~/assets/images/og/og-zh.jpg', width: 1200, height: 630 }],
 };
 
-// 글꼴: 제목은 간판 같은 Black Han Sans, 본문은 IBM Plex Sans KR.
-// 일본어·중국어 페이지는 그 나라 글자 모양에 맞는 글꼴을 더 불러옵니다.
+// 글꼴: 제목은 목판 인쇄 같은 송명(Song Myung), 본문은 붓글씨 결이 남은 고운바탕, 상호는 간판 같은 Black Han Sans.
+// 일본어·중국어 페이지는 그 나라 명조 글꼴을 더 불러옵니다.
 const extraFonts: Partial<Record<Lang, string>> = {
-  ja: '&family=Noto+Sans+JP:wght@400;700;900',
-  zh: '&family=Noto+Sans+SC:wght@400;700;900',
+  ja: '&family=Shippori+Mincho:wght@400;600;800',
+  zh: '&family=Noto+Serif+SC:wght@400;600;900',
 };
-const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700${extraFonts[lang] ?? ''}&display=swap`;
+const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang:wght@400;700&family=Song+Myung${extraFonts[lang] ?? ''}&display=swap`;
 ---
 
 <!doctype html>
-<html lang={LANG_META[lang].html} dir={textDirection} class="2xl:text-[19px]" data-lang={lang}>
+<html
+  lang={LANG_META[lang].html}
+  dir={textDirection}
+  class:list={['2xl:text-[19px]', { 'header-over': headerOver }]}
+  data-lang={lang}
+>
   <head>
     <CommonMeta />
-    <meta name="theme-color" content="#2246a6" />
+    <meta name="theme-color" content="#0e1626" />
     <Favicons />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -87,8 +96,17 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family
 
   <body class="antialiased text-default bg-page min-h-screen flex flex-col">
     <a href="#main" class="skip-link">{t.nav.skip}</a>
+    <!-- 낙관(도장) 가장자리를 거칠게 만드는 필터 -->
+    <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+      <filter id="seal-rough" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"></feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"></feDisplacementMap>
+      </filter>
+    </svg>
     <slot />
 
     <LangSuggest lang={lang} />
+    <Effects />
+    <PageShutter />
   </body>
 </html>

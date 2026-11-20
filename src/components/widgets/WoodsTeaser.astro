@@ -1,0 +1,51 @@
+---
+// 홈의 '어떤 나무로 깎을까요?': 나무 여덟 가지로 깎은 동자가 나란히 서 있고, 누르면 나무 고르기 페이지의 그 나무로.
+// 나무 색은 src/data/woods.ts의 colors
+import { WOODS } from '~/data/woods';
+import { verticalPath } from '~/utils/baluster';
+import { localize, useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const w = useT(lang).woodsTeaser;
+const path = verticalPath();
+const href = localize(lang, '/woods');
+---
+
+<section class="sec-paper2 relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="woods-teaser-title">
+  <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-end lg:gap-16">
+    <div>
+      <h2 id="woods-teaser-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{w.title}</h2>
+      <p class="mt-5 max-w-md text-ink-soft">{w.lead}</p>
+      <a href={href} class="btn-verm mt-8">{w.link}</a>
+    </div>
+
+    <svg width="0" height="0" class="absolute" aria-hidden="true">
+      <symbol id="wt-shape" viewBox="0 0 36 300"><path d={path}></path></symbol>
+    </svg>
+    <ul class="grid grid-cols-4 items-end gap-x-3 gap-y-8 sm:grid-cols-8 sm:gap-x-2" data-reveal>
+      {
+        WOODS.map((wood, i) => (
+          <li class="rise" style={`--d:${i * 0.07}s`}>
+            <a href={`${href}#${wood.key}`} class="group flex flex-col items-center gap-3">
+              <svg viewBox="0 0 36 300" class="h-40 w-auto transition-transform duration-300 group-hover:-translate-y-2 md:h-52" aria-hidden="true">
+                <defs>
+                  <linearGradient id={`wt-${wood.key}`} x1="0" x2="1">
+                    <stop offset="0" stop-color={wood.colors[1]} />
+                    <stop offset="0.38" stop-color={wood.colors[0]} />
+                    <stop offset="0.55" stop-color={wood.colors[0]} stop-opacity="0.85" />
+                    <stop offset="1" stop-color={wood.colors[1]} />
+                  </linearGradient>
+                </defs>
+                <use href="#wt-shape" fill={`url(#wt-${wood.key})`} stroke="rgb(40 25 10 / 0.3)" stroke-width="0.6" />
+              </svg>
+              <span class="text-center text-[0.92rem] leading-tight text-ink group-hover:text-verm">{wood.name[lang]}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

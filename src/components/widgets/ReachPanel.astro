@@ -1,6 +1,6 @@
 ---
-// 연락 방법 띠 (홈 아래쪽, 주문·문의 페이지 위쪽). 간판처럼 파란 바탕에 흰 글씨.
-// 큰 번호는 상담전화 — 대표님이 청각장애가 있어 전화는 상담전화가 대신 받습니다.
+// 연락 방법 (홈 아래쪽, 주문·문의 페이지 위쪽). 밤 작업장 쪽빛 바탕.
+// 큰 번호는 상담전화: 대표님이 소리 대신 글로 소통하셔서 전화는 상담전화가 대신 받습니다.
 // 대표 휴대폰은 '문자 보내기'를 먼저 보여 줍니다(전화도 되지만 문자를 부탁).
 import { Icon } from 'astro-icon/components';
 import { shopFor } from '~/data/shop';
@@ -20,33 +20,41 @@ const shop = shopFor(lang);
 const Heading = asPageHead ? 'h1' : 'h2';
 ---
 
-<section class="on-sign" id={asPageHead ? undefined : 'reach'}>
-  <div class:list={['mx-auto max-w-7xl px-4 lg:px-6', asPageHead ? 'pt-6 pb-14 md:pb-20' : 'py-16 md:py-24']}>
+<section class="sec-night grain relative overflow-hidden" id={asPageHead ? undefined : 'reach'}>
+  <div class:list={['relative z-[2] mx-auto max-w-7xl px-5 lg:px-8', asPageHead ? 'pt-10 pb-16 md:pb-24' : 'py-20 md:py-28']}>
     <slot name="top" />
-    <Heading class:list={['display text-white', asPageHead ? 'text-[clamp(2.6rem,6.5vw,4.75rem)]' : 'text-[clamp(2rem,4vw,3rem)]']}>
-      {asPageHead ? t.contact.title : t.cta.title}
-    </Heading>
-    <p class="mt-3 max-w-2xl text-lg text-white/85">{asPageHead ? t.contact.lead : t.cta.lead}</p>
+    <div class="flex items-start justify-between gap-6">
+      <div>
+        <Heading
+          class:list={['display text-paper', asPageHead ? 'text-[clamp(2.8rem,7vw,5.2rem)]' : 'text-[clamp(2.2rem,4.8vw,3.8rem)]']}
+          data-split
+        >
+          {asPageHead ? t.contact.title : t.cta.title}
+        </Heading>
+        <p class="mt-4 max-w-2xl text-lg text-paper/80">{asPageHead ? t.contact.lead : t.cta.lead}</p>
+      </div>
+      <span class="seal hidden shrink-0 md:inline-grid" style="--seal:4.4rem" aria-hidden="true">초월</span>
+    </div>
 
-    <div class="mt-10 grid gap-4 lg:grid-cols-[1.35fr_1fr_1fr]">
-      <a href={shop.consult.href} class="reach-card group transition-colors hover:bg-white/12">
-        <span class="flex items-center gap-2 font-bold text-white">
+    <div class="mt-12 grid gap-4 lg:grid-cols-[1.35fr_1fr_1fr]" data-reveal>
+      <a href={shop.consult.href} class="reach-card rise group relative transition-colors hover:border-wood/50" data-tilt>
+        <span class="flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />{r.consult}
         </span>
-        <span class="display mt-1 text-[clamp(2.2rem,4.6vw,3.4rem)] leading-none tabular-nums text-white group-hover:underline group-hover:underline-offset-8">
+        <span class="display mt-2 text-[clamp(2.3rem,4.8vw,3.6rem)] leading-none tabular-nums text-paper group-hover:text-white">
           {shop.consult.label}
         </span>
-        <span class="mt-2 text-white/80">{r.consultNote}</span>
+        <span class="mt-3 text-paper/75">{r.consultNote}</span>
       </a>
 
-      <div class="reach-card">
-        <span class="flex items-center gap-2 font-bold text-white">
+      <div class="reach-card rise" style="--d:0.12s">
+        <span class="flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{r.mobile}
         </span>
-        <span class="mt-1 text-2xl font-bold tabular-nums text-white">{shop.mobile.label}</span>
-        <span class="text-white/80">{r.mobileNote}</span>
-        <span class="mt-3 flex flex-wrap gap-2">
-          <a href={shop.mobile.sms} class="btn-white !min-h-11 !px-5 text-[0.95rem]">
+        <span class="mt-1 text-2xl font-bold tabular-nums text-paper">{shop.mobile.label}</span>
+        <span class="text-paper/75">{r.mobileNote}</span>
+        <span class="mt-4 flex flex-wrap gap-2">
+          <a href={shop.mobile.sms} class="btn-verm !min-h-11 !px-5 text-[0.95rem]">
             <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{r.sms}
           </a>
           <a href={shop.mobile.href} class="btn-ghost !min-h-11 !px-4 text-[0.95rem]">
@@ -55,27 +63,27 @@ const Heading = asPageHead ? 'h1' : 'h2';
         </span>
       </div>
 
-      <div class="reach-card">
-        <span class="font-bold text-white">{r.tel}</span>
-        <a href={shop.tel.href} class="text-2xl font-bold tabular-nums text-white underline-offset-4 hover:underline">
+      <div class="reach-card rise" style="--d:0.24s">
+        <span class="font-bold text-wood">{r.tel}</span>
+        <a href={shop.tel.href} class="text-2xl font-bold tabular-nums text-paper underline-offset-4 hover:underline">
           {shop.tel.label}
         </a>
-        <span class="mt-3 font-bold text-white">{r.fax}</span>
-        <span class="text-2xl font-bold tabular-nums text-white">{shop.fax}</span>
-        <span class="text-white/80">{r.faxNote}</span>
+        <span class="mt-4 font-bold text-wood">{r.fax}</span>
+        <span class="text-2xl font-bold tabular-nums text-paper">{shop.fax}</span>
+        <span class="text-paper/75">{r.faxNote}</span>
       </div>
     </div>
 
-    <p class="mt-6 flex max-w-3xl gap-2.5 text-white/90">
-      <Icon name="tabler:ear-off" class="mt-1 h-5 w-5 shrink-0" aria-hidden="true" />
+    <p class="mt-8 flex max-w-3xl gap-3 border-l-2 border-verm pl-4 text-paper/90">
+      <Icon name="tabler:hand-finger" class="mt-1 h-5 w-5 shrink-0 text-wood" aria-hidden="true" />
       <span>{r.deafNote}</span>
     </p>
-    {r.intlNote && <p class="mt-2 max-w-3xl text-white/80">{r.intlNote}</p>}
-    <p class="mt-2 text-white/80">{shop.hours} ({shop.closed})</p>
+    {r.intlNote && <p class="mt-3 max-w-3xl text-paper/70">{r.intlNote}</p>}
+    <p class="mt-3 text-paper/70">{shop.hours} ({shop.closed})</p>
 
     {
       showFormLink && (
-        <a href={`${localize(lang, '/contact')}#order`} class="btn-white mt-8">
+        <a href={`${localize(lang, '/contact')}#order`} class="btn-wood mt-10">
           <Icon name="tabler:clipboard-text" class="h-5 w-5" aria-hidden="true" />
           {t.cta.form}
         </a>

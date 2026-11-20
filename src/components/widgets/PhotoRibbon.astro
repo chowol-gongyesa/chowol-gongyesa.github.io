@@ -1,0 +1,62 @@
+---
+// 작업 사진 두 줄이 서로 반대 방향으로 천천히 흐름 (마우스를 올리면 멈춤). 사진을 누르면 작업물 페이지로.
+import Image from '~/components/common/Image.astro';
+import { pick, WORKS_COUNT } from '~/data/works';
+import { localize, useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const ROWS = [
+  ['chowol-01', 'column-13', 'chowol-02', 'column-157', 'lathe-80', 'column-04', 'chowol-09', 'column-182', 'lathe-190', 'column-152'],
+  ['chowol-03', 'lathe-55', 'column-114', 'chowol-08', 'lathe-163', 'column-29', 'chowol-10', 'lathe-25', 'column-19', 'lathe-169'],
+].map((files) => pick(files, lang));
+const works = localize(lang, '/works');
+---
+
+<section class="sec-night grain relative overflow-hidden py-20 md:py-28" aria-labelledby="ribbon-title">
+  <div class="relative z-[2] mx-auto flex max-w-7xl flex-col gap-4 px-5 md:flex-row md:items-end md:justify-between lg:px-8">
+    <div>
+      <h2 id="ribbon-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-paper" data-split>{t.ribbon.title}</h2>
+      <p class="mt-4 max-w-xl text-paper/75">{t.ribbon.lead}</p>
+    </div>
+    <a href={works} class="btn-ghost shrink-0 self-start md:self-auto">{t.products.all(WORKS_COUNT)}</a>
+  </div>
+
+  <div class="relative z-[2] mt-12 space-y-4 md:space-y-5">
+    {
+      ROWS.map((row, r) => (
+        <div class:list={['marquee', { reverse: r === 1 }]} style={`--speed:${r === 0 ? 70 : 80}s;--gap:1rem`}>
+          {[0, 1].map((copy) => (
+            <div class="marquee-track" aria-hidden={copy === 1 ? 'true' : undefined}>
+              {row.map((p) => (
+                <a
+                  href={`${works}#${p.category}`}
+                  class="group relative block w-[15rem] shrink-0 overflow-hidden bg-night-2 md:w-[20rem]"
+                  tabindex={copy === 1 ? -1 : undefined}
+                >
+                  <Image
+                    src={p.src}
+                    alt={copy === 1 ? '' : p.alt}
+                    widths={[320, 480, 640]}
+                    sizes="(max-width: 767px) 240px, 320px"
+                    width={640}
+                    height={480}
+                    layout="cover"
+                    format="webp"
+                    class="aspect-[4/3] w-full object-cover opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+                  />
+                  <span class="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-night/90 to-transparent px-3 pt-8 pb-2 text-sm text-paper transition-transform duration-300 group-hover:translate-y-0">
+                    {p.caption}
+                  </span>
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</section>

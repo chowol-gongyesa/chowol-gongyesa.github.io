@@ -1,6 +1,7 @@
 ---
-// 상단 메뉴: 가게 간판처럼 늘 파란 띠. 컴퓨터는 한 줄(로고 · 메뉴 · 언어 · 상담전화),
+// 상단 메뉴: 밤 작업장 같은 짙은 쪽빛 띠. 컴퓨터는 한 줄(로고, 메뉴, 언어, 상담전화),
 // 휴대폰은 로고 줄 아래에 옆으로 밀리는 메뉴 탭이 붙습니다.
+// 홈에서는 첫 화면 영상 위에 투명하게 떠 있다가 스크롤하면 짙어집니다 (tailwind.css의 html.header-over).
 import { Icon } from 'astro-icon/components';
 import Logo from '~/components/Logo.astro';
 import LangSwitch from '~/components/common/LangSwitch.astro';
@@ -67,13 +68,13 @@ const persistKey = `header-${lang}`;
           {
             callAction && (
               <>
-                <a href={callAction.href} class="btn-white hidden min-h-11 px-5 text-[0.95rem] lg:inline-flex">
+                <a href={callAction.href} class="btn-verm hidden !min-h-11 !px-5 text-[0.95rem] lg:inline-flex">
                   <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />
                   {callAction.text}
                 </a>
                 <a
                   href={callAction.href}
-                  class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-sign lg:hidden"
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-verm text-white lg:hidden"
                   aria-label={callAction.text}
                 >
                   <Icon name="tabler:phone" class="h-5 w-5" />

@@ -1,27 +1,32 @@
 ---
-// 홈. 한국어(/)와 다른 언어 페이지(/en/ 등)가 함께 씁니다.
-// 첫 화면은 간판처럼 파란 띠: 큰 제목 + 실제 자동 로구로 영상 + 같은 모양의 난간 동자가 늘어선 난간.
-import { Icon } from 'astro-icon/components';
+// 홈. 한국어(/)와 다른 언어 페이지(/en/ 등)가 함께 씁니다. 위에서부터:
+// 입장 화면(첫 방문) → 첫 화면 영상 + 난간 → 흐르는 물건 이름 → 작업 영상(자막) → 대표 이야기
+// → 자동·손 로구로 비교 → 견본 하나로 몇 개든(스크롤 장면) → 깎는 물건 → 작업 사진 띠
+// → 나무 고르기 → 주문 순서 → 연락 → 찾아오시는 길
 import { SITE } from 'astrowind:config';
 import Layout from '~/layouts/PageLayout.astro';
-import Image from '~/components/common/Image.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
-import Balustrade from '~/components/widgets/Balustrade.astro';
-import TwoLathes from '~/components/widgets/TwoLathes.astro';
+import Intro from '~/components/widgets/Intro.astro';
+import HeroCinema from '~/components/widgets/HeroCinema.astro';
+import Marquee from '~/components/widgets/Marquee.astro';
+import CraftFilm from '~/components/widgets/CraftFilm.astro';
 import OwnerStory from '~/components/widgets/OwnerStory.astro';
+import LatheCompare from '~/components/widgets/LatheCompare.astro';
+import CopyScene from '~/components/widgets/CopyScene.astro';
+import ProductPlaques from '~/components/widgets/ProductPlaques.astro';
+import PhotoRibbon from '~/components/widgets/PhotoRibbon.astro';
+import WoodsTeaser from '~/components/widgets/WoodsTeaser.astro';
 import OrderSteps from '~/components/widgets/OrderSteps.astro';
 import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import VisitInfo from '~/components/widgets/VisitInfo.astro';
-import { PRODUCTS, SHOP, shopFor } from '~/data/shop';
-import { GALLERY_COUNT, photo } from '~/data/works';
-import { localize, useT, type Lang } from '~/i18n';
+import { SHOP } from '~/data/shop';
+import { useT, type Lang } from '~/i18n';
 
 export interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = useT(lang);
-const shop = shopFor(lang);
 
 const metadata = {
   title: t.home.metaTitle,
@@ -56,146 +61,21 @@ const structuredData = {
   ],
 };
 
-const worksHref = localize(lang, '/works');
 ---
 
-<Layout metadata={metadata} lang={lang}>
+<Layout metadata={metadata} lang={lang} headerOver>
   <StructuredData slot="head" schema={structuredData} />
-
-  <!-- 첫 화면 -->
-  <section class="on-sign overflow-hidden">
-    <div
-      class="mx-auto grid max-w-7xl items-end gap-10 px-4 pt-10 md:pt-12 lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 lg:px-6"
-    >
-      <div class="hero-enter lg:pb-12">
-        <h1 class="display text-[clamp(2.75rem,7.4vw,6.25rem)] text-white">
-          <span class="block">{t.hero.title1}</span>
-          <span class="block">{t.hero.title2}</span>
-        </h1>
-        <p class="mt-6 max-w-[38rem] text-lg text-white/88 md:text-xl md:leading-relaxed" style="--d:2">{t.hero.lead}</p>
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style="--d:4">
-          <a href={shop.consult.href} class="btn-white text-lg">
-            <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />
-            {t.nav.call} <span class="tabular-nums">{shop.consult.label}</span>
-          </a>
-          <a href={shop.mobile.sms} class="btn-ghost text-lg">
-            <Icon name="tabler:photo-up" class="h-5 w-5" aria-hidden="true" />
-            {t.hero.sms}
-          </a>
-        </div>
-      </div>
-
-      <div class="w-full max-w-[25rem] justify-self-center lg:max-w-[21.5rem] lg:justify-self-end">
-        <div class="hero-video aspect-[4/5]" data-hero-video>
-          <video
-            muted
-            loop
-            playsinline
-            autoplay
-            preload="metadata"
-            poster="/video/autolathe-poster.jpg"
-            aria-label={t.hero.videoLabel}
-          >
-            <source src="/video/autolathe-480.mp4" type="video/mp4" media="(max-width: 767px)" />
-            <source src="/video/autolathe-720.mp4" type="video/mp4" />
-          </video>
-          <button
-            type="button"
-            class="absolute right-2 bottom-2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-sign shadow-lg"
-            data-video-toggle
-            data-label-pause={t.hero.pause}
-            data-label-play={t.hero.play}
-            aria-label={t.hero.pause}
-          >
-            <Icon name="tabler:player-pause-filled" class="h-5 w-5" data-icon-pause aria-hidden="true" />
-            <Icon name="tabler:player-play-filled" class="hidden h-5 w-5" data-icon-play aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-10 md:mt-12">
-      <p class="mx-auto mb-4 max-w-7xl px-4 text-white/85 lg:px-6">{t.hero.railCaption}</p>
-      <Balustrade />
-    </div>
-  </section>
-
-  <TwoLathes />
-
-  <!-- 깎는 것 -->
-  <section class="bg-white px-4 py-16 md:py-24 lg:px-6">
-    <div class="mx-auto max-w-7xl">
-      <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{t.products.title}</h2>
-          <p class="mt-3 text-lg text-muted">{t.products.lead}</p>
-        </div>
-        <a href={worksHref} class="btn-secondary self-start md:self-auto">{t.products.all(GALLERY_COUNT)}</a>
-      </div>
-      <ul class="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6">
-        {
-          PRODUCTS.map((product) => {
-            const item = t.products.items[product.key];
-            const work = photo(product.photo, lang);
-            return (
-              <li>
-                <a href={`${worksHref}#${product.anchor}`} class="lift group block">
-                  <div class="photo aspect-square">
-                    <Image
-                      src={work.src}
-                      alt={work.alt}
-                      widths={[320, 480, 640]}
-                      sizes="(max-width: 767px) 45vw, 380px"
-                      width={480}
-                      height={480}
-                      layout="cover"
-                      format="webp"
-                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  <h3 class="mt-3 text-lg font-bold text-ink group-hover:text-sign">{item.title}</h3>
-                  <p class="text-sm text-muted">{item.text}</p>
-                </a>
-              </li>
-            );
-          })
-        }
-      </ul>
-    </div>
-  </section>
-
+  <Intro lang={lang} />
+  <HeroCinema lang={lang} />
+  <Marquee lang={lang} />
+  <CraftFilm lang={lang} />
   <OwnerStory />
-
-  <OrderSteps class="bg-white" />
-
-  <VisitInfo />
-
-  <!-- 연락 띠는 바닥글 바로 위: 파란 간판 띠가 바닥글과 이어져 페이지를 닫음 -->
+  <LatheCompare lang={lang} />
+  <CopyScene lang={lang} />
+  <ProductPlaques lang={lang} />
+  <PhotoRibbon lang={lang} />
+  <WoodsTeaser lang={lang} />
+  <OrderSteps />
   <ReachPanel />
+  <VisitInfo />
 </Layout>
-
-<script>
-  // 첫 화면 영상: 멈춤·재생 단추. '움직임 줄이기' 설정이면 처음부터 멈춘 채로 둡니다.
-  const setup = () => {
-    const box = document.querySelector<HTMLElement>('[data-hero-video]');
-    const video = box?.querySelector('video');
-    const button = box?.querySelector<HTMLButtonElement>('[data-video-toggle]');
-    if (!box || !video || !button || box.dataset.ready) return;
-    box.dataset.ready = '1';
-    const sync = () => {
-      const paused = video.paused;
-      button.setAttribute('aria-label', (paused ? button.dataset.labelPlay : button.dataset.labelPause) ?? '');
-      button.querySelector('[data-icon-pause]')?.classList.toggle('hidden', paused);
-      button.querySelector('[data-icon-play]')?.classList.toggle('hidden', !paused);
-    };
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      video.removeAttribute('autoplay');
-      video.pause();
-    }
-    button.addEventListener('click', () => (video.paused ? video.play() : video.pause()));
-    video.addEventListener('play', sync);
-    video.addEventListener('pause', sync);
-    sync();
-  };
-  document.addEventListener('astro:page-load', setup);
-</script>

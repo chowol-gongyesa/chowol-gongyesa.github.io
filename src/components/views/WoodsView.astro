@@ -1,0 +1,221 @@
+---
+// 나무 고르기 페이지. 한국어(/woods)와 다른 언어 페이지가 함께 씁니다. 나무 목록은 src/data/woods.ts
+// 나무마다 그 나무 색으로 깎은 동자와 결 무늬 견본판을 그려 보여 줍니다.
+import { Icon } from 'astro-icon/components';
+import Layout from '~/layouts/PageLayout.astro';
+import PageHead from '~/components/widgets/PageHead.astro';
+import { WOODS, PICKS } from '~/data/woods';
+import { shopFor } from '~/data/shop';
+import { verticalPath } from '~/utils/baluster';
+import { localize, useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const w = t.woods;
+const shop = shopFor(lang);
+const byKey = new Map(WOODS.map((wood) => [wood.key, wood]));
+// 단단함 옆 설명: 무름(1~2), 아주 단단(4~5)만 붙이고 보통(3)은 숫자만
+const hardLabel = (hard: number) => (hard <= 2 ? w.hardLow : hard >= 4 ? w.hardHigh : '');
+const baluster = verticalPath();
+
+// 견본판의 나뭇결: 나무마다 조금씩 다른 물결선
+const grain = (seed: number) => {
+  let x = seed * 9301 + 49297;
+  const rand = () => ((x = (x * 9301 + 49297) % 233280) / 233280);
+  const lines: string[] = [];
+  for (let i = 0; i < 9; i++) {
+    const y = 8 + i * 13 + rand() * 6;
+    const a = 3 + rand() * 7;
+    const k = 0.02 + rand() * 0.03;
+    const pts: string[] = [];
+    for (let px = 0; px <= 240; px += 12) pts.push(`${px} ${(y + Math.sin(px * k + i) * a).toFixed(1)}`);
+    lines.push(`M${pts.join(' L')}`);
+  }
+  return lines.join(' ');
+};
+
+const metadata = {
+  title: w.metaTitle,
+  description: w.metaDescription,
+};
+---
+
+<Layout metadata={metadata} lang={lang}>
+  <PageHead
+    lang={lang}
+    title={w.title}
+    lead={w.lead}
+    crumb={t.nav.woods}
+    image="~/assets/images/works/chowol-08.jpg"
+    imagePos="50% 50%"
+  >
+    <nav class="mt-8 flex flex-wrap gap-2" aria-label={w.jump}>
+      {
+        WOODS.map((wood) => (
+          <a
+            href={`#${wood.key}`}
+            class="inline-flex min-h-11 items-center gap-2 rounded-full border border-wood/40 px-4 text-[0.95rem] text-paper hover:border-wood hover:bg-wood/10"
+          >
+            <i class="h-3 w-3 rounded-full" style={`background:linear-gradient(135deg,${wood.colors[0]},${wood.colors[1]})`} aria-hidden="true" />
+            {wood.name[lang]}
+          </a>
+        ))
+      }
+    </nav>
+  </PageHead>
+
+  <section class="px-5 py-20 md:py-28 lg:px-8">
+    <svg width="0" height="0" class="absolute" aria-hidden="true">
+      <symbol id="wd-shape" viewBox="0 0 36 300"><path d={baluster}></path></symbol>
+    </svg>
+    <ul class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
+      {
+        WOODS.map((wood, i) => (
+          <li id={wood.key} class="scroll-mt-28" data-reveal>
+            <article class="rise grid h-full grid-cols-[5.5rem_minmax(0,1fr)] gap-5 border border-ink/12 bg-[rgb(255_252_245/0.55)] p-5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-7 sm:p-7" style={`--d:${(i % 2) * 0.12}s`}>
+              <div class="flex flex-col items-center gap-4" aria-hidden="true">
+                <svg viewBox="0 0 36 300" class="h-56 w-auto drop-shadow-[0_8px_10px_rgb(0_0_0/0.25)] sm:h-64">
+                  <defs>
+                    <linearGradient id={`wd-${wood.key}`} x1="0" x2="1">
+                      <stop offset="0" stop-color={wood.colors[1]} />
+                      <stop offset="0.4" stop-color={wood.colors[0]} />
+                      <stop offset="1" stop-color={wood.colors[1]} />
+                    </linearGradient>
+                  </defs>
+                  <use href="#wd-shape" fill={`url(#wd-${wood.key})`} />
+                </svg>
+                <svg viewBox="0 0 240 120" class="w-full">
+                  <rect width="240" height="120" fill={wood.colors[0]} />
+                  <path d={grain(i + 1)} fill="none" stroke={wood.colors[1]} stroke-width="1.6" opacity="0.55" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="display text-[1.9rem] leading-tight text-ink">{wood.name[lang]}</h2>
+                <p class="text-sm text-muted italic" lang="la" translate="no">{wood.latin}</p>
+                <dl class="mt-5 grid gap-3 text-[0.97rem]">
+                  <div>
+                    <dt class="font-bold text-verm">{w.look}</dt>
+                    <dd class="text-ink">{wood.look[lang]}</dd>
+                  </div>
+                  <div>
+                    <dt class="font-bold text-verm">{w.hard}</dt>
+                    <dd class="flex items-center gap-3">
+                      <span class="flex gap-1" aria-hidden="true">
+                        {Array.from({ length: 5 }, (_, n) => (
+                          <i class:list={['h-2.5 w-7', n < wood.hard ? 'bg-walnut' : 'bg-ink/12']} />
+                        ))}
+                      </span>
+                      <span class="text-sm text-muted">
+                        {wood.hard}/5{hardLabel(wood.hard) && `, ${hardLabel(wood.hard)}`}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-bold text-verm">{w.density}</dt>
+                    <dd class="text-ink tabular-nums">
+                      {wood.density} <span class="text-sm text-muted">({w.densityUnit})</span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-bold text-verm">{w.uses}</dt>
+                    <dd class="text-ink">{wood.uses[lang]}</dd>
+                  </div>
+                </dl>
+                <p class="mt-5 text-ink-soft">{wood.feel[lang]}</p>
+                <details class="faq-item mt-4 border-t border-ink/12">
+                  <summary class="!min-h-11 !py-2 !text-[0.98rem]">
+                    <span>
+                      {w.turning}, {w.care}
+                    </span>
+                    <Icon name="tabler:plus" class="faq-icon h-5 w-5 shrink-0 text-verm" aria-hidden="true" />
+                  </summary>
+                  <dl class="space-y-3 pb-2 text-[0.97rem]">
+                    <div>
+                      <dt class="font-bold text-ink">{w.turning}</dt>
+                      <dd class="text-ink-soft">{wood.turning[lang]}</dd>
+                    </div>
+                    <div>
+                      <dt class="font-bold text-ink">{w.care}</dt>
+                      <dd class="text-ink-soft">{wood.care[lang]}</dd>
+                    </div>
+                  </dl>
+                </details>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- 나무를 고르기 전에 -->
+  <section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="tips-title">
+    <div class="relative z-[2] mx-auto max-w-7xl">
+      <h2 id="tips-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-paper" data-split>{w.tipsTitle}</h2>
+      <ul class="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-2" data-reveal>
+        {
+          w.tips.map((tip, i) => (
+            <li class="rise border-t border-wood/25 pt-6" style={`--d:${i * 0.1}s`}>
+              <h3 class="display text-[1.5rem] text-wood">{tip.title}</h3>
+              <p class="mt-3 text-paper/80">{tip.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 만들 물건으로 고르기 -->
+  <section class="sec-paper2 px-5 py-20 md:py-28 lg:px-8" aria-labelledby="picks-title">
+    <div class="mx-auto max-w-7xl">
+      <h2 id="picks-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{w.picksTitle}</h2>
+      <ul class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3" data-reveal>
+        {
+          PICKS.map((pick, i) => (
+            <li class="rise relative border-t-2 border-ink pt-5" style={`--d:${(i % 3) * 0.1}s`}>
+              <h3 class="display text-[1.35rem] text-ink">{pick.title[lang]}</h3>
+              <ul class="mt-4 flex flex-wrap gap-2">
+                {pick.woods.map((key) => {
+                  const wood = byKey.get(key)!;
+                  return (
+                    <li>
+                      <a
+                        href={`#${key}`}
+                        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/25 bg-paper/70 px-3.5 text-[0.95rem] text-ink hover:border-verm hover:text-verm"
+                      >
+                        <i class="h-3 w-3 rounded-full" style={`background:linear-gradient(135deg,${wood.colors[0]},${wood.colors[1]})`} aria-hidden="true" />
+                        {wood.name[lang]}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-12 max-w-3xl text-ink-soft">{w.note}</p>
+    </div>
+  </section>
+
+  <!-- 나무를 못 정하셨나요? -->
+  <section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-24 lg:px-8">
+    <div class="relative z-[2] mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 class="display text-[clamp(2rem,4.4vw,3.4rem)] text-paper" data-split>{w.ctaTitle}</h2>
+        <p class="mt-3 max-w-xl text-paper/80">{w.ctaText}</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href={`${localize(lang, '/contact')}#order`} class="btn-verm">
+          <Icon name="tabler:clipboard-text" class="h-5 w-5" aria-hidden="true" />{t.cta.form}
+        </a>
+        <a href={shop.consult.href} class="btn-ghost">
+          <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />{w.ctaCall}
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,62 @@
+---
+// 페이지를 옮길 때: 쪽빛 세로 띠들(난간 살)이 위에서 차례로 내려와 화면을 덮었다가, 새 페이지가 오면 아래로 빠짐.
+// 맨 위의 주홍 선은 스크롤한 만큼 늘어나는 진행 표시줄.
+const SLATS = 10;
+---
+
+<div id="shutter" transition:persist aria-hidden="true" style={`--slats:${SLATS}`}>
+  {Array.from({ length: SLATS }, (_, k) => <i style={`--k:${k}`}></i>)}
+</div>
+<div id="progress" transition:persist aria-hidden="true"></div>
+
+<script>
+  const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // 스크롤 진행
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const bar = document.getElementById('progress');
+    if (!bar) return;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true }
+  );
+  window.addEventListener('resize', update);
+  document.addEventListener('astro:page-load', update);
+
+  // 페이지 이동: 덮기 → (새 페이지로 바뀜) → 걷기
+  document.addEventListener('astro:before-preparation', (event) => {
+    if (reduce() || event.to.pathname === event.from.pathname) return;
+    const shutter = document.getElementById('shutter');
+    if (!shutter) return;
+    shutter.classList.remove('is-open');
+    void shutter.offsetWidth;
+    shutter.classList.add('is-closing');
+    // 띠가 다 내려올 때까지 기다렸다가 새 페이지를 불러옴
+    const original = event.loader;
+    event.loader = async () => {
+      await Promise.all([original(), new Promise((r) => setTimeout(r, 560))]);
+    };
+  });
+  // 새 페이지로 바뀌면 띠를 아래로 걷음 (requestAnimationFrame 대신 setTimeout: 화면이 가려진 탭에서도 꼭 걷히게)
+  const open = () => {
+    const shutter = document.getElementById('shutter');
+    if (!shutter || !shutter.classList.contains('is-closing')) return;
+    window.setTimeout(() => {
+      shutter.classList.remove('is-closing');
+      shutter.classList.add('is-open');
+      window.setTimeout(() => shutter.classList.remove('is-open'), 1000);
+    }, 20);
+  };
+  document.addEventListener('astro:after-swap', open);
+  document.addEventListener('astro:page-load', open);
+</script>

@@ -7,14 +7,14 @@ const n = useT('ko').notFound;
 ---
 
 <Layout metadata={{ title: n.title, robots: { index: false, follow: true } }}>
-  <section class="on-sign">
-    <div class="mx-auto max-w-7xl px-4 py-20 md:py-28 lg:px-6">
-      <p class="display text-[clamp(5rem,16vw,10rem)] leading-none text-white" aria-hidden="true">404</p>
-      <h1 class="display mt-6 text-[clamp(2rem,4vw,3rem)] text-white">{n.title}</h1>
-      <p class="mt-3 text-lg text-white/85">{n.text}</p>
-      <p class="mt-1 text-white/75" lang="en">This page could not be found.</p>
+  <section class="sec-night grain relative overflow-hidden">
+    <div class="relative z-[2] mx-auto max-w-7xl px-5 py-20 md:py-28 lg:px-8">
+      <p class="display text-[clamp(5rem,16vw,10rem)] leading-none text-wood" aria-hidden="true">404</p>
+      <h1 class="display mt-6 text-[clamp(2rem,4vw,3rem)] text-paper">{n.title}</h1>
+      <p class="mt-3 text-lg text-paper/85">{n.text}</p>
+      <p class="mt-1 text-paper/70" lang="en">This page could not be found.</p>
       <div class="mt-8 flex flex-wrap gap-2">
-        <a href={getHomePermalink()} class="btn-white">{n.home}</a>
+        <a href={getHomePermalink()} class="btn-verm">{n.home}</a>
         {
           FOREIGN_LOCALES.map((l) => (
             <a href={localize(l, '/')} lang={LANG_META[l].html} class="btn-ghost">

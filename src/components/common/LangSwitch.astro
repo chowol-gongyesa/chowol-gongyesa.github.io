@@ -22,7 +22,7 @@ const path = Astro.url.pathname;
     <span translate="no">{LANG_META[lang].short}</span>
     <Icon name="tabler:chevron-down" class="lang-switch-chevron h-3.5 w-3.5" aria-hidden="true" />
   </summary>
-  <ul class="absolute right-0 top-full z-50 mt-2 min-w-[11rem] overflow-hidden border-t-4 border-sign bg-white py-1.5 shadow-2xl shadow-black/25">
+  <ul class="absolute right-0 top-full z-50 mt-2 min-w-[11rem] overflow-hidden border-t-4 border-verm bg-white py-1.5 shadow-2xl shadow-black/25">
     {
       LOCALES.map((l) => (
         <li>
@@ -34,7 +34,7 @@ const path = Astro.url.pathname;
             aria-current={l === lang ? 'true' : undefined}
             class:list={[
               'flex items-center justify-between gap-4 px-4 py-2.5 text-[0.95rem] text-ink transition-colors hover:bg-page focus-visible:bg-page',
-              l === lang && 'font-bold text-sign',
+              l === lang && 'font-bold text-verm',
             ]}
             translate="no"
           >
@@ -50,7 +50,7 @@ const path = Astro.url.pathname;
 <script>
   // 주소 규칙은 src/i18n/index.ts 와 같습니다 (번역이 없는 페이지면 그 언어의 홈으로).
   const LOCALES = ['ko', 'en', 'ja', 'zh'];
-  const PAGES = ['/', '/about', '/services', '/works', '/contact'];
+  const PAGES = ['/', '/about', '/services', '/works', '/woods', '/contact'];
 
   const switchPath = (pathname: string, to: string) => {
     const parts = pathname.split('/').filter(Boolean);

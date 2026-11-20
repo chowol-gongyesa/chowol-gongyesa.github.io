@@ -9,6 +9,9 @@
 | 전화번호·주소·영업시간·작업 분야 | `src/data/shop.ts`                                      |
 | 작업물 사진 목록·설명            | `src/data/works.ts` (사진은 `src/assets/images/works/`) |
 | 화면 문구 (4개 언어)             | `src/i18n/ko.ts` `en.ts` `ja.ts` `zh.ts`                |
+| 작업 영상 자막                   | `src/i18n/*.ts`의 `film.cues`                          |
+| 나무 고르기 목록                 | `src/data/woods.ts`                                     |
+| 영상 파일                        | `public/video/`                                         |
 | 색상·글꼴                        | `src/components/CustomStyles.astro`                     |
 
 ## 실행

@@ -3,6 +3,7 @@
 import Layout from '~/layouts/PageLayout.astro';
 import Gallery from '~/components/widgets/Gallery.astro';
 import PageHead from '~/components/widgets/PageHead.astro';
+import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import { CATEGORY_KEYS, GALLERY_COUNT, WORKS_COUNT, galleryBy } from '~/data/works';
 import { useT, type Lang } from '~/i18n';
 
@@ -20,19 +21,27 @@ const metadata = {
 ---
 
 <Layout metadata={metadata} lang={lang}>
-  <PageHead lang={lang} title={w.title} lead={w.lead(GALLERY_COUNT, WORKS_COUNT)} crumb={t.nav.works}>
+  <PageHead
+    lang={lang}
+    title={w.title}
+    lead={w.lead(GALLERY_COUNT, WORKS_COUNT)}
+    crumb={t.nav.works}
+    image="~/assets/images/works/chowol-02.jpg"
+    imagePos="50% 45%"
+    vlabel={t.hero.vlabel}
+  >
     <nav class="mt-8 flex flex-wrap gap-2" aria-label={w.navLabel}>
       {
         CATEGORY_KEYS.map((key) => (
           <a href={`#${key}`} class="btn-ghost !min-h-11 !px-4 text-[0.95rem]">
-            {w.categories[key].title} <span class="tabular-nums text-white/75">{galleryBy(key).length}</span>
+            {w.categories[key].title} <span class="tabular-nums text-paper/70">{galleryBy(key).length}</span>
           </a>
         ))
       }
     </nav>
   </PageHead>
 
-  <div class="pt-4 pb-12">
+  <div class="pt-6 pb-16">
     {
       CATEGORY_KEYS.map((key) => (
         <Gallery id={key} columns={4} images={galleryBy(key, lang)}>
@@ -42,4 +51,6 @@ const metadata = {
       ))
     }
   </div>
+
+  <ReachPanel />
 </Layout>

@@ -56,21 +56,22 @@ const typeOptions = PRODUCTS.map((p) =>
   <div class="rail-strip" aria-hidden="true"></div>
 
   <!-- 주문서 -->
-  <section id="order" class="px-4 py-16 md:py-24 lg:px-6">
-    <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_2fr] lg:gap-14">
+  <section id="order" class="px-5 py-20 md:py-28 lg:px-8">
+    <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
       <div>
-        <h2 class="display text-[clamp(2rem,4vw,3rem)] text-ink">{c.formTitle}</h2>
+        <h2 class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{c.formTitle}</h2>
+        <span class="seal mt-6" style="--seal:3.4rem" aria-hidden="true">초월</span>
         <p class="mt-4 text-muted [&_b]:font-bold [&_b]:text-ink" set:html={c.formLead} />
-        <p class="mt-4 font-bold tabular-nums text-ink">{shop.mobile.label}</p>
+        <p class="display mt-4 text-[1.6rem] tabular-nums text-ink">{shop.mobile.label}</p>
       </div>
 
-      <form id="order-form" class="grid gap-5 border-t-2 border-ink pt-6 sm:grid-cols-2" novalidate>
+      <form id="order-form" class="grid gap-6 border-t-2 border-ink bg-[rgb(255_252_245/0.45)] p-5 pt-7 sm:grid-cols-2 md:p-8" novalidate>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.name} <span class="text-pill" aria-label={c.required}>*</span></span>
+          <span class="text-sm font-bold text-ink">{c.name} <span class="text-verm" aria-label={c.required}>*</span></span>
           <input name="name" required autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.phone} <span class="text-pill" aria-label={c.required}>*</span></span>
+          <span class="text-sm font-bold text-ink">{c.phone} <span class="text-verm" aria-label={c.required}>*</span></span>
           <input
             name="phone"
             type="tel"
@@ -101,12 +102,12 @@ const typeOptions = PRODUCTS.map((p) =>
           <input name="due" autocomplete="off" class="field mt-1.5" placeholder={c.duePh} />
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-sm font-bold text-ink">{c.message} <span class="text-pill" aria-label={c.required}>*</span></span>
+          <span class="text-sm font-bold text-ink">{c.message} <span class="text-verm" aria-label={c.required}>*</span></span>
           <textarea name="message" required rows="5" autocomplete="off" class="field mt-1.5" placeholder={c.messagePh}
           ></textarea>
         </label>
 
-        <p id="order-error" class="hidden font-bold text-pill sm:col-span-2" role="alert">{c.error}</p>
+        <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert">{c.error}</p>
 
         <div class="flex flex-wrap gap-3 sm:col-span-2">
           <button type="submit" data-action="sms" class="btn-primary">
@@ -116,14 +117,14 @@ const typeOptions = PRODUCTS.map((p) =>
             <Icon name="tabler:copy" class="h-5 w-5" aria-hidden="true" />{c.copy}
           </button>
         </div>
-        <p id="order-copied" class="hidden font-bold text-sign sm:col-span-2" role="status">
+        <p id="order-copied" class="hidden font-bold text-verm sm:col-span-2" role="status">
           {c.copied(shop.mobile.label)}
         </p>
       </form>
     </div>
   </section>
 
-  <ShopFAQ class="bg-white" />
+  <ShopFAQ class="sec-paper2" />
 
   <VisitInfo />
 </Layout>
