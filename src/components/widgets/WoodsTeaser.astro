@@ -14,12 +14,13 @@ const path = verticalPath();
 const href = localize(lang, '/woods');
 ---
 
-<section class="sec-paper2 relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="woods-teaser-title">
-  <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-end lg:gap-16">
+<section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="woods-teaser-title">
+  <div class="relative z-[2] mx-auto grid max-w-[76rem] gap-12 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-end lg:gap-16">
     <div>
-      <h2 id="woods-teaser-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{w.title}</h2>
-      <p class="mt-5 max-w-md text-ink-soft">{w.lead}</p>
-      <a href={href} class="btn-verm mt-8">{w.link}</a>
+      <p class="eyebrow">{w.eyebrow}</p>
+      <h2 id="woods-teaser-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{w.title}</h2>
+      <p class="lead mt-5 max-w-md">{w.lead}</p>
+      <a href={href} class="btn-gold mt-8">{w.link}</a>
     </div>
 
     <svg width="0" height="0" class="absolute" aria-hidden="true">
@@ -41,7 +42,7 @@ const href = localize(lang, '/woods');
                 </defs>
                 <use href="#wt-shape" fill={`url(#wt-${wood.key})`} stroke="rgb(40 25 10 / 0.3)" stroke-width="0.6" />
               </svg>
-              <span class="text-center text-[0.92rem] leading-tight text-ink group-hover:text-verm">{wood.name[lang]}</span>
+              <span class="text-center text-[0.92rem] leading-tight text-ivory-2 group-hover:text-gold-2">{wood.name[lang]}</span>
             </a>
           </li>
         ))

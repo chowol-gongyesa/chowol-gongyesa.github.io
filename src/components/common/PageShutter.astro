@@ -44,7 +44,7 @@ const SLATS = 10;
     // 띠가 다 내려올 때까지 기다렸다가 새 페이지를 불러옴
     const original = event.loader;
     event.loader = async () => {
-      await Promise.all([original(), new Promise((r) => setTimeout(r, 560))]);
+      await Promise.all([original(), new Promise((r) => setTimeout(r, 300))]);
     };
   });
   // 새 페이지로 바뀌면 띠를 아래로 걷음 (requestAnimationFrame 대신 setTimeout: 화면이 가려진 탭에서도 꼭 걷히게)

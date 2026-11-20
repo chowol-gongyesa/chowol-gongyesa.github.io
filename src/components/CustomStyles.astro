@@ -1,50 +1,70 @@
 ---
-// 색과 글꼴 — 테마 '쪽빛 공방' (2026-11-20 2차).
-// 쪽빛(남색): 가게 파란 간판을 전통 쪽물 색으로 깊게 / 백목: 깎은 원목 색 / 인주: 낙관의 주홍 / 한지: 밝은 바탕.
-// 글꼴: 제목은 목판 인쇄 느낌의 송명(Song Myung), 본문은 고운바탕(Gowun Batang), 로고만 간판 글꼴(Black Han Sans).
-// 성창공예(어두운 호두색 + 황동색 + 노토 명조)와 겹치지 않게 잡았습니다.
+// 색·글꼴 (3차 '먹감나무 공방'): 그을린 호두나무처럼 짙은 나무 바탕 + 금박 + 상아색 글씨, 낙관만 주홍.
+// 글꼴: 제목 나눔명조(굵게), 본문은 기기의 한글 고딕(애플 산돌고딕·맑은 고딕·Noto Sans CJK), 상호는 현판 글씨 같은 송명(Song Myung, 금박).
+//
+// ⚠️ 2차 디자인의 이름을 그대로 쓰는 부품이 있어 옛 이름을 새 색에 연결해 두었습니다:
+//    ink(글씨) → 상아색, ink-soft → 옅은 상아색, paper → 상아색, verm(강조) → 금색, wood → 밝은 금색, night → 짙은 바탕
 ---
 
 <style is:inline>
   :root {
-    --night: #0e1626;
-    --night-2: #15213a;
-    --indigo: #1f3566;
-    --sign: #2246a6;
-    --paper: #f2eadb;
-    --paper-2: #e7dac2;
-    --wood: #e6cfa6;
-    --wood-light: #f1e2c6;
-    --wood-deep: #a9804f;
-    --walnut: #5a3e28;
-    --ink: #1d1f26;
-    --ink-soft: #514a3f;
-    --verm: #c4432f;
-    --verm-deep: #a3341f;
-    --line: rgb(29 31 38 / 0.16);
+    --bg: #120d09;
+    --bg-2: #1a130d;
+    --bg-3: #241a12;
+    --ivory: #f3e9d8;
+    --ivory-2: #d8cab1;
+    --ivory-3: #b4a68e;
+    --gold: #cda763;
+    --gold-2: #e8c98c;
+    --gold-3: #8e6b34;
+    --seal: #b33b2b;
+    --line: rgb(205 167 99 / 0.22);
 
-    --aw-font-sans: 'Gowun Batang', 'Noto Serif KR', 'AppleMyungjo', serif;
-    --aw-font-serif: 'Gowun Batang', serif;
-    --aw-font-heading: 'Song Myung', 'Gowun Batang', serif;
+    /* 옛 이름 (2차 디자인 부품용) */
+    --night: var(--bg);
+    --night-2: var(--bg-2);
+    --paper: var(--ivory);
+    --paper-2: var(--bg-3);
+    --wood: var(--gold-2);
+    --wood-deep: var(--gold);
+    --walnut: #6d4c2c;
+    --ink: var(--ivory);
+    --ink-soft: var(--ivory-2);
+    --verm: var(--gold);
 
-    --aw-color-primary: rgb(196 67 47);
-    --aw-color-secondary: rgb(31 53 102);
-    --aw-color-accent: rgb(196 67 47);
-    --aw-color-link: rgb(163 52 31);
+    /* 본문은 기기에 있는 한글 글꼴 (내려받을 글꼴을 줄여 휴대폰에서 빨리 뜨게) */
+    --aw-font-sans: 'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+    --aw-font-serif: 'Nanum Myeongjo', serif;
+    --aw-font-heading: 'Nanum Myeongjo', 'AppleMyungjo', serif;
+    --brand-font: 'Song Myung', 'Nanum Myeongjo', serif;
 
-    --aw-color-text-heading: rgb(29 31 38);
-    --aw-color-text-default: rgb(29 31 38);
-    --aw-color-text-muted: rgb(81 74 63);
-    --aw-color-bg-page: rgb(242 234 219);
-    --aw-color-bg-page-dark: rgb(14 22 38);
+    --aw-color-primary: rgb(205 167 99);
+    --aw-color-secondary: rgb(232 201 140);
+    --aw-color-accent: rgb(179 59 43);
+    --aw-color-link: rgb(232 201 140);
+    --aw-color-text-heading: rgb(243 233 216);
+    --aw-color-text-default: rgb(243 233 216);
+    --aw-color-text-muted: rgb(216 202 177);
+    --aw-color-bg-page: rgb(18 13 9);
+    --aw-color-bg-page-dark: rgb(18 13 9);
 
     ::selection {
-      background-color: #c4432f;
-      color: #fff;
+      background-color: #cda763;
+      color: #120d09;
     }
   }
 
-  body {
+  /* 일본어·중국어 페이지 글꼴 (이 :root 규칙 뒤에 있어야 적용됨) */
+  :root:lang(ja) {
+    --aw-font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', system-ui, sans-serif;
+    --aw-font-heading: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+  }
+  :root:lang(zh) {
+    --aw-font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
+    --aw-font-heading: 'Noto Serif SC', 'Songti SC', serif;
+  }
+
+  :root:lang(ko) body {
     word-break: keep-all;
   }
 </style>

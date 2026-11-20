@@ -3,12 +3,12 @@
 // 주문서는 서버 없이 작성 내용을 문자 메시지로 만들어 정영순 대표 휴대폰(문자)으로 보냅니다.
 import { Icon } from 'astro-icon/components';
 import Layout from '~/layouts/PageLayout.astro';
-import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
+import PageHead from '~/components/widgets/PageHead.astro';
 import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import ShopFAQ from '~/components/widgets/ShopFAQ.astro';
 import VisitInfo from '~/components/widgets/VisitInfo.astro';
 import { PRODUCTS, shopFor } from '~/data/shop';
-import { localize, useT, type Lang } from '~/i18n';
+import { useT, type Lang } from '~/i18n';
 
 export interface Props {
   lang: Lang;
@@ -46,32 +46,34 @@ const typeOptions = PRODUCTS.map((p) =>
 ---
 
 <Layout metadata={metadata} lang={lang}>
-  <ReachPanel asPageHead showFormLink={false}>
-    <Breadcrumbs
-      slot="top"
-      class="crumbs -ml-1 mb-6"
-      items={[{ text: t.nav.home, href: localize(lang, '/'), icon: 'tabler:home' }, { text: t.nav.contact }]}
-    />
-  </ReachPanel>
+  <PageHead
+    lang={lang}
+    title={c.title}
+    lead={c.lead}
+    crumb={t.nav.contact}
+    image="~/assets/images/works/column-154.jpg"
+    imagePos="50% 55%"
+    vlabel={t.hero.vlabel}
+  />
+  <ReachPanel bare showFormLink={false} />
   <div class="rail-strip" aria-hidden="true"></div>
 
   <!-- 주문서 -->
   <section id="order" class="px-5 py-20 md:py-28 lg:px-8">
-    <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
+    <div class="mx-auto grid max-w-[76rem] gap-12 lg:grid-cols-[1fr_2fr] lg:gap-16">
       <div>
-        <h2 class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{c.formTitle}</h2>
-        <span class="seal mt-6" style="--seal:3.4rem" aria-hidden="true">초월</span>
-        <p class="mt-4 text-muted [&_b]:font-bold [&_b]:text-ink" set:html={c.formLead} />
+        <h2 class="display text-[clamp(2.2rem,4.6vw,3.6rem)] text-ink" data-split>{c.formTitle}</h2>
+        <p class="mt-4 text-ivory-2 [&_b]:font-bold [&_b]:text-ivory" set:html={c.formLead} />
         <p class="display mt-4 text-[1.6rem] tabular-nums text-ink">{shop.mobile.label}</p>
       </div>
 
-      <form id="order-form" class="grid gap-6 border-t-2 border-ink bg-[rgb(255_252_245/0.45)] p-5 pt-7 sm:grid-cols-2 md:p-8" novalidate>
+      <form id="order-form" class="grid gap-6 border border-[var(--line)] border-t-gold bg-black/25 p-5 pt-7 sm:grid-cols-2 md:p-8" novalidate>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.name} <span class="text-verm" aria-label={c.required}>*</span></span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.name} <span class="text-verm" aria-label={c.required}>*</span></span>
           <input name="name" required autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.phone} <span class="text-verm" aria-label={c.required}>*</span></span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.phone} <span class="text-verm" aria-label={c.required}>*</span></span>
           <input
             name="phone"
             type="tel"
@@ -83,31 +85,35 @@ const typeOptions = PRODUCTS.map((p) =>
           />
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.type}</span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.type}</span>
           <select name="type" class="field mt-1.5">
+            <option value="" selected>{c.choose}</option>
             {typeOptions.map((option) => <option>{option}</option>)}
             <option>{c.unsure}</option>
           </select>
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.qty}</span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.qty}</span>
           <input name="qty" autocomplete="off" class="field mt-1.5" placeholder={c.qtyPh} />
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.size}</span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.size}</span>
           <input name="size" autocomplete="off" class="field mt-1.5" placeholder={c.sizePh} />
         </label>
         <label class="block">
-          <span class="text-sm font-bold text-ink">{c.due}</span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.due}</span>
           <input name="due" autocomplete="off" class="field mt-1.5" placeholder={c.duePh} />
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-sm font-bold text-ink">{c.message} <span class="text-verm" aria-label={c.required}>*</span></span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.message} <span class="text-verm" aria-label={c.required}>*</span></span>
           <textarea name="message" required rows="5" autocomplete="off" class="field mt-1.5" placeholder={c.messagePh}
           ></textarea>
         </label>
 
         <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert">{c.error}</p>
+        <p class="flex gap-2 border-l-2 border-gold pl-3 text-ivory-2 sm:col-span-2">
+          <Icon name="tabler:photo" class="mt-1 h-5 w-5 shrink-0 text-gold-2" aria-hidden="true" />{c.attachNote}
+        </p>
 
         <div class="flex flex-wrap gap-3 sm:col-span-2">
           <button type="submit" data-action="sms" class="btn-primary">
@@ -129,7 +135,7 @@ const typeOptions = PRODUCTS.map((p) =>
   <VisitInfo />
 </Layout>
 
-<script is:inline define:vars={{ smsNumber: shop.mobile.sms.replace('sms:', ''), labels }}>
+<script is:inline define:vars={{ smsNumber: shop.mobile.number, labels }}>
   const setup = () => {
     const form = document.getElementById('order-form');
     if (!form || form.dataset.ready) return;
@@ -157,7 +163,7 @@ const typeOptions = PRODUCTS.map((p) =>
         labels.header,
         `${labels.name}: ${get('name')}`,
         `${labels.phone}: ${get('phone')}`,
-        `${labels.type}: ${get('type')}`,
+        get('type') && `${labels.type}: ${get('type')}`,
         get('qty') && `${labels.qty}: ${get('qty')}`,
         get('size') && `${labels.size}: ${get('size')}`,
         get('due') && `${labels.due}: ${get('due')}`,
@@ -174,8 +180,8 @@ const typeOptions = PRODUCTS.map((p) =>
         }
         return;
       }
-      const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
-      window.location.href = `sms:${smsNumber}${isApple ? '&' : '?'}body=${encodeURIComponent(text)}`;
+      // '?&body=' 는 아이폰·안드로이드 모두 알아듣는 형식
+      window.location.href = `sms:${smsNumber}?&body=${encodeURIComponent(text)}`;
     });
   };
   setup();

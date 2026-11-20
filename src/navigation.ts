@@ -38,7 +38,7 @@ export const getFooterData = (lang: Lang = 'ko') => {
         title: t.footer.contact,
         links: [
           { text: `${t.reach.consult} ${shop.consult.label}`, href: shop.consult.href },
-          { text: `${t.reach.mobile} ${shop.mobile.label}`, href: shop.mobile.sms },
+          { text: `${t.reach.mobileSms} ${shop.mobile.label}`, href: shop.mobile.sms },
           { text: `${t.reach.tel} ${shop.tel.label}`, href: shop.tel.href },
           { text: `${t.reach.fax} ${shop.fax}` },
         ],

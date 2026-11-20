@@ -21,21 +21,7 @@ const byKey = new Map(WOODS.map((wood) => [wood.key, wood]));
 const hardLabel = (hard: number) => (hard <= 2 ? w.hardLow : hard >= 4 ? w.hardHigh : '');
 const baluster = verticalPath();
 
-// 견본판의 나뭇결: 나무마다 조금씩 다른 물결선
-const grain = (seed: number) => {
-  let x = seed * 9301 + 49297;
-  const rand = () => ((x = (x * 9301 + 49297) % 233280) / 233280);
-  const lines: string[] = [];
-  for (let i = 0; i < 9; i++) {
-    const y = 8 + i * 13 + rand() * 6;
-    const a = 3 + rand() * 7;
-    const k = 0.02 + rand() * 0.03;
-    const pts: string[] = [];
-    for (let px = 0; px <= 240; px += 12) pts.push(`${px} ${(y + Math.sin(px * k + i) * a).toFixed(1)}`);
-    lines.push(`M${pts.join(' L')}`);
-  }
-  return lines.join(' ');
-};
+// 견본판·동자의 나뭇결 그림: public/tex/woods/<나무>.webp, <나무>-v.webp (만드는 법: scripts/woods.py)
 
 const metadata = {
   title: w.metaTitle,
@@ -49,15 +35,16 @@ const metadata = {
     title={w.title}
     lead={w.lead}
     crumb={t.nav.woods}
-    image="~/assets/images/works/chowol-08.jpg"
-    imagePos="50% 50%"
+    image="~/assets/images/works/column-10.jpg"
+    imagePos="50% 60%"
+    vlabel={t.hero.vlabel}
   >
     <nav class="mt-8 flex flex-wrap gap-2" aria-label={w.jump}>
       {
         WOODS.map((wood) => (
           <a
             href={`#${wood.key}`}
-            class="inline-flex min-h-11 items-center gap-2 rounded-full border border-wood/40 px-4 text-[0.95rem] text-paper hover:border-wood hover:bg-wood/10"
+            class="inline-flex min-h-11 items-center gap-2 rounded-full border border-gold/40 px-4 text-[0.95rem] text-ivory hover:border-gold-2 hover:bg-gold/10"
           >
             <i class="h-3 w-3 rounded-full" style={`background:linear-gradient(135deg,${wood.colors[0]},${wood.colors[1]})`} aria-hidden="true" />
             {wood.name[lang]}
@@ -71,44 +58,56 @@ const metadata = {
     <svg width="0" height="0" class="absolute" aria-hidden="true">
       <symbol id="wd-shape" viewBox="0 0 36 300"><path d={baluster}></path></symbol>
     </svg>
-    <ul class="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2">
+    <ul class="mx-auto grid max-w-[76rem] gap-8 lg:grid-cols-2">
       {
         WOODS.map((wood, i) => (
           <li id={wood.key} class="scroll-mt-28" data-reveal>
-            <article class="rise grid h-full grid-cols-[5.5rem_minmax(0,1fr)] gap-5 border border-ink/12 bg-[rgb(255_252_245/0.55)] p-5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-7 sm:p-7" style={`--d:${(i % 2) * 0.12}s`}>
+            <article class="rise grid h-full grid-cols-[5.5rem_minmax(0,1fr)] gap-5 border border-[var(--line)] bg-black/25 p-5 sm:grid-cols-[7.5rem_minmax(0,1fr)] sm:gap-7 sm:p-7" style={`--d:${(i % 2) * 0.12}s`}>
               <div class="flex flex-col items-center gap-4" aria-hidden="true">
-                <svg viewBox="0 0 36 300" class="h-56 w-auto drop-shadow-[0_8px_10px_rgb(0_0_0/0.25)] sm:h-64">
+                <svg viewBox="0 0 36 300" class="h-56 w-auto drop-shadow-[0_8px_10px_rgb(0_0_0/0.35)] sm:h-64">
                   <defs>
-                    <linearGradient id={`wd-${wood.key}`} x1="0" x2="1">
-                      <stop offset="0" stop-color={wood.colors[1]} />
-                      <stop offset="0.4" stop-color={wood.colors[0]} />
-                      <stop offset="1" stop-color={wood.colors[1]} />
+                    <!-- 그 나무의 세로 결 그림을 입히고, 둥글게 깎인 느낌으로 양쪽을 어둡게 -->
+                    <pattern id={`wt-${wood.key}`} patternUnits="userSpaceOnUse" width="36" height="300">
+                      <image href={`/tex/woods/${wood.key}-v.webp`} width="36" height="300" preserveAspectRatio="none" />
+                    </pattern>
+                    <linearGradient id={`ws-${wood.key}`} x1="0" x2="1">
+                      <stop offset="0" stop-color="#000" stop-opacity="0.5" />
+                      <stop offset="0.32" stop-color="#fff" stop-opacity="0.16" />
+                      <stop offset="0.55" stop-color="#000" stop-opacity="0" />
+                      <stop offset="1" stop-color="#000" stop-opacity="0.55" />
                     </linearGradient>
                   </defs>
-                  <use href="#wd-shape" fill={`url(#wd-${wood.key})`} />
+                  <use href="#wd-shape" fill={wood.colors[0]} />
+                  <use href="#wd-shape" fill={`url(#wt-${wood.key})`} />
+                  <use href="#wd-shape" fill={`url(#ws-${wood.key})`} />
                 </svg>
-                <svg viewBox="0 0 240 120" class="w-full">
-                  <rect width="240" height="120" fill={wood.colors[0]} />
-                  <path d={grain(i + 1)} fill="none" stroke={wood.colors[1]} stroke-width="1.6" opacity="0.55" />
-                </svg>
+                <img
+                  src={`/tex/woods/${wood.key}.webp`}
+                  alt=""
+                  width="480"
+                  height="240"
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-[2/1] w-full object-cover shadow-[inset_0_0_0_1px_rgb(0_0_0/0.3)]"
+                />
               </div>
               <div>
-                <h2 class="display text-[1.9rem] leading-tight text-ink">{wood.name[lang]}</h2>
-                <p class="text-sm text-muted italic" lang="la" translate="no">{wood.latin}</p>
-                <dl class="mt-5 grid gap-3 text-[0.97rem]">
+                <h2 class="display text-[1.8rem] leading-tight">{wood.name[lang]}</h2>
+                <p class="text-[0.95rem] text-muted italic" lang="la" translate="no">{wood.latin}</p>
+                <dl class="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 text-[0.97rem]">
                   <div>
                     <dt class="font-bold text-verm">{w.look}</dt>
                     <dd class="text-ink">{wood.look[lang]}</dd>
                   </div>
                   <div>
                     <dt class="font-bold text-verm">{w.hard}</dt>
-                    <dd class="flex items-center gap-3">
+                    <dd class="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span class="flex gap-1" aria-hidden="true">
                         {Array.from({ length: 5 }, (_, n) => (
-                          <i class:list={['h-2.5 w-7', n < wood.hard ? 'bg-walnut' : 'bg-ink/12']} />
+                          <i class:list={['h-2.5 w-4 sm:w-5', n < wood.hard ? 'bg-gold' : 'bg-ivory/15']} />
                         ))}
                       </span>
-                      <span class="text-sm text-muted">
+                      <span class="whitespace-nowrap text-[0.95rem] text-muted">
                         {wood.hard}/5{hardLabel(wood.hard) && `, ${hardLabel(wood.hard)}`}
                       </span>
                     </dd>
@@ -116,7 +115,7 @@ const metadata = {
                   <div>
                     <dt class="font-bold text-verm">{w.density}</dt>
                     <dd class="text-ink tabular-nums">
-                      {wood.density} <span class="text-sm text-muted">({w.densityUnit})</span>
+                      {wood.density} <span class="text-[0.95rem] text-muted">({w.densityUnit})</span>
                     </dd>
                   </div>
                   <div>
@@ -125,7 +124,7 @@ const metadata = {
                   </div>
                 </dl>
                 <p class="mt-5 text-ink-soft">{wood.feel[lang]}</p>
-                <details class="faq-item mt-4 border-t border-ink/12">
+                <details class="faq-item mt-4 border-t border-[var(--line)]">
                   <summary class="!min-h-11 !py-2 !text-[0.98rem]">
                     <span>
                       {w.turning}, {w.care}
@@ -153,14 +152,14 @@ const metadata = {
 
   <!-- 나무를 고르기 전에 -->
   <section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="tips-title">
-    <div class="relative z-[2] mx-auto max-w-7xl">
-      <h2 id="tips-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-paper" data-split>{w.tipsTitle}</h2>
+    <div class="relative z-[2] mx-auto max-w-[76rem]">
+      <h2 id="tips-title" class="display text-[clamp(2.2rem,4.6vw,3.6rem)] text-paper" data-split>{w.tipsTitle}</h2>
       <ul class="mt-12 grid gap-x-12 gap-y-10 md:grid-cols-2" data-reveal>
         {
           w.tips.map((tip, i) => (
-            <li class="rise border-t border-wood/25 pt-6" style={`--d:${i * 0.1}s`}>
-              <h3 class="display text-[1.5rem] text-wood">{tip.title}</h3>
-              <p class="mt-3 text-paper/80">{tip.text}</p>
+            <li class="rise border-t border-[var(--line)] pt-6" style={`--d:${i * 0.1}s`}>
+              <h3 class="display text-[1.4rem] text-gold-2">{tip.title}</h3>
+              <p class="mt-3 text-ivory-2">{tip.text}</p>
             </li>
           ))
         }
@@ -169,13 +168,13 @@ const metadata = {
   </section>
 
   <!-- 만들 물건으로 고르기 -->
-  <section class="sec-paper2 px-5 py-20 md:py-28 lg:px-8" aria-labelledby="picks-title">
-    <div class="mx-auto max-w-7xl">
-      <h2 id="picks-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{w.picksTitle}</h2>
+  <section class="sec-wood px-5 py-20 md:py-28 lg:px-8" aria-labelledby="picks-title">
+    <div class="mx-auto max-w-[76rem]">
+      <h2 id="picks-title" class="display text-[clamp(2.2rem,4.6vw,3.6rem)] text-ink" data-split>{w.picksTitle}</h2>
       <ul class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3" data-reveal>
         {
           PICKS.map((pick, i) => (
-            <li class="rise relative border-t-2 border-ink pt-5" style={`--d:${(i % 3) * 0.1}s`}>
+            <li class="rise relative border-t border-gold pt-5" style={`--d:${(i % 3) * 0.1}s`}>
               <h3 class="display text-[1.35rem] text-ink">{pick.title[lang]}</h3>
               <ul class="mt-4 flex flex-wrap gap-2">
                 {pick.woods.map((key) => {
@@ -184,7 +183,7 @@ const metadata = {
                     <li>
                       <a
                         href={`#${key}`}
-                        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-ink/25 bg-paper/70 px-3.5 text-[0.95rem] text-ink hover:border-verm hover:text-verm"
+                        class="inline-flex min-h-11 items-center gap-2 rounded-full border border-gold/40 bg-black/30 px-3.5 text-[0.95rem] text-ivory hover:border-gold-2 hover:text-gold-2"
                       >
                         <i class="h-3 w-3 rounded-full" style={`background:linear-gradient(135deg,${wood.colors[0]},${wood.colors[1]})`} aria-hidden="true" />
                         {wood.name[lang]}
@@ -197,16 +196,16 @@ const metadata = {
           ))
         }
       </ul>
-      <p class="mt-12 max-w-3xl text-ink-soft">{w.note}</p>
+      <p class="mt-12 max-w-3xl text-ivory-2">{w.note}</p>
     </div>
   </section>
 
   <!-- 나무를 못 정하셨나요? -->
   <section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-24 lg:px-8">
-    <div class="relative z-[2] mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
+    <div class="relative z-[2] mx-auto flex max-w-[76rem] flex-col gap-8 md:flex-row md:items-center md:justify-between">
       <div>
         <h2 class="display text-[clamp(2rem,4.4vw,3.4rem)] text-paper" data-split>{w.ctaTitle}</h2>
-        <p class="mt-3 max-w-xl text-paper/80">{w.ctaText}</p>
+        <p class="mt-3 max-w-xl text-ivory-2">{w.ctaText}</p>
       </div>
       <div class="flex flex-wrap gap-3">
         <a href={`${localize(lang, '/contact')}#order`} class="btn-verm">

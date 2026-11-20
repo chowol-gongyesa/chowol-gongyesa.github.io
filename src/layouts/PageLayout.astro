@@ -2,6 +2,7 @@
 import Layout from '~/layouts/Layout.astro';
 import Header from '~/components/widgets/Header.astro';
 import Footer from '~/components/widgets/Footer.astro';
+import MobileCallBar from '~/components/widgets/MobileCallBar.astro';
 
 import { getHeaderData, getFooterData } from '~/navigation';
 import { langFromPath, type Lang } from '~/i18n';
@@ -32,4 +33,5 @@ const { metadata, lang = langFromPath(Astro.url.pathname), headerOver = false } 
     <slot />
   </main>
   {Astro.slots.has('footer') ? <slot name="footer" /> : <Footer {...getFooterData(lang)} />}
+  <MobileCallBar />
 </Layout>

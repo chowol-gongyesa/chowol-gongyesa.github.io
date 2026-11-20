@@ -26,15 +26,15 @@ const metadata = {
     title={w.title}
     lead={w.lead(GALLERY_COUNT, WORKS_COUNT)}
     crumb={t.nav.works}
-    image="~/assets/images/works/chowol-02.jpg"
-    imagePos="50% 45%"
+    image="~/assets/images/works/column-04.jpg"
+    imagePos="50% 55%"
     vlabel={t.hero.vlabel}
   >
     <nav class="mt-8 flex flex-wrap gap-2" aria-label={w.navLabel}>
       {
         CATEGORY_KEYS.map((key) => (
           <a href={`#${key}`} class="btn-ghost !min-h-11 !px-4 text-[0.95rem]">
-            {w.categories[key].title} <span class="tabular-nums text-paper/70">{galleryBy(key).length}</span>
+            {w.categories[key].title} <span class="tabular-nums text-ivory-2">{galleryBy(key).length}</span>
           </a>
         ))
       }

@@ -1,137 +1,163 @@
 ---
 // 공방 연출 모음 (모든 페이지)
-// 1) 마우스 효과: 움직인 자리에 고운 백목 가루가 흩날리다 가라앉음 (마우스가 있는 컴퓨터만)
-// 2) 단추·링크·카드를 누르면 그 자리에서 얇게 말린 대팻밥이 튐
-// 3) data-split 제목은 화면에 들어올 때 글자가 하나씩 떠오름
-// 4) data-tilt 카드는 마우스를 따라 살짝 기울고 빛이 비침
-// 5) data-reveal 칸이 화면에 들어오면 .is-in → 사진이 대패질하듯 걷히고(.wipe) 글이 떠오름(.rise)
-// 움직임 줄이기 설정이면 1·2·4는 꺼지고 3·5는 바로 다 보입니다.
+// 1) 금빛 커서: 작은 점은 바로, 고리는 천천히 따라옴. 링크 위에선 고리가 커지고, 사진·영상(data-cursor) 위에선 '보기'·'재생' 글자
+// 2) 등잔불: 마우스 주변을 따뜻하게 비춤 + 움직인 자리에 금빛 나무 가루
+// 3) 누르면 나이테처럼 금빛 고리가 퍼짐 (성창공예의 톱밥과 다르게)
+// 4) data-split 제목은 화면에 들어올 때 글자가 하나씩 떠오름
+// 5) data-tilt 카드는 마우스를 따라 살짝 기울고 빛이 비침
+// 6) data-reveal 칸이 화면에 들어오면 .is-in → 사진이 걷히고(.wipe) 글이 떠오름(.rise)
+// 마우스가 없는 휴대폰·태블릿에서는 1·2가 꺼지고, 움직임 줄이기 설정이면 2·3·5가 꺼집니다.
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const c = useT(lang).cursor;
 ---
 
+<div id="cw-lantern" transition:persist aria-hidden="true"></div>
 <canvas id="cursor-dust" transition:persist aria-hidden="true"></canvas>
 <div id="craft-fx" transition:persist aria-hidden="true"></div>
+<div id="cw-ring" transition:persist aria-hidden="true" data-view={c.view} data-play={c.play}><span></span></div>
+<div id="cw-dot" transition:persist aria-hidden="true"></div>
 
 <script>
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  // ---------- 1) 나무 가루 ----------
-  type Speck = { x: number; y: number; vx: number; vy: number; life: number; max: number; size: number; tone: number; rot: number };
+  // ---------- 1) 금빛 커서 + 2) 등잔불·나무 가루 ----------
+  let mx = -100;
+  let my = -100;
+  let rx = -100;
+  let ry = -100;
+  let started = false;
+  type Speck = { x: number; y: number; vx: number; vy: number; life: number; max: number; size: number };
   const specks: Speck[] = [];
-  let running = false;
-  let lastX = -1;
-  let lastY = -1;
   let ctx: CanvasRenderingContext2D | null = null;
   const resize = () => {
-    const c = document.getElementById('cursor-dust') as HTMLCanvasElement | null;
-    if (!c) return;
+    const cv = document.getElementById('cursor-dust') as HTMLCanvasElement | null;
+    if (!cv) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    c.width = innerWidth * dpr;
-    c.height = innerHeight * dpr;
-    ctx = c.getContext('2d');
+    cv.width = innerWidth * dpr;
+    cv.height = innerHeight * dpr;
+    ctx = cv.getContext('2d');
     ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
   window.addEventListener('resize', resize);
-  const TONES = ['#f1e2c6', '#e6cfa6', '#d9b98a', '#c9a271'];
-  const frame = () => {
-    if (!ctx) resize();
-    if (!ctx) return;
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
-    for (let i = specks.length - 1; i >= 0; i--) {
-      const s = specks[i];
-      s.life++;
-      s.vy += 0.045;
-      s.vx *= 0.96;
-      s.x += s.vx;
-      s.y += s.vy;
-      s.rot += s.vx * 0.08;
-      const t = s.life / s.max;
-      if (t >= 1) {
-        specks.splice(i, 1);
-        continue;
-      }
-      ctx.globalAlpha = (1 - t) * 0.9;
-      ctx.fillStyle = TONES[s.tone];
-      ctx.save();
-      ctx.translate(s.x, s.y);
-      ctx.rotate(s.rot);
-      ctx.fillRect(-s.size, -s.size * 0.45, s.size * 2, s.size * 0.9);
-      ctx.restore();
-    }
-    ctx.globalAlpha = 1;
-    if (specks.length) requestAnimationFrame(frame);
-    else running = false;
-  };
-  document.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' || !fine() || reduce()) return;
-    const dx = e.clientX - lastX;
-    const dy = e.clientY - lastY;
-    const dist = Math.hypot(dx, dy);
-    lastX = e.clientX;
-    lastY = e.clientY;
-    if (dist < 5 || dist > 300) return;
-    const count = Math.min(3, 1 + Math.floor(dist / 16));
-    for (let i = 0; i < count && specks.length < 110; i++) {
-      specks.push({
-        x: e.clientX + (Math.random() - 0.5) * 6,
-        y: e.clientY + (Math.random() - 0.5) * 6,
-        vx: (Math.random() - 0.5) * 0.9 - dx * 0.02,
-        vy: (Math.random() - 0.5) * 0.6 - 0.4,
-        life: 0,
-        max: 36 + Math.random() * 30,
-        size: 0.9 + Math.random() * 1.6,
-        tone: Math.floor(Math.random() * TONES.length),
-        rot: Math.random() * 3,
-      });
-    }
-    if (!running) {
-      running = true;
-      requestAnimationFrame(frame);
-    }
-  });
 
-  // ---------- 2) 대팻밥 ----------
-  const SHAVE_COLORS = ['#f1e2c6', '#e6cfa6', '#d9b98a', '#c9a271', '#b8895a'];
-  const SHAPES = ['M2 10c3-7 11-9 15-3s-1 11-6 8', 'M2 8c4-6 12-6 14 0s-6 8-9 4', 'M3 12c2-8 13-10 15-2', 'M2 6c6 0 10 4 9 9'];
-  const burst = (x: number, y: number) => {
-    const layer = document.getElementById('craft-fx');
-    if (!layer) return;
-    const count = 8 + Math.floor(Math.random() * 4);
-    for (let i = 0; i < count; i++) {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      el.setAttribute('viewBox', '0 0 20 20');
-      el.setAttribute('class', 'shaving');
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', SHAPES[i % SHAPES.length]);
-      path.setAttribute('stroke', SHAVE_COLORS[Math.floor(Math.random() * SHAVE_COLORS.length)]);
-      el.appendChild(path);
-      const size = 11 + Math.random() * 13;
-      el.style.cssText = `left:${x - size / 2}px;top:${y - size / 2}px;width:${size}px;height:${size}px`;
-      layer.appendChild(el);
-      const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.4;
-      const dist = 40 + Math.random() * 80;
-      const ddx = Math.cos(angle) * dist;
-      const ddy = Math.sin(angle) * dist;
-      const spin = (Math.random() < 0.5 ? -1 : 1) * (200 + Math.random() * 360);
-      el.animate(
-        [
-          { transform: 'translate(0,0) rotate(0deg) scale(0.4)', opacity: 1 },
-          { transform: `translate(${ddx}px,${ddy}px) rotate(${spin * 0.6}deg) scale(1)`, opacity: 1, offset: 0.35 },
-          { transform: `translate(${ddx * 1.3}px,${ddy + 100}px) rotate(${spin}deg) scale(0.9)`, opacity: 0 },
-        ],
-        { duration: 950 + Math.random() * 500, easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)' }
-      ).onfinish = () => el.remove();
+  const tick = () => {
+    const dot = document.getElementById('cw-dot');
+    const ring = document.getElementById('cw-ring');
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    if (dot) dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+    if (ring) ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+    // 나무 가루
+    if (!ctx) resize();
+    if (ctx) {
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = specks.length - 1; i >= 0; i--) {
+        const s = specks[i];
+        s.life++;
+        s.vy += 0.02;
+        s.vx *= 0.97;
+        s.x += s.vx;
+        s.y += s.vy;
+        const t = s.life / s.max;
+        if (t >= 1) {
+          specks.splice(i, 1);
+          continue;
+        }
+        const a = (1 - t) * 0.85;
+        ctx.fillStyle = `rgba(240, 205, 140, ${a})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * (1 - t * 0.5), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(255, 220, 160, ${a * 0.18})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
     }
+    requestAnimationFrame(tick);
   };
+
+  let lastX = -1;
+  let lastY = -1;
+  document.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || !fine()) return;
+    mx = e.clientX;
+    my = e.clientY;
+    if (!started) {
+      started = true;
+      rx = mx;
+      ry = my;
+      document.documentElement.classList.add('has-cursor');
+      requestAnimationFrame(tick);
+    }
+    const lantern = document.getElementById('cw-lantern');
+    lantern?.style.setProperty('--lx', `${mx}px`);
+    lantern?.style.setProperty('--ly', `${my}px`);
+    if (reduce()) return;
+    const dist = Math.hypot(mx - lastX, my - lastY);
+    if (dist > 6 && dist < 300 && specks.length < 30) {
+      const n = Math.min(2, 1 + Math.floor(dist / 30));
+      for (let i = 0; i < n; i++) {
+        specks.push({
+          x: mx + (Math.random() - 0.5) * 8,
+          y: my + (Math.random() - 0.5) * 8,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: -0.2 - Math.random() * 0.5,
+          life: 0,
+          max: 40 + Math.random() * 30,
+          size: 0.8 + Math.random() * 1.4,
+        });
+      }
+    }
+    lastX = mx;
+    lastY = my;
+  });
+  document.addEventListener('pointerleave', () => document.documentElement.classList.remove('has-cursor'));
+  document.addEventListener('pointerenter', (e) => {
+    if ((e as PointerEvent).pointerType === 'mouse' && started) document.documentElement.classList.add('has-cursor');
+  });
+  // 커서가 무엇 위에 있는지
+  document.addEventListener('pointerover', (e) => {
+    const ring = document.getElementById('cw-ring');
+    if (!ring) return;
+    const target = e.target as HTMLElement;
+    const media = target.closest<HTMLElement>('[data-cursor]');
+    const link = target.closest('a, button, summary, label, [role="button"], input[type="range"]');
+    ring.classList.toggle('is-media', !!media);
+    ring.classList.toggle('is-link', !media && !!link);
+    const label = ring.querySelector('span');
+    if (label) label.textContent = media ? (media.dataset.cursor === 'play' ? ring.dataset.play : ring.dataset.view) ?? '' : '';
+  });
+  document.addEventListener('pointerdown', () => document.getElementById('cw-ring')?.classList.add('is-down'));
+  document.addEventListener('pointerup', () => document.getElementById('cw-ring')?.classList.remove('is-down'));
+
+  // ---------- 3) 나이테 고리 ----------
   document.addEventListener('pointerdown', (e) => {
     if (e.button !== 0 || reduce()) return;
     const target = e.target as HTMLElement;
-    if (target.closest('input, textarea, select, [contenteditable], dialog, #intro')) return;
-    if (!target.closest('a, button, summary, [data-tilt]')) return;
-    burst(e.clientX, e.clientY);
+    if (target.closest('input, textarea, select, [contenteditable], dialog')) return;
+    if (!target.closest('a, button, summary, [data-tilt], [data-cursor], #intro')) return;
+    const layer = document.getElementById('craft-fx');
+    if (!layer) return;
+    [0, 0.08, 0.16].forEach((delay, i) => {
+      const ring = document.createElement('i');
+      ring.className = 'ring';
+      const size = 46 + i * 34;
+      ring.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;--delay:${delay}s`;
+      layer.appendChild(ring);
+      window.setTimeout(() => ring.remove(), 1200);
+    });
   });
 
-  // ---------- 3) 글자가 하나씩 떠오르는 제목 ----------
+  // ---------- 4) 글자가 하나씩 떠오르는 제목 ----------
   const splitHeadings = () => {
     const cjk = /^(ja|zh)/.test(document.documentElement.lang);
     document.querySelectorAll<HTMLElement>('[data-split]:not([data-split-done])').forEach((el) => {
@@ -166,15 +192,15 @@
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
             io.disconnect();
-            requestAnimationFrame(() => el.classList.add('split-in'));
+            el.classList.add('split-in');
           }),
-        { threshold: 0.2 }
+        { threshold: 0, rootMargin: '0px 0px -8% 0px' }
       );
       io.observe(el);
     });
   };
 
-  // ---------- 4) 기울어지는 카드 ----------
+  // ---------- 5) 기울어지는 카드 ----------
   const tilt = () => {
     if (!fine() || reduce()) return;
     document.querySelectorAll<HTMLElement>('[data-tilt]:not([data-tilt-ready])').forEach((card) => {
@@ -186,7 +212,7 @@
           const r = card.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width;
           const py = (e.clientY - r.top) / r.height;
-          card.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 6}deg) rotateY(${(px - 0.5) * 7}deg) translateY(-2px)`;
+          card.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 5}deg) rotateY(${(px - 0.5) * 6}deg) translateY(-2px)`;
           card.style.setProperty('--gx', `${px * 100}%`);
           card.style.setProperty('--gy', `${py * 100}%`);
         });
@@ -198,7 +224,7 @@
     });
   };
 
-  // ---------- 5) 화면에 들어오면 드러나기 ----------
+  // ---------- 6) 화면에 들어오면 드러나기 (키가 큰 칸도 위쪽이 보이면 바로) ----------
   const reveal = () => {
     const items = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-in)');
     if (reduce() || !('IntersectionObserver' in window)) {
@@ -212,7 +238,7 @@
           entry.target.classList.add('is-in');
           io.unobserve(entry.target);
         }),
-      { threshold: 0.18, rootMargin: '0px 0px -6% 0px' }
+      { threshold: 0, rootMargin: '0px 0px -8% 0px' }
     );
     items.forEach((el) => io.observe(el));
   };

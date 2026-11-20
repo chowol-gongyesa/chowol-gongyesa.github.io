@@ -1,5 +1,5 @@
 ---
-// 로고: 실제 가게 간판 그대로 — 굵은 흰 글씨 '초월공예사' 아래(옆)에 흰 띠의 빨간 '로구로 전문'.
+// 로고: 금박 현판 글씨 '초월공예사'(빛이 주기적으로 스침) + 금테 '로구로 전문'.
 // 외국어 페이지에서도 상호는 한글 그대로 두고, 띠의 글자만 그 나라 말로 바꿉니다.
 import { SHOP } from '~/data/shop';
 import { useT, type Lang } from '~/i18n';
@@ -12,12 +12,7 @@ const { lang = 'ko', size = 'md' } = Astro.props;
 const t = useT(lang);
 ---
 
-<span
-  class:list={[
-    'inline-flex items-center gap-2.5 whitespace-nowrap text-white',
-    size === 'lg' ? 'text-[2.4rem]' : 'text-[1.55rem] md:text-[1.7rem]',
-  ]}
->
-  <span class="brand-name leading-none tracking-[0.02em]">{SHOP.name}</span>
-  <span class="logo-pill pill text-[0.42em] translate-y-[0.06em]">{t.pill}</span>
+<span class="inline-flex items-center gap-3 whitespace-nowrap">
+  <span class:list={['brand-mark', size === 'lg' ? 'text-[2.6rem]' : 'text-[1.7rem] md:text-[1.95rem]']}>{SHOP.name}</span>
+  <span class:list={['logo-pill pill', size === 'lg' ? 'text-[0.95rem]' : 'text-[0.85rem] md:text-[0.9rem]']}>{t.pill}</span>
 </span>

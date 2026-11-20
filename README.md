@@ -12,6 +12,7 @@
 | 작업 영상 자막                   | `src/i18n/*.ts`의 `film.cues`                          |
 | 나무 고르기 목록                 | `src/data/woods.ts`                                     |
 | 영상 파일                        | `public/video/`                                         |
+| 소리 파일 | `public/sound/` |
 | 색상·글꼴                        | `src/components/CustomStyles.astro`                     |
 
 ## 실행

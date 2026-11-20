@@ -1,0 +1,57 @@
+---
+// 완성된 모습: 큰 사진 한 장 + 작은 사진 8장 (4칸 3줄을 빈칸 없이 채움). 작업장·기계 사진은 넣지 않음.
+// 위의 '주문 품목'·'자동/손 로구로'에 쓴 사진과 겹치지 않게 골랐음.
+// 누르면 작업물 페이지의 그 분류로. 사진 목록은 아래 FILES
+import Image from '~/components/common/Image.astro';
+import { pick, GALLERY_COUNT } from '~/data/works';
+import { localize, useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const FILES = ['column-113', 'column-10', 'column-118', 'column-108', 'lathe-161', 'lathe-163', 'lathe-170', 'lathe-24', 'lathe-28'];
+const items = pick(FILES, lang);
+const works = localize(lang, '/works');
+---
+
+<section class="sec-wood relative px-5 py-20 md:py-28 lg:px-8" aria-labelledby="showcase-title">
+  <div class="mx-auto max-w-[76rem]">
+    <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-3xl">
+        <p class="eyebrow">{t.ribbon.eyebrow}</p>
+        <h2 id="showcase-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{t.ribbon.title}</h2>
+        <p class="lead mt-5">{t.ribbon.lead}</p>
+      </div>
+      <a href={works} class="btn-ghost shrink-0 self-start md:self-auto">{t.products.all(GALLERY_COUNT)}</a>
+    </div>
+
+    <ul class="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4" data-reveal>
+      {
+        items.map((p, i) => (
+          <li class:list={['rise', i === 0 && 'col-span-2 row-span-2']} style={`--d:${(i % 4) * 0.07}s`}>
+            <a href={`${works}#${p.category}`} class="group block h-full" data-cursor="view">
+              <figure class="frame flex h-full flex-col">
+                <div class:list={['inner flex-1', i === 0 ? 'aspect-square md:aspect-auto' : 'aspect-square']}>
+                  <Image
+                    src={p.src}
+                    alt={p.alt}
+                    widths={i === 0 ? [480, 720, 960] : [240, 360, 480]}
+                    sizes={i === 0 ? '(max-width: 767px) 92vw, 600px' : '(max-width: 767px) 45vw, 290px'}
+                    width={i === 0 ? 960 : 480}
+                    height={i === 0 ? 960 : 480}
+                    layout="cover"
+                    format="webp"
+                    class="h-full w-full object-cover transition duration-[1.1s] ease-out group-hover:scale-[1.06]"
+                  />
+                </div>
+                <figcaption class="px-3 py-2.5 text-[0.95rem] leading-snug text-ivory-2 group-hover:text-ivory">{p.caption}</figcaption>
+              </figure>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

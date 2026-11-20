@@ -3,7 +3,7 @@
 // detail=true 이면 (만드는 것 페이지) 설명을 길게 보여 줍니다. 물건 목록은 src/data/shop.ts의 PRODUCTS
 import Image from '~/components/common/Image.astro';
 import { PRODUCTS } from '~/data/shop';
-import { photo, WORKS_COUNT } from '~/data/works';
+import { photo, GALLERY_COUNT } from '~/data/works';
 import { localize, useT, type Lang } from '~/i18n';
 
 export interface Props {
@@ -17,30 +17,37 @@ const p = t.products;
 ---
 
 <section id="products" class="relative px-5 py-20 md:py-28 lg:px-8" aria-labelledby="products-title">
-  <div class="mx-auto max-w-7xl">
+  <div class="mx-auto max-w-[76rem]">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-10">
       <div>
-        <h2 id="products-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{p.title}</h2>
-        <p class="mt-4 max-w-xl text-ink-soft">{p.lead}</p>
+        <p class="eyebrow">{p.eyebrow}</p>
+        <h2 id="products-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{p.title}</h2>
+        <p class="lead mt-5 max-w-xl">{p.lead}</p>
       </div>
-      <a href={localize(lang, '/works')} class="btn-line shrink-0 self-start md:self-auto">{p.all(WORKS_COUNT)}</a>
+      {
+        detail ? (
+          <a href={localize(lang, '/works')} class="btn-ghost shrink-0 self-start md:self-auto">{p.all(GALLERY_COUNT)}</a>
+        ) : (
+          <a href={localize(lang, '/services')} class="btn-ghost shrink-0 self-start md:self-auto">{p.more}</a>
+        )
+      }
     </div>
 
-    <ul class="mt-12 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+    <ul class="mt-12 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3">
       {
         PRODUCTS.map((product, i) => {
           const item = p.items[product.key];
           const ph = photo(product.photo, lang);
           return (
             <li data-reveal>
-              <a href={`${localize(lang, '/works')}#${product.anchor}`} class="group block" data-tilt-host>
-                <div class="frame relative" data-tilt>
-                  <div class="inner wipe aspect-[4/3]" style={`--d:${(i % 3) * 0.12}s`}>
+              <a href={`${localize(lang, '/works')}#${product.anchor}`} class="group block">
+                <div class="frame relative">
+                  <div class="inner wipe aspect-[4/3]" style={`--d:${(i % 3) * 0.12}s`} data-cursor="view">
                     <Image
                       src={ph.src}
                       alt={ph.alt}
                       widths={[360, 560, 760]}
-                      sizes="(max-width: 639px) 92vw, (max-width: 1023px) 46vw, 400px"
+                      sizes="(max-width: 1023px) 46vw, 400px"
                       width={760}
                       height={570}
                       layout="cover"
@@ -48,9 +55,9 @@ const p = t.products;
                       class="h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.06]"
                     />
                   </div>
-                  <span class="plaque absolute -bottom-4 left-5 text-[1.2rem] md:text-[1.35rem]">{item.title}</span>
+                  <span class="plaque absolute -bottom-4 left-2 text-[1rem] sm:left-5 sm:text-[1.2rem] md:text-[1.35rem]">{item.title}</span>
                 </div>
-                <p class="rise mt-8 text-ink-soft" style="--d:0.25s">
+                <p class="rise mt-7 text-[0.98rem] text-ivory-2 sm:text-base" style="--d:0.25s">
                   {detail ? item.detail : item.text}
                 </p>
               </a>

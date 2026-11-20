@@ -42,11 +42,11 @@ const columnsClass =
   columns === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : columns === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
 ---
 
-<section id={id} class={`px-4 py-12 md:py-16 lg:px-6 scroll-mt-28 ${classes?.container ?? ''}`}>
-  <div class="mx-auto max-w-7xl">
+<section id={id} class={`px-5 py-12 md:py-16 lg:px-8 scroll-mt-28 ${classes?.container ?? ''}`}>
+  <div class="mx-auto max-w-[76rem]">
   {
     (title || subtitle) && (
-      <div class="mb-8 flex flex-col gap-1 border-t-2 border-ink pt-5 md:flex-row md:items-baseline md:justify-between md:gap-6">
+      <div class="mb-8 flex flex-col gap-1 border-t border-gold pt-5 md:flex-row md:items-baseline md:justify-between md:gap-6">
         {title && <h2 class="display text-[clamp(1.7rem,3vw,2.4rem)] text-ink" set:html={title} />}
         {subtitle && <p class="text-muted" set:html={subtitle} />}
       </div>
@@ -56,7 +56,7 @@ const columnsClass =
   <aw-gallery>
     <ul
       class:list={[
-        'grid gap-x-3 gap-y-6 md:gap-6 list-none',
+        'grid gap-x-4 gap-y-7 md:gap-x-6 md:gap-y-8 list-none',
         images.length > 1 ? 'grid-cols-2' : 'grid-cols-1',
         columnsClass,
       ]}
@@ -71,7 +71,8 @@ const columnsClass =
             <figure>
               <button
                 type="button"
-                class="group relative block w-full overflow-hidden bg-[#d9cdb5] cursor-zoom-in"
+                class="frame group relative block w-full cursor-zoom-in"
+                data-cursor="view"
                 data-aw-gallery-open={lightbox ? index : undefined}
                 data-aw-gallery-photos={JSON.stringify(viewerPhotos[index])}
                 disabled={!lightbox}
@@ -81,26 +82,28 @@ const columnsClass =
                     : undefined
                 }
               >
-                <Image
-                  class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  widths={[320, 480, 640]}
-                  sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 300px"
-                  width={400}
-                  height={300}
-                  layout="cover"
-                  format="webp"
-                  src={src}
-                  alt={alt || ''}
-                />
-                {viewerPhotos[index].length > 1 && (
-                  <span class="stack-badge" aria-hidden="true">
-                    <Icon name="tabler:photo" class="h-3.5 w-3.5" />
-                    {viewerPhotos[index].length}
-                  </span>
-                )}
+                <span class="inner block">
+                  <Image
+                    class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                    widths={[320, 480, 640]}
+                    sizes="(max-width: 639px) 50vw, (max-width: 1023px) 50vw, 300px"
+                    width={400}
+                    height={300}
+                    layout="cover"
+                    format="webp"
+                    src={src}
+                    alt={alt || ''}
+                  />
+                  {viewerPhotos[index].length > 1 && (
+                    <span class="stack-badge" aria-hidden="true">
+                      <Icon name="tabler:photo" class="h-4 w-4" />
+                      {viewerPhotos[index].length}
+                    </span>
+                  )}
+                </span>
               </button>
               {caption && (
-                <figcaption class="mt-2 text-sm text-muted leading-snug">
+                <figcaption class="mt-3 text-[0.95rem] leading-snug text-ivory-2">
                   {href ? (
                     <a href={href} class="inline-flex items-center gap-1 hover:text-verm hover:underline">
                       {caption}
@@ -156,7 +159,7 @@ const columnsClass =
             <img data-aw-gallery-img class="h-full w-full object-contain" alt="" draggable="false" />
           </div>
           <div class="flex h-16 shrink-0 flex-col items-center justify-start gap-2 px-4">
-            <p data-aw-gallery-caption class="text-center text-sm text-white/90" aria-live="polite" />
+            <p data-aw-gallery-caption class="text-center text-base text-white/90" aria-live="polite" />
             <div data-aw-gallery-thumbs class="flex justify-center gap-1.5" aria-hidden="true" />
           </div>
         </dialog>

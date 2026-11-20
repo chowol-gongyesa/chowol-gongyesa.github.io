@@ -31,25 +31,25 @@ const ALL = [
     '크기와 나무가 다른 원목 공',
     'Wooden balls in different sizes and woods',
     'サイズや樹種の異なる木の玉',
-    '不同尺寸与木种的原木球'
+    '不同尺寸与木种的实木球'
   ),
   w('chowol-09', '자동 로구로가 깎아 낸 부품', 'A part just cut by the automatic lathe', '自動ろくろが削り出した部品', '自动车床刚车好的零件'),
   w('chowol-11', '자동 로구로에 건 각재', 'A square blank loaded in the automatic lathe', '自動ろくろに取り付けた角材', '装上自动车床的方料'),
   w('chowol-12', '모양대로 깎이는 부품', 'The part being cut to shape', '形どおりに削られていく部品', '正在按形状车削的零件'),
   w(
     'chowol-08',
-    '로구로 작업을 기다리는 같은 모양 부재',
-    'Identical blanks waiting for the lathe',
-    'ろくろ加工を待つ同じ形の部材',
-    '等待车削的同款木料'
+    '같은 모양으로 잘라 쌓아 둔 나무 부재',
+    'Identical wooden pieces, cut to shape and stacked',
+    '同じ形に切りそろえて積んだ木の部材',
+    '切成同样形状、堆放整齐的木料'
   ),
-  w('chowol-03', '로구로로 깎은 원목 조명 받침', 'Lathe-turned wooden lamp base', 'ろくろで挽いた木の照明台', '车削原木灯座'),
+  w('chowol-03', '로구로로 깎은 원목 조명 받침', 'Lathe-turned wooden lamp base', 'ろくろで挽いた木の照明台', '车削实木灯座'),
   w(
     'chowol-06',
     '자동 로구로에 나무를 거는 정영순 대표',
     'Owner Jeong Yeong-sun loading wood into the automatic lathe',
     '自動ろくろに木材を取り付けるチョン・ヨンスン代表',
-    '店主郑永顺将木料装上自动车床'
+    '店主 Jeong Yeong-sun 将木料装上自动车床'
   ),
   w(
     'chowol-10',
@@ -63,7 +63,7 @@ const ALL = [
     '손 로구로로 다리를 깎는 정영순 대표',
     'Owner Jeong Yeong-sun turning a leg on the hand lathe',
     '手ろくろで脚を削るチョン・ヨンスン代表',
-    '店主郑永顺用手动车床车削桌腿'
+    '店主 Jeong Yeong-sun 用手动车床车削木腿'
   ),
   w('chowol-04', '초월공예사 작업장', 'The Chowol Craft workshop', 'チョウォル工芸社の工房', 'Chowol 工艺社工坊'),
   w('chowol-05', '파란 초월공예사 간판', 'The blue Chowol Craft sign', '青いチョウォル工芸社の看板', '蓝色的 Chowol 工艺社招牌'),
@@ -104,21 +104,21 @@ const ALL = [
       '포장을 마친 난간 동자 — 대량 납품',
       'Balusters bundled for a bulk delivery',
       '梱包を終えた手すり子 — 大量納品',
-      '打包完成的栏杆立柱——批量交货'
+      '打包完成的栏杆柱——批量交货'
     ),
   w(
       'column-153',
       '난간 동자 대량 납품 — 옆에서 본 모습',
       'Bulk balusters seen from the side',
       '手すり子の大量納品 — 横から',
-      '批量栏杆立柱——侧面'
+      '批量栏杆柱——侧面'
     ),
   w(
       'column-154',
       '묶음으로 포장한 원목 봉',
       'Turned wooden spindles in bundles',
       '束ねて梱包した木の丸棒',
-      '成捆包装的原木车削杆'
+      '成捆包装的实木车削杆'
     ),
   w('column-155', '난간 엄지기둥 여러 개', 'A batch of newel posts', '親柱をまとめて', '一批栏杆端柱'),
   w(
@@ -126,7 +126,7 @@ const ALL = [
       '흰색으로 칠한 원목 난간',
       'White-painted wooden balustrade',
       '白く塗装した木の手すり',
-      '白色涂装原木栏杆'
+      '白色涂装实木栏杆'
     ),
   w(
       'column-157',
@@ -135,20 +135,20 @@ const ALL = [
       'ふくらみのあるテーブル脚 4本',
       '四根鼓腹形桌腿'
     ),
-  w('column-158', '묶어 둔 원목 테이블 다리', 'Bundled wooden table legs', '束ねた木のテーブル脚', '捆好的原木桌腿'),
+  w('column-158', '묶어 둔 원목 테이블 다리', 'Bundled wooden table legs', '束ねた木のテーブル脚', '捆好的实木桌腿'),
   w(
       'column-159',
       '볼트를 끼운 둥근 원목 가구 발',
       'Round wooden furniture feet with bolts',
       'ボルト付きの丸い木の家具脚',
-      '带螺栓的圆形原木家具脚'
+      '带螺栓的圆形实木家具脚'
     ),
   w(
       'column-160',
       '둥근 원목 가구 발 — 위아래 모습',
       'Round wooden furniture feet, top and bottom',
       '丸い木の家具脚 — 上と下',
-      '圆形原木家具脚——正反面'
+      '圆形实木家具脚——正反面'
     ),
   w(
       'column-04',
@@ -187,8 +187,8 @@ const ALL = [
   w('column-43', '금색 볼 장식 봉', 'Rods with gold ball finials', '金色の玉飾り付きの棒', '金色圆球装饰杆'),
   w('column-11', '뾰족 장식 기둥', 'Pointed decorative columns', '先のとがった装飾柱', '尖顶装饰柱'),
   w('column-30', '긴 장식 기둥 묶음', 'Bundle of long decorative columns', '長い装飾柱の束', '成捆的长装饰柱'),
-  w('column-09', '긴 원목 기둥', 'Long solid wood columns', '長い無垢材の柱', '长原木柱'),
-  w('column-35', '원목 봉 묶음', 'Bundle of wooden rods', '木の丸棒の束', '成捆的原木圆棒'),
+  w('column-09', '긴 원목 기둥', 'Long solid wood columns', '長い無垢材の柱', '长实木柱'),
+  w('column-35', '원목 봉 묶음', 'Bundle of wooden rods', '木の丸棒の束', '成捆的实木圆棒'),
   w(
       'column-18',
       '둥근 손잡이 막대 수량 가공',
@@ -250,15 +250,15 @@ const ALL = [
       'ろくろで加工中の棒',
       '车床上加工中的杆'
     ),
-  w('column-124', '꽈배기 계단 엄지기둥', 'Twisted stair newel post', 'ねじり形の階段親柱', '麻花楼梯起步柱'),
+  w('column-124', '꽈배기 계단 엄지기둥', 'Twisted stair newel post', 'ねじり形の階段親柱', '麻花楼梯端柱'),
   w(
       'column-125',
       '구슬 머리 계단 엄지기둥',
       'Ball-topped stair newel posts',
       '玉飾り付きの階段親柱',
-      '圆球顶楼梯起步柱'
+      '圆球顶楼梯端柱'
     ),
-  w('column-126', '출고를 기다리는 엄지기둥', 'Newel posts waiting to ship', '出荷を待つ親柱', '待出货的起步柱'),
+  w('column-126', '출고를 기다리는 엄지기둥', 'Newel posts waiting to ship', '出荷を待つ親柱', '待出货的端柱'),
 
   // ───── 로구로 소품 · 목기 ─────
   w(

@@ -1,7 +1,6 @@
 ---
-// 자동 로구로와 손 로구로 비교: 두 기계가 실제로 깎는 짧은 영상(화면에 들어오면 소리 없이 반복 재생),
-// 작업 사진 두 장씩, 그리고 수량·깎는 방식·잘 맞는 주문을 나란히 비교한 표.
-// 영상: public/video/auto-loop.mp4, hand-loop.mp4 (작업 영상에서 잘라 낸 것)
+// 자동 로구로와 손 로구로 비교: 카드마다 작은 실제 영상(화면에 들어오면 소리 없이 반복), 설명, 잘 맞는 주문, 작업 사진 두 장.
+// 아래에 수량·깎는 방식·잘 맞는 주문을 나란히 비교한 표. 영상: public/video/auto-loop.mp4, hand-loop.mp4
 import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
 import { photo } from '~/data/works';
@@ -10,124 +9,136 @@ import { useT, type Lang } from '~/i18n';
 export interface Props {
   lang: Lang;
   class?: string;
+  /** 아래 비교표를 보여 줄지 (홈에서는 카드만, 만드는 것 페이지에서는 표까지) */
+  table?: boolean;
 }
-const { lang, class: className = 'sec-paper2' } = Astro.props;
+const { lang, class: className = 'sec-wood', table = true } = Astro.props;
 const m = useT(lang).compare;
 const SIDES = [
-  { key: 'auto' as const, video: '/video/auto-loop.mp4', poster: '/video/auto-poster.jpg', photos: ['chowol-06', 'chowol-08'] },
-  { key: 'hand' as const, video: '/video/hand-loop.mp4', poster: '/video/hand-poster.jpg', photos: ['chowol-03', 'column-04'] },
+  { key: 'auto' as const, video: '/video/auto-loop.mp4', poster: '/video/auto-poster.jpg', photos: ['chowol-10', 'column-37'] },
+  { key: 'hand' as const, video: '/video/hand-loop.mp4', poster: '/video/hand-poster.jpg', photos: ['chowol-03', 'column-124'] },
 ];
 ---
 
 <section id="lathes" class={`relative px-5 py-20 md:py-28 lg:px-8 ${className}`} aria-labelledby="lathes-title">
-  <div class="mx-auto max-w-7xl">
-    <div class="mx-auto max-w-3xl text-center">
-      <h2 id="lathes-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{m.title}</h2>
-      <p class="mt-5 text-ink-soft">{m.lead}</p>
+  <div class="mx-auto max-w-[76rem]">
+    <div class="max-w-3xl">
+      <p class="eyebrow">{m.eyebrow}</p>
+      <h2 id="lathes-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{m.title}</h2>
+      <p class="lead mt-5">{m.lead}</p>
     </div>
 
-    <div class="relative mt-14 grid gap-14 md:grid-cols-2 md:gap-10 lg:gap-16">
-      <span
-        class="seal absolute top-[12rem] left-1/2 z-10 hidden -translate-x-1/2 md:inline-grid"
-        style="--seal:3.6rem;writing-mode:horizontal-tb;font-size:1rem"
-        aria-hidden="true">{m.or}</span
-      >
+    <div class="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-10">
       {
         SIDES.map((side, i) => {
           const s = m[side.key];
           return (
-            <article class="flex flex-col" data-reveal>
-              <div class="frame">
-                <div class="inner wipe relative aspect-[4/5] md:aspect-square" style={`--d:${i * 0.15}s`}>
-                  <video
-                    class="lathe-loop h-full w-full object-cover"
-                    muted
-                    loop
-                    playsinline
-                    preload="none"
-                    poster={side.poster}
-                    data-src={side.video}
-                    aria-label={s.videoLabel}
-                  />
-                  <button
-                    type="button"
-                    class="loop-toggle absolute right-3 bottom-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-night/70 text-wood hover:bg-night"
-                    aria-label={m.videoPause}
-                    data-label-pause={m.videoPause}
-                    data-label-play={m.videoPlay}
-                  >
-                    <Icon name="tabler:player-pause" class="icon-pause h-5 w-5" aria-hidden="true" />
-                    <Icon name="tabler:player-play" class="icon-play hidden h-5 w-5" aria-hidden="true" />
-                  </button>
-                  <span class="plaque absolute top-4 left-4 text-[1.15rem] md:text-[1.3rem]">{s.name}</span>
+            <article class="flex flex-col border-t border-gold/50 pt-6" data-reveal>
+              <div class="grid gap-5 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] sm:gap-6">
+                <div class="frame self-start">
+                  <div class="inner wipe relative aspect-[4/3] sm:aspect-[4/5]" style={`--d:${i * 0.15}s`}>
+                    <video
+                      class="lathe-loop h-full w-full object-cover"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      poster={side.poster}
+                      data-src={side.video}
+                      aria-label={s.videoLabel}
+                    />
+                    <button
+                      type="button"
+                      class="loop-toggle absolute right-2 bottom-2 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-gold-2 hover:bg-black/80"
+                      aria-label={m.videoPause}
+                      data-label-pause={m.videoPause}
+                      data-label-play={m.videoPlay}
+                    >
+                      <Icon name="tabler:player-pause" class="icon-pause h-5 w-5" aria-hidden="true" />
+                      <Icon name="tabler:player-play" class="icon-play hidden h-5 w-5" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+                <div class="rise" style={`--d:${0.15 + i * 0.1}s`}>
+                  <span class="plaque text-[1.05rem] sm:text-[1.2rem]">{s.name}</span>
+                  <h3 class="display mt-4 text-[1.35rem] sm:text-[1.65rem]">{s.sub}</h3>
+                  <p class="mt-3 text-[1rem] leading-[1.85] text-ivory-2">{s.text}</p>
+                  <p class="mt-4 text-[0.95rem] font-bold text-gold">{m.goodFor}</p>
+                  <ul class="block-list mt-1 space-y-1 text-[0.98rem] text-ivory">
+                    {s.points.map((p) => <li>{p}</li>)}
+                  </ul>
                 </div>
               </div>
-              <div class="mt-3 grid grid-cols-2 gap-3">
+              <div class="mt-auto grid grid-cols-2 gap-3 pt-5">
                 {side.photos.map((file) => {
                   const p = photo(file, lang);
                   return (
-                    <div class="photo aspect-[4/3]">
-                      <Image
-                        src={p.src}
-                        alt={p.alt}
-                        widths={[240, 400]}
-                        sizes="(max-width: 767px) 44vw, 300px"
-                        width={400}
-                        height={300}
-                        layout="cover"
-                        format="webp"
-                        class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
-                      />
-                    </div>
+                    <figure>
+                      <div class="frame">
+                        <div class:list={['inner aspect-[3/2]', file.startsWith('chowol-') && 'grade-strong']} data-cursor="view">
+                          <Image
+                            src={p.src}
+                            alt={p.alt}
+                            widths={[240, 400]}
+                            sizes="(max-width: 767px) 44vw, 290px"
+                            width={400}
+                            height={267}
+                            layout="cover"
+                            format="webp"
+                            class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                          />
+                        </div>
+                      </div>
+                      <figcaption class="mt-2 text-[0.95rem] leading-snug text-ivory-2">{p.caption}</figcaption>
+                    </figure>
                   );
                 })}
               </div>
-              <h3 class="display rise mt-7 text-[1.85rem] text-ink" style="--d:0.2s">
-                {s.sub}
-              </h3>
-              <p class="rise mt-3 text-ink-soft" style="--d:0.3s">
-                {s.text}
-              </p>
             </article>
           );
         })
       }
     </div>
 
-    <div class="mt-16 overflow-x-auto" data-reveal>
-      <table class="rise w-full min-w-[34rem] border-collapse text-left">
+    {table && (
+    <div class="mt-14 overflow-x-auto" data-reveal>
+      <table class="rise w-full border-collapse text-left text-[0.97rem] sm:min-w-[34rem] sm:text-base">
         <thead>
-          <tr class="border-b-2 border-ink">
-            <th scope="col" class="w-[22%] py-3 pr-4 font-normal text-muted"><span class="sr-only">{m.title}</span></th>
-            <th scope="col" class="display py-3 pr-4 text-[1.3rem] font-normal text-ink">{m.auto.name}</th>
-            <th scope="col" class="display py-3 text-[1.3rem] font-normal text-ink">{m.hand.name}</th>
+          <tr class="border-b border-gold">
+            <th scope="col" class="w-[22%] py-3 pr-4 font-normal"><span class="sr-only">{m.title}</span></th>
+            <th scope="col" class="display py-3 pr-4 text-[1.25rem]">{m.auto.name}</th>
+            <th scope="col" class="display py-3 text-[1.25rem]">{m.hand.name}</th>
           </tr>
         </thead>
         <tbody>
           {
             m.rows.map((row) => (
-              <tr class="border-b border-ink/15">
-                <th scope="row" class="py-4 pr-4 align-top text-[0.95rem] font-bold text-verm">
+              <tr class="border-b border-[var(--line)]">
+                <th scope="row" class="py-4 pr-4 align-top text-[0.97rem] font-bold text-gold">
                   {row.label}
                 </th>
-                <td class="py-4 pr-4 align-top text-ink">{row.auto}</td>
-                <td class="py-4 align-top text-ink">{row.hand}</td>
+                <td class="py-4 pr-4 align-top">{row.auto}</td>
+                <td class="py-4 align-top">{row.hand}</td>
               </tr>
             ))
           }
         </tbody>
       </table>
     </div>
+    )}
   </div>
 </section>
 
 <script>
   const setup = () => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // 휴대폰(손가락 화면)이나 데이터 절약 모드에서는 멈춘 채로 두고, 재생 단추를 눌러야 받음
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const saveData = (navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData;
     document.querySelectorAll<HTMLVideoElement>('video.lathe-loop:not([data-ready])').forEach((video) => {
       video.dataset.ready = '1';
       const toggle = video.parentElement?.querySelector<HTMLButtonElement>('.loop-toggle');
-      let userPaused = reduce;
+      let userPaused = reduce || coarse || !!saveData;
       const sync = () => {
         toggle?.setAttribute('aria-label', userPaused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!);
         toggle?.querySelector('.icon-pause')?.classList.toggle('hidden', userPaused);

@@ -35,10 +35,10 @@ export const WOODS: Wood[] = [
       zh: '黄褐色，纹理粗犷华丽',
     },
     feel: {
-      ko: '단단하고 잘 뒤틀리지 않아 대를 물려 씁니다. 반닫이·장 같은 우리 전통 가구와 목기에 가장 많이 쓰인 나무입니다.',
+      ko: '단단하고 잘 뒤틀리지 않아 대를 물려 씁니다. 반닫이·장 같은 우리 전통 가구와 목기에 즐겨 써 온 나무입니다.',
       en: 'Hard and stable enough to pass down for generations. The classic wood of traditional Korean chests, cabinets and tableware.',
-      ja: '硬くて狂いが少なく、代々受け継いで使えます。韓国の伝統的な箪笥や器に最もよく使われてきた木です。',
-      zh: '坚硬且不易变形，可以代代相传。是韩国传统箱柜和木器中使用最多的木材。',
+      ja: '硬くて狂いが少なく、代々受け継いで使えます。韓国の伝統的な箪笥や器に好んで使われてきた木です。',
+      zh: '坚硬且不易变形，可以代代相传。也是韩国传统箱柜和木器中备受喜爱的木材。',
     },
     turning: {
       ko: '물관 구멍이 굵은 나무라 깎으면 결이 힘차게 드러납니다. 단단해서 날을 자주 갈아 가며 깎습니다.',
@@ -74,7 +74,7 @@ export const WOODS: Wood[] = [
     },
     feel: {
       ko: '무겁고 튼튼해서 힘을 받는 곳에 잘 맞습니다. 결을 곧게 켜면 호랑이 무늬 같은 은결이 나타납니다.',
-      en: 'Heavy and strong, ideal for parts that bear weight. Cut along the radius, it shows a shimmering “tiger stripe” ray fleck.',
+      en: 'Heavy and strong, ideal for parts that bear weight. Quartersawn, it shows shimmering ray fleck, also called silver grain.',
       ja: '重くて丈夫なので、力のかかる部分に向きます。柾目に挽くと虎斑（とらふ）と呼ばれる模様が現れます。',
       zh: '沉重结实，适合承重部位。径切时会出现虎斑般的射线花纹。',
     },
@@ -281,10 +281,10 @@ export const WOODS: Wood[] = [
       zh: '松脂可能会渗出漆面。要挑选充分干燥的木料，并在上面漆前先打一层底漆封住。',
     },
     uses: {
-      ko: '기둥, 학생 작품, 시제품',
-      en: 'Columns, student projects, prototypes',
-      ja: '柱、学生作品、試作品',
-      zh: '柱子、学生作品、样品',
+      ko: '기둥, 큰 부재, 시제품',
+      en: 'Columns, large pieces, prototypes',
+      ja: '柱、大きな部材、試作品',
+      zh: '柱子、大木料、样品',
     },
   },
   {
@@ -342,7 +342,7 @@ export const PICKS: { title: Text; woods: string[] }[] = [
     woods: ['ash', 'maple', 'oak'],
   },
   {
-    title: { ko: '원목 공·구슬', en: 'Wooden balls & beads', ja: '木の玉・ビーズ', zh: '原木球与珠子' },
+    title: { ko: '원목 공·구슬', en: 'Wooden balls & beads', ja: '木の玉・ビーズ', zh: '实木球与珠子' },
     woods: ['maple', 'cherry', 'walnut'],
   },
   {
@@ -350,7 +350,7 @@ export const PICKS: { title: Text; woods: string[] }[] = [
     woods: ['walnut', 'oak', 'cherry'],
   },
   {
-    title: { ko: '그릇·옻칠 목기', en: 'Bowls & lacquered tableware', ja: '器・漆塗りの木器', zh: '木碗与大漆木器' },
+    title: { ko: '그릇·목기', en: 'Bowls & wooden tableware', ja: '器・木の食器', zh: '木碗与木器' },
     woods: ['zelkova', 'walnut', 'cherry', 'maple'],
   },
 ];

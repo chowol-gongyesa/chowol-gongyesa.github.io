@@ -1,0 +1,43 @@
+---
+// 화면 가득 사진 한 장 + 큰 글 한 줄 (홈: '한 개부터 대량까지', 사진은 묶어 쌓은 테이블 다리). 상자 안 내용이 이어지다가 숨을 돌리는 자리.
+// 사진은 스크롤하면 천천히 움직임(지원하는 브라우저). 문구는 src/i18n/ 의 band 부분.
+import Image from '~/components/common/Image.astro';
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+  /** 사진 (src/assets/images/works/ 안의 파일) */
+  image?: string;
+  /** 사진에서 보여 줄 부분 (CSS object-position) */
+  imagePos?: string;
+}
+const { lang, image = '~/assets/images/works/column-19.jpg', imagePos = '50% 50%' } = Astro.props;
+const b = useT(lang).band;
+---
+
+<section class="photo-band relative isolate flex min-h-[25rem] items-end overflow-hidden bg-bg md:h-[78vh] md:max-h-[48rem]" aria-label={b.line}>
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    <Image
+      src={image}
+      alt=""
+      widths={[720, 1200, 1800]}
+      sizes="100vw"
+      width={1800}
+      height={875}
+      layout="cover"
+      format="webp"
+      class="parallax grade-band h-full w-full object-cover"
+      style={`object-position:${imagePos}`}
+    />
+    <div
+      class="absolute inset-0 bg-[linear-gradient(90deg,rgb(10_7_5/0.9),rgb(10_7_5/0.55)_55%,rgb(10_7_5/0.25)),linear-gradient(0deg,rgb(18_13_9/0.95),transparent_50%),linear-gradient(180deg,rgb(13_9_6/0.9),transparent_22%)]"
+    >
+    </div>
+  </div>
+  <div class="mx-auto w-full max-w-7xl px-5 pt-40 pb-14 md:pb-20 lg:px-8" data-reveal>
+    <div class="rail-line rise h-px w-24 bg-gold" style="--d:0s"></div>
+    <p class="display mt-6 max-w-4xl text-[clamp(2.5rem,6vw,5rem)] leading-[1.12]" data-split>{b.line}</p>
+    <p class="lead rise mt-5 max-w-2xl text-ivory" style="--d:0.35s">{b.sub}</p>
+    <p class="sr-only">{b.alt}</p>
+  </div>
+</section>

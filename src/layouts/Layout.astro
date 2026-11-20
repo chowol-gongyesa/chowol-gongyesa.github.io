@@ -13,6 +13,7 @@ import Analytics from '~/components/common/Analytics.astro';
 import LangSuggest from '~/components/common/LangSuggest.astro';
 import Effects from '~/components/common/Effects.astro';
 import PageShutter from '~/components/common/PageShutter.astro';
+import SoundSystem from '~/components/common/SoundSystem.astro';
 import { getCanonical } from '~/utils/permalinks';
 import { LANG_META, LOCALES, TRANSLATED_PAGES, langFromPath, localize, stripLang, useT, type Lang } from '~/i18n';
 
@@ -54,13 +55,14 @@ const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> 
   zh: [{ url: '~/assets/images/og/og-zh.jpg', width: 1200, height: 630 }],
 };
 
-// 글꼴: 제목은 목판 인쇄 같은 송명(Song Myung), 본문은 붓글씨 결이 남은 고운바탕, 상호는 간판 같은 Black Han Sans.
-// 일본어·중국어 페이지는 그 나라 명조 글꼴을 더 불러옵니다.
+// 글꼴: 제목 나눔명조(굵게)만 내려받고, 본문은 기기에 있는 고딕(휴대폰에서 2MB 넘게 아낌 — CustomStyles.astro).
+// 상호 '송명'은 상호 글자와 숫자만 잘라서 받음(&text=). 일본어·중국어 페이지는 그 나라 명조를 더 불러옵니다.
 const extraFonts: Partial<Record<Lang, string>> = {
-  ja: '&family=Shippori+Mincho:wght@400;600;800',
-  zh: '&family=Noto+Serif+SC:wght@400;600;900',
+  ja: '&family=Shippori+Mincho+B1:wght@800',
+  zh: '&family=Noto+Serif+SC:wght@700;900',
 };
-const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang:wght@400;700&family=Song+Myung${extraFonts[lang] ?? ''}&display=swap`;
+const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800${extraFonts[lang] ?? ''}&display=swap`;
+const brandFontHref = `https://fonts.googleapis.com/css2?family=Song+Myung&text=${encodeURIComponent('초월공예사0123456789')}&display=swap`;
 ---
 
 <!doctype html>
@@ -72,11 +74,12 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family
 >
   <head>
     <CommonMeta />
-    <meta name="theme-color" content="#0e1626" />
+    <meta name="theme-color" content="#120d09" />
     <Favicons />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href={fontHref} />
+    <link rel="stylesheet" href={brandFontHref} />
     <CustomStyles />
     <ApplyColorMode />
     <Metadata
@@ -106,7 +109,8 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Black+Han+Sans&family
     <slot />
 
     <LangSuggest lang={lang} />
-    <Effects />
+    <Effects lang={lang} />
     <PageShutter />
+    <SoundSystem />
   </body>
 </html>

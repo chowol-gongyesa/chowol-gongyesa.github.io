@@ -1,5 +1,6 @@
 ---
-// 주문 순서 4단계. 화면에 들어오면 주홍 선이 왼쪽에서 오른쪽으로 그어지고 단계가 차례로 떠오름.
+// 주문 순서 4단계: 그림이 있는 짙은 판 네 장 (위의 '작업 과정'의 번호 동그라미+선과 다르게 보이도록).
+import { Icon } from 'astro-icon/components';
 import { langFromPath, useT } from '~/i18n';
 
 export interface Props {
@@ -7,26 +8,29 @@ export interface Props {
 }
 const { class: className = '' } = Astro.props;
 const t = useT(langFromPath(Astro.url.pathname));
+const ICONS = ['tabler:photo-up', 'tabler:file-invoice', 'tabler:eye-check', 'tabler:package'];
 ---
 
 <section class={`px-5 py-20 md:py-28 lg:px-8 ${className}`} aria-labelledby="steps-title">
-  <div class="mx-auto max-w-7xl">
-    <h2 id="steps-title" class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{t.steps.title}</h2>
-    <div class="relative mt-12" data-reveal>
-      <div class="steps-line hidden md:block" aria-hidden="true"></div>
-      <ol class="relative grid gap-10 md:grid-cols-4 md:gap-8">
-        {
-          t.steps.items.map((step, i) => (
-            <li class="rise flex gap-5 md:block" style={`--d:${0.2 + i * 0.25}s`}>
-              <span class="step-num shrink-0">{i + 1}</span>
-              <div>
-                <h3 class="display mt-1 text-[1.45rem] text-ink md:mt-6">{step.title}</h3>
-                <p class="mt-2 text-ink-soft">{step.text}</p>
-              </div>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
+  <div class="mx-auto max-w-[76rem]">
+    <p class="eyebrow">{t.steps.eyebrow}</p>
+    <h2 id="steps-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{t.steps.title}</h2>
+    <ol class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+      {
+        t.steps.items.map((step, i) => (
+          <li class="rise relative border border-[var(--line)] border-t-gold/70 bg-black/25 p-6" style={`--d:${0.15 + i * 0.15}s`}>
+            <span class="absolute top-5 right-5 font-[family-name:var(--aw-font-heading)] text-[1.6rem] leading-none font-extrabold text-gold/45" aria-hidden="true">
+              {i + 1}
+            </span>
+            <Icon name={ICONS[i]} class="h-9 w-9 text-gold-2" aria-hidden="true" />
+            <h3 class="display mt-5 text-[1.35rem]">
+              <span class="sr-only">{i + 1}. </span>
+              {step.title}
+            </h3>
+            <p class="mt-2 text-ivory-2">{step.text}</p>
+          </li>
+        ))
+      }
+    </ol>
   </div>
 </section>

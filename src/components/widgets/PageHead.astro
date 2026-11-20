@@ -1,9 +1,10 @@
 ---
-// 하위 페이지 머리: 밤 작업장 쪽빛 바탕에 작업 사진이 어둡게 깔리고(스크롤하면 천천히 움직임),
-// '홈 > 페이지', 글자가 하나씩 떠오르는 큰 제목, 오른쪽 세로 글씨와 낙관. 아래 가장자리는 원목 띠.
+// 하위 페이지 머리: 어두운 나무 바탕에 작업 사진이 어둡게 깔리고(스크롤하면 천천히 움직임),
+// '홈 > 페이지', 글자가 하나씩 떠오르는 큰 제목, 오른쪽 세로 글씨. 아래 가장자리는 금색 줄.
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
 import Image from '~/components/common/Image.astro';
 import { localize, useT, type Lang } from '~/i18n';
+import { tcy } from '~/utils/tcy';
 
 export interface Props {
   lang: Lang;
@@ -16,8 +17,10 @@ export interface Props {
   imagePos?: string;
   /** 오른쪽 세로 글씨 */
   vlabel?: string;
+  /** 제목을 로고와 같은 금박 상호 글씨로 (소개 페이지: '초월공예사') */
+  brandTitle?: boolean;
 }
-const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel } = Astro.props;
+const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitle = false } = Astro.props;
 ---
 
 <section class="sec-night grain relative overflow-hidden">
@@ -34,29 +37,43 @@ const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel } = Astro.
           layout="cover"
           format="webp"
           loading="eager"
-          class="parallax h-full w-full object-cover opacity-40"
+          class="parallax h-full w-full object-cover opacity-55"
           style={`object-position:${imagePos}`}
         />
-        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgb(14_22_38/0.95),rgb(14_22_38/0.7)_55%,rgb(14_22_38/0.45)),linear-gradient(0deg,rgb(14_22_38/0.9),transparent_45%)]" />
+        <div class="absolute inset-0 bg-[linear-gradient(90deg,rgb(10_7_5/0.94),rgb(10_7_5/0.7)_55%,rgb(10_7_5/0.4)),linear-gradient(0deg,rgb(18_13_9/1),transparent_45%)]" />
       </div>
     )
   }
-  <div class="relative z-[2] mx-auto max-w-7xl px-5 pt-5 pb-16 md:pb-24 lg:px-8">
+  <!-- 모든 하위 페이지에서 제목이 같은 높이에 오도록: 위쪽 기준 정렬 + 띠 높이 고정 -->
+  <div class="relative z-[2] mx-auto min-h-[19rem] max-w-7xl px-5 pt-5 pb-14 md:min-h-[25rem] md:pb-20 lg:px-8">
     <Breadcrumbs
       class="crumbs -ml-1"
       items={[{ text: useT(lang).nav.home, href: localize(lang, '/'), icon: 'tabler:home' }, { text: crumb }]}
     />
-    <div class="mt-10 flex items-end justify-between gap-8 md:mt-16">
-      <div class="max-w-3xl">
-        <h1 class="display text-[clamp(3rem,7.5vw,5.8rem)] text-paper" data-split>{title}</h1>
-        {lead && <p class="mt-5 max-w-2xl text-lg leading-[1.9] text-paper/80">{lead}</p>}
-        <slot />
-      </div>
-      <div class="hidden shrink-0 flex-col items-center gap-5 md:flex" aria-hidden="true">
-        {vlabel && <p class="vtext text-[1.1rem] text-wood/80">{vlabel}</p>}
-        <span class="seal is-stamp" style="--seal:3.8rem;--delay:0.5s">초월</span>
-      </div>
+    <div class="mt-9 max-w-3xl md:mt-14 md:pr-20">
+      {
+        brandTitle ? (
+          <h1 class="brand-mark text-[clamp(3rem,7vw,5.4rem)]" translate="no">
+            {title}
+          </h1>
+        ) : (
+          <h1 class="display text-[clamp(2.8rem,6.4vw,5rem)]" data-split>
+            {title}
+          </h1>
+        )
+      }
+      {lead && <p class="lead mt-5 max-w-2xl text-ivory">{lead}</p>}
+      <slot />
     </div>
+    {
+      vlabel && (
+        <p
+          class="vtext absolute top-24 right-5 hidden text-[1.15rem] text-gold-2 md:block lg:right-8"
+          aria-hidden="true"
+          set:html={tcy(vlabel)}
+        />
+      )
+    }
   </div>
   <div class="rail-strip relative z-[2]" aria-hidden="true"></div>
 </section>

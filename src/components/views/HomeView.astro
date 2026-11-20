@@ -1,21 +1,20 @@
 ---
 // 홈. 한국어(/)와 다른 언어 페이지(/en/ 등)가 함께 씁니다. 위에서부터:
-// 입장 화면(첫 방문) → 첫 화면 영상 + 난간 → 흐르는 물건 이름 → 작업 영상(자막) → 대표 이야기
-// → 자동·손 로구로 비교 → 견본 하나로 몇 개든(스크롤 장면) → 깎는 물건 → 작업 사진 띠
+// 입장 화면(첫 방문, 눌러야 들어감) → 첫 화면 영상 → 작업 영상(자막, 장면 목록) → 대표 이야기
+// → 자동·손 로구로 비교 → 작업 과정(사진 4장) → 깎는 물건 → 깎아 낸 것들(작품 사진)
 // → 나무 고르기 → 주문 순서 → 연락 → 찾아오시는 길
 import { SITE } from 'astrowind:config';
 import Layout from '~/layouts/PageLayout.astro';
 import StructuredData from '~/components/common/StructuredData.astro';
 import Intro from '~/components/widgets/Intro.astro';
 import HeroCinema from '~/components/widgets/HeroCinema.astro';
-import Marquee from '~/components/widgets/Marquee.astro';
 import CraftFilm from '~/components/widgets/CraftFilm.astro';
 import OwnerStory from '~/components/widgets/OwnerStory.astro';
 import LatheCompare from '~/components/widgets/LatheCompare.astro';
-import CopyScene from '~/components/widgets/CopyScene.astro';
+import ProcessStory from '~/components/widgets/ProcessStory.astro';
 import ProductPlaques from '~/components/widgets/ProductPlaques.astro';
-import PhotoRibbon from '~/components/widgets/PhotoRibbon.astro';
-import WoodsTeaser from '~/components/widgets/WoodsTeaser.astro';
+import WorksShowcase from '~/components/widgets/WorksShowcase.astro';
+import PhotoBand from '~/components/widgets/PhotoBand.astro';
 import OrderSteps from '~/components/widgets/OrderSteps.astro';
 import ReachPanel from '~/components/widgets/ReachPanel.astro';
 import VisitInfo from '~/components/widgets/VisitInfo.astro';
@@ -67,14 +66,13 @@ const structuredData = {
   <StructuredData slot="head" schema={structuredData} />
   <Intro lang={lang} />
   <HeroCinema lang={lang} />
-  <Marquee lang={lang} />
   <CraftFilm lang={lang} />
   <OwnerStory />
-  <LatheCompare lang={lang} />
-  <CopyScene lang={lang} />
+  <LatheCompare lang={lang} table={false} />
+  <ProcessStory lang={lang} />
+  <PhotoBand lang={lang} />
   <ProductPlaques lang={lang} />
-  <PhotoRibbon lang={lang} />
-  <WoodsTeaser lang={lang} />
+  <WorksShowcase lang={lang} />
   <OrderSteps />
   <ReachPanel />
   <VisitInfo />

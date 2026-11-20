@@ -16,12 +16,12 @@ const offers = FOREIGN_LOCALES.map((l) => ({ lang: l, href: switchPath(path, l),
     <div class="lang-suggest" aria-live="polite" hidden data-lang-suggest>
       {offers.map((o) => (
         <div data-offer={o.lang} lang={o.lang === 'zh' ? 'zh-CN' : o.lang} hidden>
-          <p class="text-sm font-bold text-ink">{o.text}</p>
+          <p class="text-[0.97rem] font-bold text-ink">{o.text}</p>
           <div class="mt-3 flex gap-2">
-            <a href={o.href} class="btn-primary !min-h-10 !px-4 text-sm" data-lang-link={o.lang}>
+            <a href={o.href} class="btn-primary !min-h-11 !px-4 text-[0.95rem]" data-lang-link={o.lang}>
               {o.go}
             </a>
-            <button type="button" class="btn-secondary !min-h-10 !px-4 text-sm" data-suggest-close>
+            <button type="button" class="btn-secondary !min-h-11 !px-4 text-[0.95rem]" data-suggest-close>
               {o.close}
             </button>
           </div>

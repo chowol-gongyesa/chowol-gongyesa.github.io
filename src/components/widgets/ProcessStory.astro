@@ -1,0 +1,54 @@
+---
+// 작업 과정: 각재 한 토막이 부품이 되기까지 4단계를 실제 작업장 사진으로 보여 줌 (2차의 '견본 하나로 몇 개든' 그림 장면을 대신함).
+// 사진 파일은 아래 PHOTOS, 문구는 src/i18n/ 의 process
+import Image from '~/components/common/Image.astro';
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const p = useT(lang).process;
+// 3번은 영상에서 뽑은 '깎여 나온 부품' 가까이 (초록 기계 사진이 두 번 이어지지 않게)
+const PHOTOS = ['chowol-08', 'chowol-11', 'chowol-13', 'column-152'];
+---
+
+<section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="process-title">
+  <div class="relative z-[2] mx-auto max-w-[76rem]">
+    <div class="max-w-3xl">
+      <p class="eyebrow">{p.eyebrow}</p>
+      <h2 id="process-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{p.title}</h2>
+      <p class="lead mt-5">{p.lead}</p>
+    </div>
+
+    <div class="relative mt-14" data-reveal>
+      <div class="steps-line hidden lg:block" aria-hidden="true"></div>
+      <ol class="relative -mx-5 grid snap-x snap-mandatory scroll-px-5 auto-cols-[78%] grid-flow-col gap-5 overflow-x-auto px-5 pb-4 sm:mx-0 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-2 sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 lg:gap-7">
+      {
+        p.steps.map((step, i) => (
+          <li class="rise relative snap-start" style={`--d:${0.15 + i * 0.18}s`}>
+            <span class="step-num">{i + 1}</span>
+            <div class="frame mt-6">
+              <div class:list={['inner aspect-[4/5]', PHOTOS[i] === 'chowol-11' && 'grade-strong']} data-cursor="view">
+                <Image
+                  src={`~/assets/images/works/${PHOTOS[i]}.jpg`}
+                  alt={step.alt}
+                  widths={[320, 480, 640]}
+                  sizes="(max-width: 639px) 90vw, (max-width: 1023px) 44vw, 290px"
+                  width={640}
+                  height={800}
+                  layout="cover"
+                  format="webp"
+                  class="h-full w-full object-cover transition-transform duration-[1.2s] ease-out hover:scale-[1.05]"
+                />
+              </div>
+            </div>
+            <h3 class="display mt-5 text-[1.4rem]">{step.title}</h3>
+            <p class="mt-2 text-[1rem] leading-[1.85] text-ivory-2">{step.text}</p>
+          </li>
+        ))
+      }
+      </ol>
+    </div>
+  </div>
+</section>

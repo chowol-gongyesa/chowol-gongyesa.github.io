@@ -27,8 +27,11 @@ const INTL = {
 
 /** 언어에 맞는 가게 정보 (주소·영업시간 문구, 전화 표기) */
 export const shopFor = (lang: Lang) => {
-  const t = useT(lang).shop;
+  const all = useT(lang);
+  const t = all.shop;
   const ko = lang === 'ko';
+  // 문자 앱이 열리면 미리 채워지는 내용 (iPhone·안드로이드 모두 '?&body=' 형식을 알아들음)
+  const smsBody = `?&body=${encodeURIComponent(all.reach.smsTemplate)}`;
   return {
     name: t.name,
     address: t.address,
@@ -36,7 +39,12 @@ export const shopFor = (lang: Lang) => {
     hours: t.hours,
     closed: t.closed,
     consult: { label: t.consultLabel, href: ko ? SHOP.consult.href : INTL.consult },
-    mobile: { label: t.mobileLabel, href: ko ? SHOP.mobile.href : INTL.mobile, sms: ko ? SHOP.mobile.sms : INTL.sms },
+    mobile: {
+      label: t.mobileLabel,
+      href: ko ? SHOP.mobile.href : INTL.mobile,
+      sms: (ko ? SHOP.mobile.sms : INTL.sms) + smsBody, // 문자 앱이 주문 틀이 채워진 채 열림
+      number: (ko ? SHOP.mobile.sms : INTL.sms).replace('sms:', ''), // 번호만 (주문서가 직접 내용을 채울 때)
+    },
     tel: { label: t.telLabel, href: ko ? SHOP.tel.href : INTL.tel },
     fax: t.faxLabel,
   };
@@ -62,6 +70,6 @@ export const PRODUCTS = [
   { key: 'legs', photo: 'column-157', anchor: 'column' },
   { key: 'balls', photo: 'chowol-02', anchor: 'chowol' },
   { key: 'columns', photo: 'column-04', anchor: 'column' },
-  { key: 'goods', photo: 'lathe-80', anchor: 'lathe' },
+  { key: 'goods', photo: 'lathe-162', anchor: 'lathe' },
 ] as const;
 export type ProductKey = (typeof PRODUCTS)[number]['key'];

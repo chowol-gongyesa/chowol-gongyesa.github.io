@@ -24,17 +24,17 @@ const schema = {
 ---
 
 <section id={id} class={`px-5 py-20 md:py-28 lg:px-8 ${className}`}>
-  <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
-    <h2 class="display text-[clamp(2.2rem,4.8vw,3.8rem)] text-ink" data-split>{f.title}</h2>
+  <div class="mx-auto grid max-w-[76rem] gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
+    <h2 class="display text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{f.title}</h2>
     <div class="faq-list">
       {
         f.items.map((item, index) => (
           <details class="faq-item" open={index === 0}>
             <summary>
               <span>{item.q}</span>
-              <Icon name="tabler:plus" class="faq-icon h-5 w-5 shrink-0 text-verm" aria-hidden="true" />
+              <Icon name="tabler:plus" class="faq-icon h-5 w-5 shrink-0 text-gold-2" aria-hidden="true" />
             </summary>
-            <p class="faq-a text-ink-soft">{item.a}</p>
+            <p class="faq-a">{item.a}</p>
           </details>
         ))
       }

@@ -1,0 +1,212 @@
+---
+// 소리: 배경 음악(반복), 입장음, 단추 소리(나무 '똑'), 페이지 넘김 소리, 소리 켜기 소리. 파일은 public/sound/ (모두 합성해 만든 것)
+// - 소리를 켜고 끄는 단추는 상단 메뉴(Header.astro)에 있고, 고른 것은 이번 방문 동안 기억합니다(sessionStorage 'cw-sound').
+//   다음에 다시 오면 입장 화면에서 다시 고릅니다.
+// - 브라우저는 사람이 누르기 전에는 소리를 못 내게 하므로, 입장 화면을 누르는 그 순간 배경 음악을 (소리 0으로) 시작해 두고
+//   천천히 키웁니다. 음량은 Web Audio로 조절합니다(아이폰은 audio.volume을 무시하기 때문).
+// - 작업 영상의 소리를 켜면 배경 음악은 소리를 0으로 줄였다가, 영상 소리가 꺼지면 다시 키웁니다.
+// 다른 부품에서 쓰기: window.cwSound.play('click'), window.cwSound.set(true|false), window.cwSound.enter(withSound)
+---
+
+<audio id="cw-bgm" src="/sound/bgm.mp3" loop preload="none" transition:persist></audio>
+
+<script>
+  type Name = 'intro' | 'click' | 'page' | 'sound-on';
+  const KEY = 'cw-sound';
+  const BGM_VOL = 0.32;
+  const read = () => {
+    try {
+      return sessionStorage.getItem(KEY);
+    } catch {
+      return null;
+    }
+  };
+  const write = (v: string) => {
+    try {
+      sessionStorage.setItem(KEY, v);
+    } catch {
+      /* storage unavailable */
+    }
+  };
+
+  let ctx: AudioContext | null = null;
+  let bgmGain: GainNode | null = null;
+  let bgmNode: MediaElementAudioSourceNode | null = null;
+  const buffers = new Map<Name, AudioBuffer>();
+  let loading: Promise<void> | null = null;
+  let on = read() === 'on';
+  let ducked = false;
+  let pauseTimer = 0;
+
+  const bgm = () => document.getElementById('cw-bgm') as HTMLAudioElement | null;
+
+  const ensureCtx = () => {
+    if (!ctx) {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AC) return null;
+      ctx = new AC();
+    }
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    return ctx;
+  };
+  // 배경 음악을 Web Audio 음량 조절기(GainNode)에 한 번만 연결
+  const ensureBgm = () => {
+    const a = bgm();
+    const c = ensureCtx();
+    if (!a || !c) return null;
+    if (!bgmNode) {
+      try {
+        bgmNode = c.createMediaElementSource(a);
+        bgmGain = c.createGain();
+        bgmGain.gain.value = 0;
+        bgmNode.connect(bgmGain).connect(c.destination);
+      } catch {
+        bgmNode = null;
+        bgmGain = null;
+      }
+    }
+    return a;
+  };
+  // 음량을 target까지 (delay초 뒤부터 seconds초 동안) 부드럽게
+  const ramp = (target: number, seconds: number, delay = 0) => {
+    const a = bgm();
+    if (!ctx || !a) return;
+    if (!bgmGain) {
+      a.volume = target; // Web Audio를 못 쓰는 브라우저
+      return;
+    }
+    const g = bgmGain.gain;
+    const now = ctx.currentTime;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    if (delay) g.setValueAtTime(g.value, now + delay);
+    g.linearRampToValueAtTime(target, now + delay + seconds);
+  };
+  const load = () => {
+    if (loading) return loading;
+    const c = ensureCtx();
+    if (!c) return Promise.resolve();
+    loading = Promise.all(
+      (['intro', 'click', 'page', 'sound-on'] as Name[]).map((name) =>
+        fetch(`/sound/${name}.mp3`)
+          .then((r) => r.arrayBuffer())
+          .then((data) => c.decodeAudioData(data))
+          .then((buf) => {
+            buffers.set(name, buf);
+          })
+          .catch(() => {})
+      )
+    ).then(() => {});
+    return loading;
+  };
+  const play = (name: Name, gain = 1) => {
+    if (!on || !ctx || ctx.state !== 'running') return;
+    const buf = buffers.get(name);
+    if (!buf) {
+      load();
+      return;
+    }
+    const src = ctx.createBufferSource();
+    const g = ctx.createGain();
+    g.gain.value = gain;
+    src.buffer = buf;
+    src.connect(g).connect(ctx.destination);
+    src.start();
+  };
+
+  // 배경 음악 시작 — 반드시 누르기(click/touchend/keydown) 처리 안에서 불러야 휴대폰에서도 소리가 남
+  const startBgm = (delay = 0, fade = 2.5) => {
+    if (!on) return;
+    const a = ensureBgm();
+    if (!a) return;
+    window.clearTimeout(pauseTimer);
+    if (a.paused) {
+      if (bgmGain && ctx) bgmGain.gain.setValueAtTime(0, ctx.currentTime);
+      a.play().catch(() => {});
+    }
+    ramp(ducked ? 0 : BGM_VOL, fade, delay);
+  };
+  const stopBgm = (seconds = 0.5) => {
+    ramp(0, seconds);
+    window.clearTimeout(pauseTimer);
+    pauseTimer = window.setTimeout(() => {
+      if (!on) bgm()?.pause();
+    }, seconds * 1000 + 120);
+  };
+
+  const syncButtons = () => {
+    document.querySelectorAll<HTMLButtonElement>('.sound-toggle').forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(on));
+      btn.setAttribute('aria-label', on ? btn.dataset.labelOff! : btn.dataset.labelOn!);
+      btn.title = on ? btn.dataset.labelOff! : btn.dataset.labelOn!;
+    });
+  };
+  const set = (value: boolean, chime = true) => {
+    on = value;
+    write(on ? 'on' : 'off');
+    syncButtons();
+    if (on) {
+      startBgm(chime ? 0.3 : 0, 1.6);
+      load().then(() => {
+        if (chime) play('sound-on', 0.6);
+      });
+    } else stopBgm();
+  };
+  // 입장 화면에서 '입장하기' (누르는 순간 불림)
+  const enter = (withSound: boolean) => {
+    on = withSound;
+    write(on ? 'on' : 'off');
+    syncButtons();
+    if (!on) return;
+    startBgm(2.4, 2.6);
+    load().then(() => play('intro', 0.9));
+  };
+
+  (window as unknown as { cwSound: object }).cwSound = { play, set, enter, get: () => on };
+
+  // 소리를 켜 둔 채 새로 고침한 경우 등: 다음에 누를 때 배경 음악을 이어서 (될 때까지 매번 시도)
+  const resume = (e: Event) => {
+    if (!on) return;
+    // 소리 단추·입장 화면은 따로 처리, 전화·문자 링크를 누를 때는 음악을 시작하지 않음
+    if ((e.target as HTMLElement | null)?.closest?.('.sound-toggle, #intro, a[href^="tel:"], a[href^="sms:"]')) return;
+    const a = bgm();
+    if (ctx && ctx.state === 'running' && a && !a.paused) return;
+    load();
+    startBgm(0, 1.5);
+  };
+  ['click', 'touchend', 'keydown'].forEach((type) => document.addEventListener(type, resume, { capture: true, passive: true }));
+
+  // 단추·링크를 누르면 나무 '똑'
+  document.addEventListener('pointerdown', (e) => {
+    if (!on || e.button !== 0) return;
+    const t = e.target as HTMLElement;
+    if (t.closest('#intro, .sound-toggle, input, textarea, select')) return;
+    if (t.closest('a, button, summary, [role="button"]')) play('click', 0.55);
+  });
+  // 페이지를 옮길 때
+  document.addEventListener('astro:before-preparation', () => play('page', 0.7));
+  // 작업 영상 소리가 켜지면 배경 음악을 0으로, 꺼지면 다시
+  window.addEventListener('cw:film-sound', (e) => {
+    ducked = !!(e as CustomEvent<{ on: boolean }>).detail?.on;
+    if (on) ramp(ducked ? 0 : BGM_VOL, ducked ? 0.6 : 1.6);
+  });
+  // 다른 탭으로 가면 쉼
+  document.addEventListener('visibilitychange', () => {
+    const a = bgm();
+    if (!a || !on) return;
+    if (document.hidden) a.pause();
+    else a.play().catch(() => {});
+  });
+  // 상단 메뉴의 소리 단추
+  const bind = () => {
+    document.querySelectorAll<HTMLButtonElement>('.sound-toggle:not([data-bound])').forEach((btn) => {
+      btn.dataset.bound = '';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        set(!on);
+      });
+    });
+    syncButtons();
+  };
+  document.addEventListener('astro:page-load', bind);
+</script>
