@@ -1,0 +1,82 @@
+---
+// 공유 버튼. 휴대폰에서는 '공유하기'를 누르면 카카오톡·문자 등 휴대폰 공유 창이 열리고,
+// 공유 창이 없는 컴퓨터에서는 주소를 복사합니다. url을 안 주면 지금 보고 있는 페이지 주소를 씁니다.
+import { Icon } from 'astro-icon/components';
+import { SITE } from 'astrowind:config';
+import { langFromPath, useT } from '~/i18n';
+
+export interface Props {
+  text?: string;
+  url?: string | URL;
+  class?: string;
+}
+
+const t = useT(langFromPath(Astro.url.pathname)).share;
+const { text = '', url = new URL(Astro.url.pathname, SITE.site), class: className = 'inline-block' } = Astro.props;
+---
+
+<aw-social-share
+  class={className}
+  data-aw-url={String(url)}
+  data-aw-text={text}
+  data-label-copy={t.copy}
+  data-label-copied={t.copied}
+  data-label-prompt={t.prompt}
+>
+  <div class="flex flex-wrap items-center gap-2">
+    <button
+      type="button"
+      data-aw-share
+      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/40 px-4 text-sm text-heading hover:bg-primary/15"
+    >
+      <Icon name="tabler:share" class="h-5 w-5 text-primary" />{t.share}
+    </button>
+    <button
+      type="button"
+      data-aw-copy
+      class="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/40 px-4 text-sm text-heading hover:bg-primary/15"
+    >
+      <Icon name="tabler:link" class="h-5 w-5 text-primary" /><span data-aw-copy-label aria-live="polite">{t.copy}</span
+      >
+    </button>
+  </div>
+</aw-social-share>
+
+<script>
+  class AwSocialShare extends HTMLElement {
+    connectedCallback() {
+      const url = this.dataset.awUrl || location.href;
+      const text = this.dataset.awText || document.title;
+      const label = this.querySelector<HTMLElement>('[data-aw-copy-label]');
+      const { labelCopy = '', labelCopied = '', labelPrompt = '' } = this.dataset;
+
+      const copy = async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          if (label) label.textContent = labelCopied;
+        } catch {
+          window.prompt(labelPrompt, url);
+          return;
+        }
+        setTimeout(() => label && (label.textContent = labelCopy), 2000);
+      };
+
+      this.querySelector('[data-aw-copy]')?.addEventListener('click', copy);
+      this.querySelector('[data-aw-share]')?.addEventListener('click', async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: text, url });
+          } catch {
+            /* 사용자가 공유 창을 닫음 */
+          }
+        } else {
+          copy();
+        }
+      });
+    }
+  }
+
+  if (!customElements.get('aw-social-share')) {
+    customElements.define('aw-social-share', AwSocialShare);
+  }
+</script>

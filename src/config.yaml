@@ -1,0 +1,72 @@
+site:
+  name: 초월공예사
+  site: 'https://example.com' # TODO: 공개 주소가 정해지면 바꾸기
+  base: '/'
+  trailingSlash: true
+
+  googleSiteVerificationId: null # TODO: 구글 서치 콘솔 등록 때 새로 받기
+
+# Default SEO metadata
+metadata:
+  title:
+    default: 초월공예사 — 자동 로구로 전문
+    template: '%s — 초월공예사'
+  description: '초월공예사. 자동 로구로 전문. (TODO: 가게 정보를 받으면 고쳐 쓰기)'
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: 초월공예사
+    images:
+      - url: '~/assets/images/og/og-ko.jpg'
+        width: 1200
+        height: 630
+    type: website
+  twitter:
+    handle: null
+    site: null
+    cardType: summary_large_image
+
+i18n:
+  language: ko
+  textDirection: ltr
+
+apps:
+  blog:
+    isEnabled: true
+    postsPerPage: 8
+
+    post:
+      isEnabled: true
+      permalink: '/news/%slug%'
+      robots:
+        index: true
+
+    list:
+      isEnabled: true
+      pathname: 'news'
+      robots:
+        index: true
+
+    category:
+      isEnabled: true
+      pathname: 'category'
+      robots:
+        index: true
+
+    tag:
+      isEnabled: true
+      pathname: 'tag'
+      robots:
+        index: false
+
+    isRelatedPostsEnabled: true
+    relatedPostsCount: 4
+
+analytics:
+  vendors:
+    googleAnalytics:
+      id: null # or "G-XXXXXXXXXX"
+
+ui:
+  theme: 'dark:only' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"

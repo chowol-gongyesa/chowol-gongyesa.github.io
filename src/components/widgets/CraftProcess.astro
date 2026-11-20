@@ -1,0 +1,25 @@
+---
+// 나무 한 토막이 작품이 되기까지: 스크롤로 깎이는 로구로 그림과 실제 작업 사진 5단계(LatheSteps).
+import LatheSpin from '~/components/widgets/LatheSpin.astro';
+import LatheSteps from '~/components/widgets/LatheSteps.astro';
+import { langFromPath, useT } from '~/i18n';
+
+const t = useT(langFromPath(Astro.url.pathname)).process;
+---
+
+<section class="relative px-4 py-20 md:py-28 overflow-hidden wood-grain">
+  <div class="relative max-w-6xl mx-auto">
+    <div class="text-center">
+      <p class="text-sm tracking-[0.08em] text-primary mb-3">{t.tag}</p>
+      <h2 class="font-heading text-3xl md:text-5xl font-bold text-heading text-balance" data-split>{t.title}</h2>
+      <div class="ruler mx-auto my-6 max-w-md"></div>
+    </div>
+
+    <LatheSpin class="mx-auto max-w-3xl my-6 md:my-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.55)]" />
+    <p class="text-center text-muted -mt-2 mb-10 text-sm md:text-base">
+      {t.caption}
+    </p>
+
+    <LatheSteps />
+  </div>
+</section>

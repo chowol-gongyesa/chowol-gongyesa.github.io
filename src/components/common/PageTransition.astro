@@ -1,0 +1,70 @@
+---
+// 화면 맨 위의 '먹줄'. 목수가 나무에 먹줄을 튕겨 선을 긋듯이,
+// - 평소에는 스크롤한 만큼 황동색 선이 늘어나는 진행 표시줄이고
+// - 페이지를 옮길 때는 먹선이 단번에 그어지며 '탁' 튕긴 뒤 사라집니다.
+// 페이지 내용 자체는 Layout.astro의 transition:animation(pageOut/pageIn)으로 살짝 떠오르며 바뀝니다.
+---
+
+<div id="mukjul" transition:persist aria-hidden="true">
+  <div class="mukjul-progress"></div>
+  <div class="mukjul-snap"></div>
+</div>
+
+<script>
+  const root = () => document.getElementById('mukjul');
+
+  // 스크롤 진행 표시
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const bar = root()?.querySelector<HTMLElement>('.mukjul-progress');
+    if (!bar) return;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true }
+  );
+  window.addEventListener('resize', update);
+  document.addEventListener('astro:page-load', update);
+
+  // 페이지 이동: 먹줄을 긋고, 새 페이지가 오면 튕기고 사라짐
+  let drawing: Animation | undefined;
+  document.addEventListener('astro:before-preparation', (event) => {
+    if (event.to.pathname === event.from.pathname) return;
+    const snap = root()?.querySelector<HTMLElement>('.mukjul-snap');
+    if (!snap) return;
+    snap.getAnimations().forEach((a) => a.cancel());
+    drawing = snap.animate(
+      [
+        { transform: 'scaleX(0)', opacity: 1 },
+        { transform: 'scaleX(0.75)', opacity: 1, offset: 0.4 },
+        { transform: 'scaleX(0.95)', opacity: 1 },
+      ],
+      { duration: 900, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)', fill: 'forwards' }
+    );
+  });
+  document.addEventListener('astro:after-swap', () => {
+    const snap = root()?.querySelector<HTMLElement>('.mukjul-snap');
+    if (!snap || !drawing) return;
+    drawing.cancel();
+    drawing = undefined;
+    snap.animate(
+      [
+        { transform: 'scaleX(0.95) scaleY(1)', opacity: 1 },
+        { transform: 'scaleX(1) scaleY(3)', opacity: 1, offset: 0.25 },
+        { transform: 'scaleX(1) scaleY(0.6)', opacity: 1, offset: 0.45 },
+        { transform: 'scaleX(1) scaleY(1.6)', opacity: 0.9, offset: 0.65 },
+        { transform: 'scaleX(1) scaleY(1)', opacity: 0 },
+      ],
+      { duration: 650, easing: 'ease-out', fill: 'forwards' }
+    );
+  });
+</script>

@@ -1,0 +1,734 @@
+---
+// 사이트의 소리. 음원 파일 없이 브라우저가 직접 소리를 만들어 냅니다(Web Audio), 저작권 걱정이 없습니다.
+// - 효과음: 음높이 없는 짧은 나무 '톡'(누를 때), 자를 미는 '스윽'(페이지 이동), 천 걷는 소리(사진 크게 보기), 도장 '꾹'(주문서)
+// - 배경음악: 밝은 G장조. 펠트 피아노 아르페지오와 노래하는 가락, 따뜻한 현, 망치질 같은 가벼운 나무 박자
+// - 입장 연출: '소리와 함께 들어가기'를 누르면 큰북과 현악 합주가 차오르고, 도장이 찍힐 때 '쿵' (Intro.astro와 신호로 맞춤)
+// 처음에는 꺼져 있고(브라우저도 자동 재생을 막습니다), 입장 단추나 왼쪽 아래 단추로 켜고 끕니다. 켜 둔 설정은 기억합니다.
+// 상단 메뉴처럼 페이지를 옮겨도 사라지지 않아서(transition:persist) 음악이 끊기지 않습니다.
+import { useT, type Lang } from '~/i18n';
+
+export interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const s = useT(lang).sound;
+---
+
+<div id="sound-ui" transition:persist={`sound-ui-${lang}`} data-label-on={s.on} data-label-off={s.off}>
+  <button type="button" class="sound-btn" aria-pressed="false" aria-label={s.on} title={s.on} data-sound-toggle>
+    <svg class="sound-icon-off" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path>
+      <path d="M16 9.5l5 5M21 9.5l-5 5"></path>
+    </svg>
+    <span class="sound-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  </button>
+  <p class="sound-hint" role="status" hidden>
+    <span data-sound-hint-text>{s.hint}</span>
+    <button type="button" class="sound-hint-close" aria-label={s.dismiss} data-sound-hint-close>×</button>
+  </p>
+</div>
+
+<script>
+  const KEY = 'sc-sound';
+  const HINT_KEY = 'sc-sound-hint';
+  const store = {
+    get: (k: string) => {
+      try {
+        return localStorage.getItem(k);
+      } catch {
+        return null;
+      }
+    },
+    set: (k: string, v: string) => {
+      try {
+        localStorage.setItem(k, v);
+      } catch {
+        /* storage unavailable */
+      }
+    },
+  };
+
+  let ctx: AudioContext | undefined;
+  let master: GainNode;
+  let fxBus: GainNode;
+  let musicBus: GainNode;
+  // 작업 영상이 소리로 재생되는 동안은 배경음악을 끄고, 끝나면 천천히 되돌림
+  const MUSIC_LEVEL = 0.5;
+  const MUSIC_DUCKED = 0;
+  let filmSound = false;
+  let reverb: ConvolverNode;
+  let enabled = false;
+  let musicTimer: number | undefined;
+  let bedNodes: AudioNode[] = [];
+
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+  const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+  const hz = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12);
+
+  // 잔향: 점점 작아지는 잡음으로 만든 공간 울림 (천장 높은 나무 작업장)
+  const makeImpulse = (c: AudioContext, seconds: number, decay: number) => {
+    const len = Math.floor(c.sampleRate * seconds);
+    const buf = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+    return buf;
+  };
+
+  const ensureCtx = () => {
+    if (ctx) return ctx;
+    const AC =
+      window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AC) return undefined;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0;
+    const comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -20;
+    comp.ratio.value = 3;
+    master.connect(comp).connect(ctx.destination);
+    reverb = ctx.createConvolver();
+    reverb.buffer = makeImpulse(ctx, 3.6, 2.4);
+    const wet = ctx.createGain();
+    wet.gain.value = 0.38;
+    reverb.connect(wet).connect(master);
+    // 효과음은 잔향 없이 짧고 마르게 (음악과 섞여 울리지 않도록)
+    fxBus = ctx.createGain();
+    fxBus.gain.value = 0.5;
+    fxBus.connect(master);
+    musicBus = ctx.createGain();
+    musicBus.gain.value = filmSound ? MUSIC_DUCKED : MUSIC_LEVEL;
+    musicBus.connect(master);
+    musicBus.connect(reverb);
+    return ctx;
+  };
+
+  const noise = (dur: number, brown = false) => {
+    const c = ctx!;
+    const buf = c.createBuffer(1, Math.max(1, Math.floor(c.sampleRate * dur)), c.sampleRate);
+    const d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < d.length; i++) {
+      const white = Math.random() * 2 - 1;
+      if (brown) {
+        last = (last + 0.02 * white) / 1.02;
+        d[i] = last * 3.5;
+      } else d[i] = white;
+    }
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    return src;
+  };
+
+  // ---------- 효과음: 음이 없는 짧은 나무 소리 ----------
+  // 누를 때: 마른 나무를 손가락으로 '톡' (음높이 없이 짧게, 음악과 부딪히지 않음)
+  const knock = (level = 1, tone = 1) => {
+    const c = ctx!;
+    const t = c.currentTime;
+    const n = noise(0.05);
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 900 * tone;
+    bp.Q.value = 1.4;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 2600;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5 * level, t + 0.002);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+    n.connect(bp).connect(lp).connect(g).connect(fxBus);
+    n.start(t);
+    // 아래에 깔리는 아주 짧은 몸통 울림
+    const body = c.createOscillator();
+    body.frequency.setValueAtTime(180 * tone, t);
+    body.frequency.exponentialRampToValueAtTime(90 * tone, t + 0.04);
+    const bg = c.createGain();
+    bg.gain.setValueAtTime(0.0001, t);
+    bg.gain.exponentialRampToValueAtTime(0.18 * level, t + 0.003);
+    bg.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+    body.connect(bg).connect(fxBus);
+    body.start(t);
+    body.stop(t + 0.07);
+  };
+
+  // 페이지를 옮길 때: 종이 위로 나무 자를 '스윽' 미는 소리
+  const slide = () => {
+    const c = ctx!;
+    const t = c.currentTime;
+    const n = noise(0.35);
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.8;
+    bp.frequency.setValueAtTime(1400, t);
+    bp.frequency.linearRampToValueAtTime(900, t + 0.3);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+    n.connect(bp).connect(g).connect(fxBus);
+    n.start(t);
+  };
+
+  // 사진 크게 보기: 천을 걷는 듯한 부드러운 바람 소리
+  const swish = () => {
+    const c = ctx!;
+    const t = c.currentTime;
+    const n = noise(0.4);
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.9;
+    bp.frequency.setValueAtTime(500, t);
+    bp.frequency.exponentialRampToValueAtTime(1800, t + 0.3);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.12, t + 0.1);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.38);
+    n.connect(bp).connect(g).connect(fxBus);
+    n.start(t);
+  };
+
+  // 주문서 보내기: 도장을 '꾹' 누르는 낮은 소리
+  const stamp = () => {
+    const c = ctx!;
+    const t = c.currentTime;
+    const n = noise(0.12, true);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 380;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.9, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+    n.connect(lp).connect(g).connect(fxBus);
+    n.start(t);
+    knock(0.6, 0.7);
+  };
+
+  // ---------- 배경음악: 공방의 아침 ----------
+  // 밝은 G장조. 펠트 피아노가 화음을 경쾌하게 나눠 짚고(아르페지오), 위에서 가락이 노래하듯 흐르며,
+  // 따뜻한 현이 받쳐 줍니다. 망치질처럼 가벼운 나무 소리가 박자를 짚어 일하는 공방의 리듬을 냅니다.
+
+  // 화음 진행 (G장조): G → D/F# → Em7 → Cmaj7 → G/B → Am7 → C → D(sus4) … 한 화음 8박
+  const CHORDS = [
+    { bass: 43, notes: [55, 59, 62, 67, 71] }, // G
+    { bass: 42, notes: [54, 57, 62, 66, 69] }, // D/F#
+    { bass: 40, notes: [55, 59, 62, 64, 67] }, // Em7
+    { bass: 36, notes: [55, 59, 60, 64, 67] }, // Cmaj7
+    { bass: 47, notes: [55, 59, 62, 67, 74] }, // G/B
+    { bass: 45, notes: [55, 60, 64, 67, 69] }, // Am7
+    { bass: 48, notes: [55, 60, 64, 67, 72] }, // C
+    { bass: 50, notes: [55, 57, 62, 67, 69] }, // D(sus4)
+  ];
+  const BEAT = 0.58; // 한 박(초) — 약 103 BPM, 걷는 빠르기
+  const CHORD_SECONDS = BEAT * 8;
+  // 가락에 쓰는 G장조 음 (높은 음역)
+  const MELODY = [67, 69, 71, 72, 74, 76, 78, 79, 81, 83];
+
+  // 펠트 피아노 한 음: 배음 몇 개 + 부드러운 망치 소리, 고음은 걸러서 둥글게
+  const piano = (midi: number, when: number, level: number) => {
+    const c = ctx!;
+    const f = hz(midi);
+    const out = c.createGain();
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(Math.min(3200, f * 6), when);
+    lp.frequency.exponentialRampToValueAtTime(Math.max(500, f * 1.6), when + 2.5);
+    const decay = 3.5 + (72 - midi) * 0.06;
+    out.gain.setValueAtTime(0.0001, when);
+    out.gain.exponentialRampToValueAtTime(level, when + 0.018);
+    out.gain.exponentialRampToValueAtTime(level * 0.35, when + 0.6);
+    out.gain.exponentialRampToValueAtTime(0.0001, when + decay);
+    const pan = c.createStereoPanner();
+    pan.pan.value = Math.max(-0.5, Math.min(0.5, (midi - 66) / 24));
+    out.connect(lp).connect(pan).connect(musicBus);
+    [
+      [1, 1],
+      [2.002, 0.35],
+      [3.006, 0.12],
+      [4.01, 0.05],
+    ].forEach(([mult, amp]) => {
+      const o = c.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f * mult;
+      const g = c.createGain();
+      g.gain.value = amp;
+      o.connect(g).connect(out);
+      o.start(when);
+      o.stop(when + decay + 0.1);
+    });
+    // 펠트 망치가 줄에 닿는 아주 작은 소리
+    const h = noise(0.03);
+    const hb = c.createBiquadFilter();
+    hb.type = 'lowpass';
+    hb.frequency.value = 1200;
+    const hg = c.createGain();
+    hg.gain.setValueAtTime(level * 0.12, when);
+    hg.gain.exponentialRampToValueAtTime(0.0001, when + 0.03);
+    h.connect(hb).connect(hg).connect(musicBus);
+    h.start(when);
+  };
+
+  // 따뜻하게 받쳐 주는 현: 톱니파 두 개를 살짝 어긋나게 하고 부드럽게 커졌다 작아짐
+  const cello = (midi: number, when: number, seconds: number) => {
+    const c = ctx!;
+    const f = hz(midi);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1100;
+    lp.Q.value = 0.6;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.linearRampToValueAtTime(0.045, when + 1.2);
+    g.gain.setValueAtTime(0.045, when + seconds - 1);
+    g.gain.linearRampToValueAtTime(0.0001, when + seconds + 1.2);
+    lp.connect(g).connect(musicBus);
+    [-4, 4].forEach((cents) => {
+      const o = c.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = f;
+      o.detune.value = cents;
+      // 활을 긋는 듯한 아주 느린 떨림
+      const vib = c.createOscillator();
+      vib.frequency.value = 4.6;
+      const vg = c.createGain();
+      vg.gain.value = 3;
+      vib.connect(vg).connect(o.detune);
+      o.connect(lp);
+      o.start(when);
+      vib.start(when);
+      o.stop(when + seconds + 1.6);
+      vib.stop(when + seconds + 1.6);
+    });
+  };
+
+  // 작업장의 공기: 아주 낮은 잡음이 천천히 숨 쉬듯
+  const startRoom = () => {
+    const c = ctx!;
+    const src = noise(6, true);
+    src.loop = true;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 260;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.025, c.currentTime + 5);
+    const lfo = c.createOscillator();
+    lfo.frequency.value = 0.05;
+    const lg = c.createGain();
+    lg.gain.value = 0.02;
+    lfo.connect(lg).connect(g.gain);
+    src.connect(lp).connect(g).connect(musicBus);
+    src.start();
+    lfo.start();
+    bedNodes = [src, lfo, g];
+  };
+
+  const stopRoom = () => {
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    bedNodes.forEach((n) => {
+      if (n instanceof AudioScheduledSourceNode) n.stop(t + 1.5);
+      if (n instanceof GainNode) {
+        n.gain.cancelScheduledValues(t);
+        n.gain.setTargetAtTime(0.0001, t, 0.4);
+      }
+    });
+    bedNodes = [];
+  };
+
+  // 한 화음(8박)씩: 낮은 음과 현을 깔고, 건반이 8분음표로 화음을 오르내리며,
+  // 두 화음에 한 번 가락이 노래하고, 2·4박마다 망치질 같은 가벼운 나무 소리
+  let chordIndex = 0;
+  let melodyAt = 4;
+  const ARP = [0, 2, 1, 3, 2, 4, 3, 1]; // 화음 안에서 짚는 순서 (오르내림)
+  const playChord = () => {
+    if (!enabled || !ctx) return;
+    const chord = CHORDS[chordIndex % CHORDS.length];
+    const phraseBar = chordIndex % 2 === 0;
+    chordIndex++;
+    const start = ctx.currentTime + 0.08;
+    cello(chord.bass + 12, start, CHORD_SECONDS);
+    cello(chord.notes[1], start, CHORD_SECONDS);
+    piano(chord.bass, start, 0.15);
+    piano(chord.bass, start + BEAT * 4, 0.09);
+    // 건반 아르페지오: 앞 4박은 촘촘히, 뒤 4박은 조금 성기게
+    for (let i = 0; i < 12; i++) {
+      const step = i < 8 ? i : 8 + (i - 8) * 2;
+      const tone = chord.notes[ARP[i % ARP.length]] + (i >= 8 ? 12 : 0);
+      piano(tone, start + step * (BEAT / 2), i % 2 === 0 ? 0.065 : 0.045);
+    }
+    // 가락: 박에 맞춰 4~6음, 음계 위를 한두 칸씩 움직이다 화음 음으로 끝맺음
+    if (phraseBar) {
+      const count = 4 + Math.floor(Math.random() * 3);
+      let beat = pick([0.5, 1, 1]);
+      for (let i = 0; i < count && beat < 15; i++) {
+        melodyAt = Math.min(MELODY.length - 1, Math.max(0, melodyAt + pick([-2, -1, -1, 1, 1, 2])));
+        let midi = MELODY[melodyAt];
+        if (i === count - 1) {
+          // 마지막 음은 지금 화음과 어울리는 음으로
+          const fit = chord.notes.map((n) => n + 24).filter((n) => n >= 67 && n <= 84);
+          midi = fit.reduce((a, b) => (Math.abs(b - midi) < Math.abs(a - midi) ? b : a), fit[0] ?? midi);
+        }
+        piano(midi, start + beat * BEAT, rand(0.09, 0.12));
+        beat += pick([1, 1, 2, 1.5]);
+      }
+    }
+    // 망치질 같은 가벼운 나무 박자 (2·4박, 가끔 쉼)
+    [1, 3, 5, 7].forEach((b) => {
+      if (Math.random() < 0.8) {
+        window.setTimeout(
+          () => enabled && knock(b % 4 === 1 ? 0.16 : 0.11, 1.15),
+          (start - ctx!.currentTime + b * BEAT) * 1000
+        );
+      }
+    });
+    musicTimer = window.setTimeout(playChord, CHORD_SECONDS * 1000);
+  };
+
+  let musicOn = false;
+  const startMusic = (delay = 600) => {
+    if (musicOn) return;
+    musicOn = true;
+    window.clearTimeout(musicTimer);
+    musicTimer = window.setTimeout(() => {
+      if (!enabled) return;
+      startRoom();
+      chordIndex = 0;
+      playChord();
+    }, delay);
+  };
+  const stopMusic = () => {
+    musicOn = false;
+    window.clearTimeout(musicTimer);
+    stopRoom();
+  };
+
+  // ---------- 입장 연출 소리: 큰북·현악이 차오르고, 로구로 깎는 소리 끝에 나무 실로폰 화음 ----------
+  // 큰북(팀파니) 한 번: 낮게 떨어지는 울림 + 가죽 치는 잡음
+  const drum = (when: number, level: number, pitch = 1) => {
+    const c = ctx!;
+    const o = c.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(92 * pitch, when);
+    o.frequency.exponentialRampToValueAtTime(46 * pitch, when + 0.5);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(level, when + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + 1.4);
+    o.connect(g).connect(musicBus);
+    o.start(when);
+    o.stop(when + 1.5);
+    const n = noise(0.2, true);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 700;
+    const ng = c.createGain();
+    ng.gain.setValueAtTime(level * 0.6, when);
+    ng.gain.exponentialRampToValueAtTime(0.0001, when + 0.18);
+    n.connect(lp).connect(ng).connect(musicBus);
+    n.start(when);
+  };
+
+  // 현악 합주가 아래에서부터 차오름 (필터가 열리며 점점 밝고 커짐)
+  const swell = (notes: number[], when: number, rise: number, hold: number, level: number) => {
+    const c = ctx!;
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.Q.value = 0.8;
+    lp.frequency.setValueAtTime(220, when);
+    lp.frequency.exponentialRampToValueAtTime(2600, when + rise);
+    lp.frequency.exponentialRampToValueAtTime(900, when + rise + hold + 2);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(level, when + rise);
+    g.gain.setValueAtTime(level, when + rise + hold);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + rise + hold + 3);
+    lp.connect(g).connect(musicBus);
+    const end = when + rise + hold + 3.1;
+    notes.forEach((midi) => {
+      [-7, 6].forEach((cents) => {
+        const o = c.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.value = hz(midi);
+        o.detune.value = cents;
+        const og = c.createGain();
+        og.gain.value = midi < 48 ? 0.5 : 0.28;
+        o.connect(og).connect(lp);
+        o.start(when);
+        o.stop(end);
+      });
+    });
+  };
+
+  // 금빛 글자가 빛날 때의 높은 반짝임
+  const shimmer = (when: number) => {
+    const c = ctx!;
+    [86, 93, 98].forEach((midi, i) => {
+      const o = c.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = hz(midi);
+      const g = c.createGain();
+      const t = when + i * 0.18;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.025, t + 0.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 3);
+      o.connect(g).connect(musicBus);
+      o.start(t);
+      o.stop(t + 3.1);
+    });
+  };
+
+  // 로구로가 돌며 나무를 깎는 '스르르' 소리: 깎는 잡음이 회전처럼 일렁이며 점점 높고 커지다가 끝에서 멈춤
+  const latheCut = (when: number, dur: number) => {
+    const c = ctx!;
+    const n = noise(dur + 0.2);
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 2.2;
+    bp.frequency.setValueAtTime(500, when);
+    bp.frequency.exponentialRampToValueAtTime(2600, when + dur);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, when);
+    g.gain.exponentialRampToValueAtTime(0.11, when + dur * 0.85);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dur + 0.12);
+    // 나무가 돌아가는 느낌: 소리 크기가 빠르게 일렁임 (점점 빨라짐)
+    const spin = c.createGain();
+    spin.gain.value = 0.65;
+    const lfo = c.createOscillator();
+    lfo.frequency.setValueAtTime(9, when);
+    lfo.frequency.linearRampToValueAtTime(22, when + dur);
+    const depth = c.createGain();
+    depth.gain.value = 0.35;
+    lfo.connect(depth).connect(spin.gain);
+    n.connect(bp).connect(spin).connect(g).connect(musicBus);
+    n.start(when);
+    lfo.start(when);
+    lfo.stop(when + dur + 0.2);
+  };
+
+  // 나무 실로폰(마림바)처럼 맑고 따뜻한 한 음: 기본음 + 나무 막대 특유의 높은 배음 + 부드러운 채 소리
+  const woodBell = (midi: number, when: number, level: number) => {
+    const c = ctx!;
+    const f = hz(midi);
+    [
+      [1, level, 2.4],
+      [4, level * 0.18, 0.5],
+      [9.9, level * 0.05, 0.18],
+    ].forEach(([mul, lv, dec]) => {
+      const o = c.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f * mul;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, when);
+      g.gain.exponentialRampToValueAtTime(lv, when + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, when + dec);
+      o.connect(g).connect(musicBus);
+      o.start(when);
+      o.stop(when + dec + 0.05);
+    });
+    const tap = noise(0.03);
+    const lp = c.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1800;
+    const tg = c.createGain();
+    tg.gain.setValueAtTime(level * 0.25, when);
+    tg.gain.exponentialRampToValueAtTime(0.0001, when + 0.03);
+    tap.connect(lp).connect(tg).connect(musicBus);
+    tap.start(when);
+  };
+
+  // 연출 시작: 큰북 한 번 → 낮은 현이 차오르고, 금선이 그어지는 동안 로구로가 나무를 깎는 소리가 점점 높아짐
+  const introStart = () => {
+    const c = ctx!;
+    const t = c.currentTime + 0.03;
+    drum(t, 0.9, 1);
+    swell([26, 38, 45, 50, 53, 57], t, 2.2, 0.15, 0.085);
+    shimmer(t + 0.5);
+    latheCut(t + 0.9, 1.35);
+  };
+
+  // 금선이 다 그어지는 순간: 나무 실로폰 화음이 아래에서 위로 맑게 퍼지고(D장조),
+  // 현악이 따뜻하게 받쳐 주며, 높은 반짝임이 남음. 큰 타격음 없이 은은하게.
+  const introStamp = () => {
+    const c = ctx!;
+    const t = c.currentTime + 0.01;
+    woodBell(38, t, 0.32);
+    woodBell(50, t, 0.22);
+    [57, 62, 66, 69, 74].forEach((midi, i) => woodBell(midi, t + 0.06 + i * 0.07, 0.13 - i * 0.012));
+    swell([38, 50, 57, 62, 66, 69], t, 0.35, 0.6, 0.06);
+    shimmer(t + 0.25);
+  };
+
+  // 입장 화면이 위로 걷힐 때: 넓게 퍼지는 바람 소리
+  const introOut = () => {
+    const c = ctx!;
+    const t = c.currentTime;
+    const n = noise(1.2);
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.6;
+    bp.frequency.setValueAtTime(300, t);
+    bp.frequency.exponentialRampToValueAtTime(2200, t + 0.8);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.1, t + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+    n.connect(bp).connect(g).connect(musicBus);
+    n.start(t);
+  };
+
+  // ---------- 켜기·끄기 ----------
+  const ui = () => document.getElementById('sound-ui');
+
+  const render = () => {
+    const box = ui();
+    const btn = box?.querySelector<HTMLButtonElement>('[data-sound-toggle]');
+    if (!box || !btn) return;
+    const label = enabled ? box.dataset.labelOff! : box.dataset.labelOn!;
+    btn.setAttribute('aria-pressed', String(enabled));
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    box.classList.toggle('is-on', enabled);
+  };
+
+  // musicDelay: 배경음악을 몇 ms 뒤에 시작할지 (입장 연출 소리가 끝난 뒤로 미룰 때), fade: 소리가 커지는 시간(초)
+  const enable = async ({ musicDelay = 600, fade = 1.2 } = {}) => {
+    const c = ensureCtx();
+    if (!c) return;
+    if (c.state === 'suspended') await c.resume();
+    enabled = true;
+    const t = c.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setValueAtTime(master.gain.value, t);
+    master.gain.linearRampToValueAtTime(0.9, t + fade);
+    startMusic(musicDelay);
+    render();
+  };
+
+  const disable = () => {
+    enabled = false;
+    stopMusic();
+    if (ctx) {
+      const t = ctx.currentTime;
+      master.gain.cancelScheduledValues(t);
+      master.gain.setValueAtTime(master.gain.value, t);
+      master.gain.linearRampToValueAtTime(0, t + 0.6);
+    }
+    render();
+  };
+
+  const hideHint = () => {
+    const hint = ui()?.querySelector<HTMLElement>('.sound-hint');
+    if (hint) hint.hidden = true;
+    store.set(HINT_KEY, '1');
+  };
+
+  // 단추
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-sound-hint-close]')) {
+      hideHint();
+      return;
+    }
+    if (!target.closest('[data-sound-toggle]')) return;
+    hideHint();
+    if (enabled) {
+      knock(0.8);
+      store.set(KEY, 'off');
+      disable();
+    } else {
+      store.set(KEY, 'on');
+      enable().then(() => knock(0.9));
+    }
+  });
+
+  // 켜 둔 적이 있으면, 방문자가 처음 화면을 누르거나 키를 누를 때 다시 켭니다 (브라우저 자동 재생 규칙)
+  if (store.get(KEY) === 'on') {
+    const arm = (e: Event) => {
+      // 소리 단추나 입장 화면의 단추는 각자 알아서 켜고 끔
+      if ((e.target as HTMLElement)?.closest?.('[data-sound-toggle], #intro')) return;
+      window.removeEventListener('pointerdown', arm, true);
+      window.removeEventListener('keydown', arm, true);
+      if (store.get(KEY) === 'on' && !enabled) enable();
+    };
+    window.addEventListener('pointerdown', arm, true);
+    window.addEventListener('keydown', arm, true);
+  }
+
+  // 처음 오신 분께 한 번만: 소리를 켤 수 있다는 안내
+  const showHintOnce = () => {
+    if (store.get(HINT_KEY) || store.get(KEY)) return;
+    const hint = ui()?.querySelector<HTMLElement>('.sound-hint');
+    if (!hint) return;
+    const show = () => {
+      // 입장 화면에서 이미 소리를 켰으면 안내하지 않음
+      if (store.get(KEY) || store.get(HINT_KEY)) return;
+      hint.hidden = false;
+      store.set(HINT_KEY, '1');
+      window.setTimeout(() => (hint.hidden = true), 4000);
+    };
+    // 입장 화면이 끝난 뒤에 띄움
+    const wait = () =>
+      document.documentElement.classList.contains('intro-active')
+        ? window.setTimeout(wait, 500)
+        : window.setTimeout(show, 1200);
+    wait();
+  };
+  showHintOnce();
+
+  // 효과음 연결
+  const fx = (fn: () => void) => {
+    if (enabled && ctx && ctx.state === 'running') fn();
+  };
+  document.addEventListener(
+    'click',
+    (e) => {
+      const el = (e.target as HTMLElement).closest('a, button, summary, [role="button"]');
+      if (!el || el.closest('[data-sound-toggle], [data-sound-hint-close]')) return;
+      if (el.matches('[data-aw-gallery-open]')) fx(swish);
+      else if (el.matches('[type="submit"]')) fx(stamp);
+      else fx(() => knock(rand(0.85, 1), rand(0.9, 1.1)));
+    },
+    true
+  );
+
+  // 입장 화면과 맞춘 소리 (Intro.astro가 보내는 신호)
+  let introSound = false;
+  document.addEventListener('sc:intro-start', (e) => {
+    if (!(e as CustomEvent<{ sound: boolean }>).detail?.sound) return;
+    introSound = true;
+    store.set(KEY, 'on');
+    store.set(HINT_KEY, '1');
+    enable({ musicDelay: 6800, fade: 0.05 }).then(() => fx(introStart));
+  });
+  document.addEventListener('sc:intro-stamp', () => introSound && fx(introStamp));
+  document.addEventListener('sc:intro-out', () => {
+    if (!introSound) return;
+    introSound = false;
+    fx(introOut);
+  });
+
+  document.addEventListener('sc:film-sound', (e) => {
+    filmSound = (e as CustomEvent<{ on: boolean }>).detail.on;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    musicBus.gain.cancelScheduledValues(t);
+    musicBus.gain.setValueAtTime(musicBus.gain.value, t);
+    musicBus.gain.linearRampToValueAtTime(filmSound ? MUSIC_DUCKED : MUSIC_LEVEL, t + (filmSound ? 0.6 : 2.5));
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    fx(slide);
+    render();
+  });
+  document.addEventListener('astro:page-load', render);
+
+  // 다른 탭을 보는 동안은 소리를 쉼
+  document.addEventListener('visibilitychange', () => {
+    if (!ctx || !enabled) return;
+    if (document.hidden) ctx.suspend();
+    else ctx.resume();
+  });
+</script>
