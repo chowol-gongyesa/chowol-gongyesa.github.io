@@ -318,6 +318,15 @@
     visibility: visible;
     transition: transform 0.35s ease;
   }
+  /* 띠 맨 위 한 줄: 상담전화로 걸 때 '초월공예사'라고 말해 달라는 안내 */
+  .call-bar-note {
+    grid-column: 1 / -1;
+    margin: 0 0 0.05rem;
+    text-align: center;
+    font-size: 0.84rem;
+    line-height: 1.35;
+    color: var(--ivory-2);
+  }
   html:has(dialog[open]) .call-bar {
     visibility: hidden; /* 사진 크게 보기 중에는 숨김 */
   }
@@ -882,6 +891,20 @@
   .sound-toggle[data-state='on'] .icon-on {
     display: block;
   }
+  /* 켜짐이지만 브라우저가 막아 아직 조용함(화면을 누르기 전) → 꺼진 그림 + 금빛으로 숨 쉼 = '눌러서 소리 켜기' */
+  .sound-toggle[data-state='wait'] {
+    border-color: var(--gold-2);
+    animation: soundWait 2s ease-in-out infinite;
+  }
+  @keyframes soundWait {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(232 201 140 / 0);
+    }
+    50% {
+      box-shadow: 0 0 0 5px rgb(232 201 140 / 0.22);
+    }
+  }
   .sound-toggle[data-state='on'] .icon-off {
     display: none;
   }
@@ -1251,6 +1274,39 @@
     background: rgb(205 167 99 / 0.2);
     border-color: var(--gold-2);
   }
+  /* 브라우저가 소리를 막았을 때: 소리 단추가 금빛으로 숨 쉬고, 옆에 '화면을 누르면 소리가 나옵니다' */
+  #intro .intro-tap {
+    display: none;
+    font-size: 0.95rem;
+    color: var(--ivory);
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.85);
+  }
+  #intro.needs-tap .intro-tap {
+    display: inline;
+    animation: introTap 1.8s ease-in-out infinite;
+  }
+  #intro.needs-tap .intro-btn {
+    border-color: var(--gold-2);
+    animation: introTapRing 1.8s ease-in-out infinite;
+  }
+  @keyframes introTap {
+    0%,
+    100% {
+      opacity: 0.65;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes introTapRing {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgb(232 201 140 / 0);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgb(232 201 140 / 0.25);
+    }
+  }
   #intro .intro-progress {
     position: absolute;
     z-index: 4;
@@ -1324,9 +1380,13 @@
 
   /* ───────────────────────── 마우스 효과 (Effects.astro) ───────────────────────── */
   /* 마우스를 움직인 자리에 날리는 금빛 나무 가루 (마우스 효과는 이것만, 마우스 모양은 원래 화살표) */
+  /* 마우스 금빛 가루 그림판 (Effects.astro). canvas는 inset만으로는 늘어나지 않아서 크기를 꼭 적어야 함
+     (안 적으면 레티나 화면에서 두 배 크기로 보여 가루가 마우스와 다른 곳에 나옴) */
   #cursor-dust {
     position: fixed;
     inset: 0;
+    width: 100%;
+    height: 100%;
     z-index: 130;
     pointer-events: none;
   }
@@ -1399,6 +1459,185 @@
   @keyframes heroIn {
     to {
       opacity: 1;
+      transform: none;
+    }
+  }
+  /* 첫 화면 연락 명패 두 개 (HeroCinema.astro) — 같은 틀: 왼쪽 동그라미 그림, 위에 작은 이름, 아래에 큰 번호.
+     상담전화 = 금박 판(가장 중요한 단추), 문자 = 짙은 옻칠 판 + 금테. 상단 상담전화 명패(.call-plate)와 같은 집안 모양 */
+  .hero-cta {
+    display: grid;
+    gap: 0.75rem;
+  }
+  @media (min-width: 40rem) {
+    .hero-cta {
+      grid-template-columns: repeat(2, max-content);
+    }
+  }
+  .cta-plate {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 4.4rem;
+    padding: 0.6rem 1.7rem 0.6rem 0.65rem;
+    border: 1px solid rgb(205 167 99 / 0.6);
+    border-radius: 999px;
+    overflow: hidden;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.25s ease,
+      border-color 0.25s ease,
+      background-color 0.25s ease;
+  }
+  .cta-plate:hover {
+    transform: translateY(-2px);
+  }
+  .cta-plate:active {
+    transform: translateY(0) scale(0.985);
+  }
+  .cta-plate:focus-visible {
+    outline: 2px solid var(--gold-2);
+    outline-offset: 3px;
+  }
+  .cta-plate-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 3.1rem;
+    height: 3.1rem;
+    border-radius: 999px;
+  }
+  .cta-plate-text {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+  .cta-plate-label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .cta-plate-num {
+    margin-top: 0.22rem;
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  /* 상담전화: 금박 판 + 짙은 동그라미 안의 금빛 전화 */
+  .cta-plate.is-call {
+    border-color: #ecd29b;
+    background-image: linear-gradient(180deg, #f5e0b2 0%, #dcbb79 46%, #b68d47 100%);
+    color: #1a120a;
+    box-shadow:
+      inset 0 1px 0 rgb(255 250 235 / 0.7),
+      inset 0 -1px 0 rgb(90 60 20 / 0.35),
+      0 18px 36px -18px rgb(205 167 99 / 0.8);
+  }
+  .cta-plate.is-call::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 250 230 / 0.55) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.75s ease;
+    pointer-events: none;
+  }
+  .cta-plate.is-call:hover::after {
+    transform: translateX(120%);
+  }
+  .cta-plate.is-call:hover {
+    box-shadow:
+      inset 0 1px 0 rgb(255 250 235 / 0.7),
+      inset 0 -1px 0 rgb(90 60 20 / 0.35),
+      0 0 0 4px rgb(205 167 99 / 0.2),
+      0 22px 40px -18px rgb(205 167 99 / 0.9);
+  }
+  .cta-plate.is-call .cta-plate-icon {
+    background: linear-gradient(180deg, #2e2116 0%, #130d09 100%);
+    color: #f2d9a2;
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 210 / 0.14),
+      0 0 0 3px rgb(26 18 10 / 0.12);
+  }
+  .cta-plate.is-call .cta-plate-label {
+    color: rgb(26 18 10 / 0.78);
+  }
+  .cta-plate.is-call .cta-plate-num {
+    color: #120c06;
+  }
+  /* 문자: 짙은 옻칠 판 + 금테 + 테두리 동그라미 */
+  .cta-plate.is-sms {
+    background: linear-gradient(180deg, rgb(46 34 22 / 0.9), rgb(18 13 9 / 0.92));
+    color: var(--ivory);
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 210 / 0.1),
+      0 14px 30px -18px rgb(0 0 0 / 0.95);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  .cta-plate.is-sms:hover {
+    border-color: var(--gold-2);
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 210 / 0.12),
+      0 0 0 4px rgb(205 167 99 / 0.12),
+      0 18px 34px -18px rgb(205 167 99 / 0.45);
+  }
+  .cta-plate.is-sms .cta-plate-icon {
+    border: 1px solid rgb(232 201 140 / 0.65);
+    background: rgb(205 167 99 / 0.1);
+    color: var(--gold-2);
+  }
+  .cta-plate.is-sms .cta-plate-label {
+    color: var(--gold);
+  }
+  .cta-plate.is-sms .cta-plate-num {
+    color: var(--ivory);
+  }
+  @media (max-width: 39.99rem) {
+    .cta-plate {
+      min-height: 4.1rem;
+      padding-right: 1.2rem;
+    }
+    .cta-plate-icon {
+      width: 2.8rem;
+      height: 2.8rem;
+    }
+    .cta-plate-num {
+      font-size: 1.32rem;
+    }
+  }
+  /* 상담전화 안내 한 줄: '초월공예사'라고 말씀해 달라는 부탁 (영상 위라 어두운 바탕을 깔아 잘 읽히게) */
+  .hero-callnote {
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    gap: 0.5rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.8rem;
+    border: 1px solid rgb(205 167 99 / 0.28);
+    border-radius: 0.9rem;
+    background: rgb(10 7 5 / 0.6);
+    color: var(--ivory);
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+  .hero-callnote b,
+  .reach-say b,
+  .call-bar-note b {
+    font-weight: 800;
+    color: var(--gold-2);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta-plate,
+    .cta-plate.is-call::after {
+      transition: none;
+    }
+    .cta-plate:hover,
+    .cta-plate:active {
       transform: none;
     }
   }
@@ -1835,64 +2074,165 @@
     accent-color: var(--gold);
     height: 2.75rem;
   }
-  /* 영상 옆 장면 목록: 누르면 그 장면으로 */
+  /* 장면 바로 보기 (CraftFilm.astro): 한 줄 한 줄이 '누르는 단추'로 보이게 — 옻칠 판 + 금테 + 왼쪽 금빛 재생 동그라미.
+     마우스를 올리거나 지금 보는 장면이면 동그라미가 금박으로 차고 테가 밝아짐 (사용자 의견 2026-11-21: 단추 같지 않아 안 눌렀음) */
+  .chapter-list {
+    gap: 0.55rem;
+  }
   .chapter {
+    position: relative;
     display: grid;
-    grid-template-columns: 3.4rem 1fr;
-    gap: 0.9rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.95rem;
     width: 100%;
-    padding: 0.85rem 0.25rem;
-    border-top: 1px solid var(--line);
+    padding: 0.8rem 1.1rem 0.8rem 0.8rem;
+    border: 1px solid rgb(205 167 99 / 0.3);
+    background: linear-gradient(180deg, rgb(44 32 21 / 0.8), rgb(19 13 9 / 0.8));
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 210 / 0.06),
+      0 10px 22px -16px rgb(0 0 0 / 0.95);
     text-align: left;
     color: var(--ivory-2);
-    transition: color 0.2s ease;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
   }
-  .chapter:hover,
-  .chapter.is-current {
-    color: var(--ivory);
-  }
-  /* 휴대폰: 영상 아래 장면 바로 가기 단추 */
-  .chapter-chip {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 44px;
-    padding: 0 0.95rem;
-    border: 1px solid rgb(205 167 99 / 0.35);
-    border-radius: 999px;
-    background: rgb(0 0 0 / 0.3);
-    color: var(--ivory-2);
-    font-size: 0.95rem;
-    white-space: nowrap;
-  }
-  .chapter-chip.is-current {
+  .chapter:hover {
     border-color: var(--gold-2);
-    background: rgb(205 167 99 / 0.14);
+    color: var(--ivory);
+    background: linear-gradient(180deg, rgb(66 48 30 / 0.9), rgb(29 21 14 / 0.9));
+    transform: translateX(3px);
+  }
+  .chapter:active {
+    transform: translateX(1px) scale(0.995);
+  }
+  .chapter:focus-visible {
+    outline: 2px solid var(--gold-2);
+    outline-offset: 2px;
+  }
+  .chapter.is-current {
+    border-color: var(--gold);
     color: var(--ivory);
   }
-  .chapter .t {
-    font-variant-numeric: tabular-nums;
-    color: var(--gold);
-    font-size: 0.95rem;
-    padding-top: 0.15rem;
+  .chapter.is-current::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: -1px;
+    width: 3px;
+    background: var(--gold-2);
+  }
+  .chapter-play {
+    display: inline-grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid rgb(232 201 140 / 0.7);
+    border-radius: 999px;
+    background: rgb(205 167 99 / 0.1);
+    color: var(--gold-2);
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .chapter-play svg,
+  .chip-play svg {
+    margin-left: 2px; /* 재생 세모를 눈으로 보기에 가운데로 */
+  }
+  .chapter:hover .chapter-play,
+  .chapter.is-current .chapter-play {
+    border-color: transparent;
+    background: linear-gradient(180deg, #f3dcab 0%, #cda763 55%, #a97f3c 100%);
+    color: #1b130b;
+    box-shadow: 0 0 0 4px rgb(205 167 99 / 0.16);
+  }
+  .chapter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
   }
   .chapter strong {
-    display: block;
     font-family: var(--aw-font-heading);
     font-weight: 800;
     font-size: 1.08rem;
     color: var(--ivory);
   }
-  .chapter.is-current .t::before {
-    content: '';
-    display: inline-block;
-    width: 0.45rem;
-    height: 0.45rem;
-    margin-right: 0.4rem;
-    border-radius: 99px;
-    background: var(--gold-2);
-    vertical-align: middle;
+  .chapter .t {
+    margin-left: auto;
+    flex: none;
+    padding: 0.05rem 0.55rem;
+    border: 1px solid rgb(205 167 99 / 0.38);
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--gold-2);
+  }
+  .chapter-text {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.97rem;
+    line-height: 1.6;
+  }
+  /* 휴대폰: 영상 아래 장면 바로 보기 단추 — 상단 상담전화 명패와 같은 말투(짙은 판 + 금테 + 금박 동그라미) */
+  .chapter-chip {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.9rem;
+    padding: 0 1rem 0 0.36rem;
+    border: 1px solid rgb(205 167 99 / 0.6);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgb(44 32 21 / 0.96), rgb(19 13 9 / 0.96));
+    box-shadow:
+      inset 0 1px 0 rgb(255 240 210 / 0.08),
+      0 8px 18px -12px rgb(0 0 0 / 0.95);
+    color: var(--ivory);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.15s ease;
+  }
+  .chapter-chip:active {
+    transform: scale(0.97);
+  }
+  .chapter-chip:focus-visible {
+    outline: 2px solid var(--gold-2);
+    outline-offset: 2px;
+  }
+  .chip-play {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.15rem;
+    height: 2.15rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f3dcab 0%, #cda763 55%, #a97f3c 100%);
+    color: #1b130b;
+    box-shadow: inset 0 1px 0 rgb(255 250 235 / 0.7);
+  }
+  .chapter-chip.is-current {
+    border-color: var(--gold-2);
+    background: linear-gradient(180deg, rgb(78 57 33 / 0.96), rgb(37 27 17 / 0.96));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chapter,
+    .chapter-chip {
+      transition: none;
+    }
+    .chapter:hover,
+    .chapter:active,
+    .chapter-chip:active {
+      transform: none;
+    }
   }
 
   /* 주문 순서 */
@@ -1951,6 +2291,39 @@
     .reach-num.is-intl {
       font-size: clamp(1.4rem, 3.4vw, 2.4rem);
     }
+  }
+  /* 상담전화 카드는 테를 조금 더 밝게 (가장 먼저 눈에 들어오게) */
+  .reach-card.is-main {
+    border-color: rgb(205 167 99 / 0.5);
+    background: linear-gradient(180deg, rgb(205 167 99 / 0.11), rgb(205 167 99 / 0.025));
+  }
+  /* 대표 휴대폰·작업장 전화·팩스 번호도 크게 (예전 1.5rem → 칸 너비에 맞춰 1.75~2.5rem) */
+  .reach-num-2 {
+    white-space: nowrap;
+    font-size: clamp(1.75rem, 11cqi, 2.5rem);
+    line-height: 1.1;
+  }
+  .reach-num-2.is-intl {
+    font-size: clamp(1.35rem, 8.6cqi, 2.1rem);
+  }
+  @supports not (font-size: 1cqi) {
+    .reach-num-2 {
+      font-size: clamp(1.7rem, 2.6vw, 2.3rem);
+    }
+    .reach-num-2.is-intl {
+      font-size: clamp(1.3rem, 2.1vw, 1.9rem);
+    }
+  }
+  /* 상담전화 안내: '초월공예사'라고 말씀해 주세요 */
+  .reach-say {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid rgb(205 167 99 / 0.35);
+    background: rgb(205 167 99 / 0.1);
+    color: var(--ivory);
+    font-size: 0.98rem;
+    line-height: 1.55;
   }
 
   /* 자주 묻는 질문 */
@@ -2155,6 +2528,9 @@
       transform: none !important;
     }
     .sound-toggle .bars i,
+    .sound-toggle[data-state='wait'],
+    #intro.needs-tap .intro-tap,
+    #intro.needs-tap .intro-btn,
     .clip .clip-badge i {
       animation: none !important;
     }

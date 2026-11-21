@@ -90,6 +90,7 @@ const persistKey = `header-${lang}`;
                   href={callAction.href}
                   class:list={['call-plate hidden lg:inline-flex', lang === 'ko' ? 'is-ko' : 'is-intl']}
                   aria-label={`${callAction.text} ${shop.consult.label}`}
+                  title={t.reach.sayName.replace(/<[^>]+>/g, '')}
                 >
                   <span class="call-plate-icon" aria-hidden="true"><Icon name="tabler:phone" class="h-[1.15rem] w-[1.15rem]" /></span>
                   <span class="call-plate-text" aria-hidden="true">

@@ -13,6 +13,7 @@ export interface Props {
 const { lang } = Astro.props;
 const t = useT(lang);
 const h = t.hero;
+const r = t.reach;
 const shop = shopFor(lang);
 ---
 
@@ -45,18 +46,29 @@ const shop = shopFor(lang);
       <p style="--d:2" class="mt-6 max-w-[37rem] text-[1.08rem] leading-[1.9] text-ivory md:text-[1.15rem]">
         {h.lead}
       </p>
-      <div style="--d:3" class="mt-8 flex flex-wrap gap-3">
-        <a href={shop.consult.href} class="btn-gold w-full sm:w-auto">
-          <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />{t.nav.call}
-          <span class="tabular-nums">{shop.consult.label}</span>
+      <!-- 연락 명패 두 개: 같은 틀(왼쪽 동그라미 그림, 위 작은 이름, 아래 큰 번호). 상담전화는 금박 판, 문자는 옻칠 판 + 금테.
+           모양은 tailwind.css의 .cta-plate. 아래 줄은 상담전화를 받는 분께 가게 이름을 말해 달라는 안내 (사용자 요청 2026-11-21) -->
+      <div style="--d:3" class="hero-cta mt-8">
+        <a href={shop.consult.href} class="cta-plate is-call">
+          <span class="cta-plate-icon" aria-hidden="true"><Icon name="tabler:phone" class="h-[1.35rem] w-[1.35rem]" /></span>
+          <span class="cta-plate-text">
+            <span class="cta-plate-label">{t.nav.call}</span>
+            <span class="cta-plate-num">{shop.consult.label}</span>
+          </span>
         </a>
-        <a href={shop.mobile.sms} class="btn-ghost w-full sm:w-auto">
-          <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{h.sms}
-          <!-- 컴퓨터에서는 문자 앱이 안 열릴 수 있어 번호를 함께 보여 줌 -->
-          <span class="hidden tabular-nums [@media(hover:hover)_and_(pointer:fine)]:inline">{shop.mobile.label}</span>
+        <a href={shop.mobile.sms} class="cta-plate is-sms">
+          <span class="cta-plate-icon" aria-hidden="true"><Icon name="tabler:message" class="h-[1.35rem] w-[1.35rem]" /></span>
+          <span class="cta-plate-text">
+            <span class="cta-plate-label">{h.sms}</span>
+            <span class="cta-plate-num">{shop.mobile.label}</span>
+          </span>
         </a>
       </div>
-      <ul style="--d:4" class="block-list mt-7 flex flex-wrap gap-x-7 gap-y-2 text-[0.98rem] text-ivory-2 [@media(max-height:760px)]:hidden">
+      <p style="--d:4" class="hero-callnote mt-4">
+        <Icon name="tabler:info-circle" class="mt-[0.2rem] h-[1.05rem] w-[1.05rem] shrink-0 text-gold-2" aria-hidden="true" />
+        <span set:html={r.sayName} />
+      </p>
+      <ul style="--d:5" class="block-list mt-6 flex flex-wrap gap-x-7 gap-y-2 text-[0.98rem] text-ivory-2 [@media(max-height:760px)]:hidden">
         {h.facts.map((fact) => <li>{fact}</li>)}
       </ul>
     </div>

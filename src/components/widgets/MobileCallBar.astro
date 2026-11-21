@@ -2,6 +2,7 @@
 // 휴대폰·태블릿 아래쪽에 늘 떠 있는 '상담전화 / 문자 보내기' 띠 (큰 화면에서는 숨김).
 // 첫 화면을 조금 내려가면 나타나고, 글을 입력하는 동안(자판이 열릴 때)은 숨습니다.
 // 문자 단추는 대표 휴대폰으로, 주문 내용 틀이 미리 채워진 채 열립니다 (src/data/shop.ts의 smsBody).
+// 단추 위 한 줄: 상담전화로 걸 때 '초월공예사'라고 말해 달라는 안내 (reach.sayName)
 import { Icon } from 'astro-icon/components';
 import { shopFor } from '~/data/shop';
 import { langFromPath, useT } from '~/i18n';
@@ -12,6 +13,7 @@ const shop = shopFor(lang);
 ---
 
 <nav class="call-bar lg:hidden" aria-label={`${r.callBar.call} · ${r.callBar.sms}`} data-call-bar>
+  <p class="call-bar-note" set:html={r.sayName} />
   <a href={shop.consult.href} class="btn-gold min-h-12 justify-center gap-2 px-3 text-[1.02rem]">
     <Icon name="tabler:phone" class="h-5 w-5 shrink-0" aria-hidden="true" />{r.callBar.call}
   </a>

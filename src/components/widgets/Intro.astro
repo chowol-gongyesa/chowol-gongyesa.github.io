@@ -8,7 +8,10 @@
 //  5.0초  번쩍 + 큰 울림, 붓글씨 상호 '초월공예사'가 크게 나타남
 //  7.6초  예고편이 끝나면 '입장하기' 단추가 나타나고, 가만히 있으면 5초 뒤 저절로 들어감
 //         (단추·화면 누르기, Enter·Esc, 스크롤 → 바로 들어감. 마우스를 움직이면 5초를 다시 셈)
-// 예고편이 끝나기 전에는 건너뛸 수 없고 뒤의 페이지도 누를 수 없습니다(사용자 요청 2026-11-21). '소리 켜기'만 됩니다.
+// 예고편이 끝나기 전에는 건너뛸 수 없고 뒤의 페이지도 누를 수 없습니다(사용자 요청 2026-11-21). '소리 켜기/끄기'만 됩니다.
+// 소리는 처음부터 켜짐이 기본(사용자 요청 2026-11-21, 끈 적이 있으면 꺼짐 — localStorage 'cw-sound', SoundSystem.astro와 같은 값).
+// 브라우저가 소리 나는 자동 재생을 막으면 소리 없이 재생하고 '화면을 누르면 소리가 나옵니다'를 보여 주다가,
+// 화면 아무 데나 처음 누르는(키를 누르는) 순간 소리를 켭니다.
 // 영상: public/video/intro-trailer.mp4(가로) · intro-trailer-m.mp4(휴대폰 세로). 만드는 도구 design-preview/film-v3/ (film5.py trailer-*)
 // 글귀는 src/i18n/ 의 intro. 시간을 바꾸면 영상(film5.py의 TRAILER_SHOTS)과 같이 바꾸세요.
 import { Icon } from 'astro-icon/components';
@@ -55,11 +58,14 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
   </div>
 
   <div class="intro-ui">
-    <button type="button" class="intro-btn" data-intro-sound data-on={t.soundOff} data-off={t.sound}>
-      <Icon name="tabler:volume-off" class="icon-off h-5 w-5" aria-hidden="true" />
-      <Icon name="tabler:volume" class="icon-on hidden h-5 w-5" aria-hidden="true" />
-      <span>{t.sound}</span>
-    </button>
+    <div class="flex items-center gap-3">
+      <button type="button" class="intro-btn" data-intro-sound data-on={t.soundOff} data-off={t.sound}>
+        <Icon name="tabler:volume-off" class="icon-off h-5 w-5" aria-hidden="true" />
+        <Icon name="tabler:volume" class="icon-on hidden h-5 w-5" aria-hidden="true" />
+        <span>{t.sound}</span>
+      </button>
+      <span class="intro-tap" aria-hidden="true">{t.tapSound}</span>
+    </div>
   </div>
   <div class="intro-progress" aria-hidden="true"><i></i></div>
 </div>
@@ -82,18 +88,59 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     var video = intro.querySelector('video');
     var tall = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
     video.poster = tall ? video.dataset.posterTall : video.dataset.posterWide;
+    var btnSound = intro.querySelector('[data-intro-sound]');
+    // 소리: 기본은 켜짐(끈 적이 있으면 꺼짐). blocked = 브라우저가 소리 나는 자동 재생을 막아 화면을 누르기를 기다리는 중
+    var soundOn = true;
+    try {
+      soundOn = localStorage.getItem('cw-sound') !== 'off';
+    } catch (e) {
+      /* storage unavailable */
+    }
+    var blocked = false;
+    var paintSound = function () {
+      var audible = soundOn && !blocked;
+      btnSound.querySelector('.icon-off').classList.toggle('hidden', audible);
+      btnSound.querySelector('.icon-on').classList.toggle('hidden', !audible);
+      var label = btnSound.querySelector('span');
+      if (label) label.textContent = audible ? btnSound.dataset.on : btnSound.dataset.off;
+      intro.classList.toggle('needs-tap', soundOn && blocked);
+    };
+    var keep = function (v) {
+      try {
+        localStorage.setItem('cw-sound', v ? 'on' : 'off');
+      } catch (e) {
+        /* storage unavailable */
+      }
+    };
     if (!reduce) {
       video.src = tall ? video.dataset.srcTall : video.dataset.srcWide;
+      video.muted = !soundOn;
       var p = video.play();
-      if (p && p.catch) p.catch(function () {});
+      if (p && p.catch)
+        p.catch(function () {
+          if (video.muted) return;
+          // 소리 나는 자동 재생이 막힘 → 소리 없이 재생하고, 화면을 처음 누르면 소리를 켬
+          blocked = true;
+          video.muted = true;
+          paintSound();
+          var p2 = video.play();
+          if (p2 && p2.catch) p2.catch(function () {});
+        });
     }
+    paintSound();
+    // 막혀 있던 소리를 켬 — 반드시 누르기(click·keydown) 처리 안에서 불러야 함
+    var unmuteNow = function () {
+      if (!blocked || !soundOn) return;
+      blocked = false;
+      video.muted = false;
+      if (video.paused && !video.ended && !reduce) video.play().catch(function () {});
+      paintSound();
+    };
     var timed = Array.prototype.map.call(intro.querySelectorAll('[data-at]'), function (el) {
       return { el: el, at: Number(el.dataset.at), out: el.dataset.out ? Number(el.dataset.out) : Infinity };
     });
     var bar = intro.querySelector('.intro-progress i');
-    var btnSound = intro.querySelector('[data-intro-sound]');
     var btnEnter = intro.querySelector('[data-intro-enter]');
-    var soundOn = false;
     var ended = false;
     var closed = false;
     var raf = 0;
@@ -186,9 +233,8 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       if (closed) return;
       stop();
       window.__cwIntroDone = true;
-      // 예고편에서 소리를 켰거나, 이번 방문에서 이미 소리를 켜 둔 채 새로 고침했으면 들어간 뒤 배경 음악이 이어짐
-      // (src/components/common/SoundSystem.astro — 막히면 다음에 누를 때 시작)
-      if (window.cwSound) window.cwSound.enter(soundOn || (window.cwSound.get ? window.cwSound.get() : false));
+      // 소리가 켜짐이면 들어간 뒤 배경 음악이 이어짐 (src/components/common/SoundSystem.astro — 막혀 있으면 다음에 누를 때 시작)
+      if (window.cwSound) window.cwSound.enter(soundOn);
       intro.classList.add('is-out');
       root.classList.remove('intro-active');
       window.dispatchEvent(new CustomEvent('cw:intro-closed', { detail: { time: 0 } }));
@@ -202,22 +248,25 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
 
     btnSound.addEventListener('click', function (e) {
       e.stopPropagation();
-      soundOn = !soundOn;
-      video.muted = !soundOn;
-      if (soundOn && video.paused && !video.ended && !reduce && !ended) video.play().catch(function () {});
-      btnSound.querySelector('.icon-off').classList.toggle('hidden', soundOn);
-      btnSound.querySelector('.icon-on').classList.toggle('hidden', !soundOn);
-      var label = btnSound.querySelector('span');
-      if (label) label.textContent = soundOn ? btnSound.dataset.on : btnSound.dataset.off;
+      if (blocked && soundOn) unmuteNow(); // 막혀서 조용하던 것을 켬
+      else {
+        soundOn = !soundOn;
+        blocked = false;
+        video.muted = !soundOn;
+        if (soundOn && video.paused && !video.ended && !reduce && !ended) video.play().catch(function () {});
+        paintSound();
+      }
+      keep(soundOn);
       if (ended) countdown();
     });
     btnEnter.addEventListener('click', function (e) {
       e.stopPropagation();
       if (ended) close();
     });
-    // 끝난 뒤에는 화면 어디를 눌러도·밀어도·스크롤해도 들어감. 끝나기 전에는 아무 일도 없음
+    // 끝난 뒤에는 화면 어디를 눌러도·밀어도·스크롤해도 들어감. 끝나기 전에는 (소리가 막혀 있었으면) 소리만 켬
     intro.addEventListener('click', function () {
       if (ended) close();
+      else unmuteNow();
     });
     intro.addEventListener(
       'wheel',
@@ -241,6 +290,8 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       countdown();
     });
     intro.addEventListener('keydown', function (e) {
+      // 소리 단추 위에서 누른 키는 단추가 처리 (여기서 켜면 바로 이어지는 단추 누르기가 다시 꺼 버림)
+      if (e.key !== 'Tab' && e.key !== 'Escape' && e.target !== btnSound) unmuteNow();
       if (!ended) {
         // 끝나기 전: 소리 단추 말고는 아무것도 하지 않음 (Tab은 입장 화면 안에서만 돎)
         if (e.key === 'Tab') {

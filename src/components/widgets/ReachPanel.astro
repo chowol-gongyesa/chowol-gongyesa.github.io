@@ -2,6 +2,8 @@
 // 연락 방법 (홈 아래쪽, 주문·문의 페이지 위쪽). 밤 작업장 쪽빛 바탕.
 // 큰 번호는 상담전화: 대표님이 소리 대신 글로 소통하셔서 전화는 상담전화가 대신 받습니다.
 // 대표 휴대폰은 '문자 보내기'를 먼저 보여 줍니다(전화도 되지만 문자를 부탁).
+// 상담전화 카드에는 '초월공예사라고 말씀해 주세요' 안내(reach.sayName — 상담전화는 다른 공방 사장님이 대신 받으심).
+// 번호는 세 카드 모두 크게 (사용자 요청 2026-11-21: 전화번호가 더 잘 보이게)
 import { Icon } from 'astro-icon/components';
 import { shopFor } from '~/data/shop';
 import { langFromPath, localize, useT } from '~/i18n';
@@ -33,7 +35,7 @@ const shop = shopFor(lang);
     }
 
     <div class:list={['grid gap-4 lg:grid-cols-[1.35fr_1fr_1fr]', !bare && 'mt-12']} data-reveal>
-      <a href={shop.consult.href} class="reach-card rise group relative transition-colors hover:border-wood/50">
+      <a href={shop.consult.href} class="reach-card is-main rise group relative transition-colors hover:border-wood/50">
         <span class="flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />{r.consult}
         </span>
@@ -41,13 +43,17 @@ const shop = shopFor(lang);
           {shop.consult.label}
         </span>
         <span class="mt-3 text-ivory-2">{r.consultNote}</span>
+        <span class="reach-say mt-4">
+          <Icon name="tabler:info-circle" class="mt-[0.2rem] h-[1.05rem] w-[1.05rem] shrink-0 text-gold-2" aria-hidden="true" />
+          <span set:html={r.sayName} />
+        </span>
       </a>
 
       <div class="reach-card rise" style="--d:0.12s">
         <span class="flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{r.mobile}
         </span>
-        <span class="mt-1 text-2xl font-bold tabular-nums text-paper">{shop.mobile.label}</span>
+        <span class:list={['reach-num-2 display mt-1.5 tabular-nums text-paper', lang !== 'ko' && 'is-intl']}>{shop.mobile.label}</span>
         <span class="text-ivory-2">{r.mobileNote}</span>
         <span class="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
           <a href={shop.mobile.sms} class="btn-verm !min-h-11 !px-4 text-[0.95rem]">
@@ -66,14 +72,17 @@ const shop = shopFor(lang);
         </span>
         <a
           href={shop.tel.href}
-          class="mt-1 inline-flex min-h-11 items-center self-start text-2xl font-bold tabular-nums text-paper decoration-gold/50 underline-offset-4 hover:text-white hover:underline"
+          class:list={[
+            'reach-num-2 display mt-1.5 inline-flex min-h-11 items-center self-start tabular-nums text-paper decoration-gold/50 underline-offset-4 hover:text-white hover:underline',
+            lang !== 'ko' && 'is-intl',
+          ]}
         >
           {shop.tel.label}
         </a>
         <span class="mt-3 flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:printer" class="h-5 w-5" aria-hidden="true" />{r.fax}
         </span>
-        <span class="mt-1 text-2xl font-bold tabular-nums text-paper">{shop.fax}</span>
+        <span class:list={['reach-num-2 display mt-1.5 tabular-nums text-paper', lang !== 'ko' && 'is-intl']}>{shop.fax}</span>
         <span class="text-ivory-2">{r.faxNote}</span>
       </div>
     </div>

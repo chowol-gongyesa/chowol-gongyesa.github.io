@@ -1,11 +1,14 @@
 ---
 // 소리: 배경 음악(반복), 입장음, 단추 소리(나무 '똑'), 페이지 넘김 소리, 소리 켜기 소리. 파일은 public/sound/ (모두 합성해 만든 것)
-// - 소리를 켜고 끄는 단추는 상단 메뉴(Header.astro)에 있고, 고른 것은 이번 방문 동안 기억합니다(sessionStorage 'cw-sound').
-//   다음에 다시 오면 입장 화면에서 다시 고릅니다.
-// - 브라우저는 사람이 누르기 전에는 소리를 못 내게 하므로, 입장 화면을 누르는 그 순간 배경 음악을 (소리 0으로) 시작해 두고
-//   천천히 키웁니다. 음량은 Web Audio로 조절합니다(아이폰은 audio.volume을 무시하기 때문).
-// - 작업 영상의 소리를 켜면 배경 음악은 소리를 0으로 줄였다가, 영상 소리가 꺼지면 다시 키웁니다.
-// 다른 부품에서 쓰기: window.cwSound.play('click'), window.cwSound.set(true|false), window.cwSound.enter(withSound)
+// - 소리는 처음부터 '켜짐'이 기본입니다(사용자 요청 2026-11-21). 상단 메뉴(Header.astro)·입장 화면의 소리 단추로 끄면
+//   그 선택을 이 브라우저에 기억합니다(localStorage 'cw-sound' = 'on' | 'off').
+// - 브라우저는 사람이 화면을 한 번 누르기 전에는 소리를 못 내게 막습니다. 그래서 켜짐이어도 처음엔 조용할 수 있고,
+//   화면을 처음 누르는(클릭·탭·키) 순간 배경 음악을 (소리 0에서) 시작해 천천히 키웁니다.
+//   막혀서 아직 안 들리는 동안 소리 단추는 '기다림'(data-state="wait": 꺼진 그림 + 반짝임)으로 보여 주고, 누르면 바로 소리가 납니다.
+//   음량은 Web Audio로 조절합니다(아이폰은 audio.volume을 무시하기 때문).
+// - 작업 영상의 소리가 나는 동안 배경 음악은 0으로 줄였다가, 영상 소리가 꺼지면 다시 키웁니다.
+// - 켜고 끌 때마다 window에 'cw:sound' 알림({ on })을 보냅니다 (작업 영상이 따라 소리를 끄고 켬).
+// 다른 부품에서 쓰기: window.cwSound.play('click'), window.cwSound.set(true|false), window.cwSound.enter(withSound), window.cwSound.get()
 import { getAsset } from '~/utils/permalinks';
 ---
 
@@ -17,14 +20,14 @@ import { getAsset } from '~/utils/permalinks';
   const BGM_VOL = 0.32;
   const read = () => {
     try {
-      return sessionStorage.getItem(KEY);
+      return localStorage.getItem(KEY);
     } catch {
       return null;
     }
   };
   const write = (v: string) => {
     try {
-      sessionStorage.setItem(KEY, v);
+      localStorage.setItem(KEY, v);
     } catch {
       /* storage unavailable */
     }
@@ -35,7 +38,7 @@ import { getAsset } from '~/utils/permalinks';
   let bgmNode: MediaElementAudioSourceNode | null = null;
   const buffers = new Map<Name, AudioBuffer>();
   let loading: Promise<void> | null = null;
-  let on = read() === 'on';
+  let on = read() !== 'off'; // 기본은 켜짐 — 사용자가 끈 적이 있을 때만 꺼짐
   let ducked = false;
   let pauseTimer = 0;
 
@@ -46,6 +49,7 @@ import { getAsset } from '~/utils/permalinks';
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AC) return null;
       ctx = new AC();
+      ctx.addEventListener('statechange', syncButtons);
     }
     if (ctx.state !== 'running') ctx.resume().catch(() => {});
     return ctx;
@@ -55,6 +59,11 @@ import { getAsset } from '~/utils/permalinks';
     const a = bgm();
     const c = ensureCtx();
     if (!a || !c) return null;
+    if (!a.dataset.watched) {
+      a.dataset.watched = '1';
+      a.addEventListener('playing', syncButtons);
+      a.addEventListener('pause', syncButtons);
+    }
     if (!bgmNode) {
       try {
         bgmNode = c.createMediaElementSource(a);
@@ -135,17 +144,28 @@ import { getAsset } from '~/utils/permalinks';
     }, seconds * 1000 + 120);
   };
 
-  const syncButtons = () => {
-    document.querySelectorAll<HTMLButtonElement>('.sound-toggle').forEach((btn) => {
-      btn.dataset.state = on ? 'on' : 'off'; // 모양(tailwind.css)만 바꿈. 이름은 '켜기/끄기'로 바뀌므로 aria-pressed는 쓰지 않음
-      btn.setAttribute('aria-label', on ? btn.dataset.labelOff! : btn.dataset.labelOn!);
-      btn.title = on ? btn.dataset.labelOff! : btn.dataset.labelOn!;
-    });
+  // 지금 배경 음악이 실제로 들리는(재생 중인) 상태인지 — 켜짐이어도 브라우저가 막으면 아직 아님
+  const audible = () => {
+    const a = bgm();
+    return on && !!a && !a.paused && (!ctx || ctx.state === 'running');
   };
+  // 소리 단추 모양: on(들림) · wait(켜짐이지만 화면을 누르기 전이라 아직 조용함) · off(꺼짐)
+  // 이름은 들리면 '끄기', 아니면 '켜기'로 바뀌므로 aria-pressed는 쓰지 않음
+  function syncButtons() {
+    const state = !on ? 'off' : audible() ? 'on' : 'wait';
+    document.querySelectorAll<HTMLButtonElement>('.sound-toggle').forEach((btn) => {
+      btn.dataset.state = state;
+      const label = state === 'on' ? btn.dataset.labelOff! : btn.dataset.labelOn!;
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+    });
+  }
+  const tell = () => window.dispatchEvent(new CustomEvent('cw:sound', { detail: { on } }));
   const set = (value: boolean, chime = true) => {
     on = value;
     write(on ? 'on' : 'off');
     syncButtons();
+    tell();
     if (on) {
       startBgm(chime ? 0.3 : 0, 1.6);
       load().then(() => {
@@ -158,6 +178,7 @@ import { getAsset } from '~/utils/permalinks';
     on = withSound;
     write(on ? 'on' : 'off');
     syncButtons();
+    tell();
     if (!on) return;
     startBgm(2.4, 2.6);
     load().then(() => play('intro', 0.9));
@@ -204,7 +225,9 @@ import { getAsset } from '~/utils/permalinks';
       btn.dataset.bound = '';
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        set(!on);
+        // 켜짐인데 브라우저가 막아 아직 안 들리던 상태면, 끄지 않고 지금 소리를 냄 (이 누르기로 소리가 허락됨)
+        if (on && !audible()) set(true);
+        else set(!on);
       });
     });
     syncButtons();

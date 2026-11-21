@@ -40,6 +40,7 @@ const en: Dict = {
     enterHint: 'Entering automatically in 5 seconds',
     sound: 'Sound on',
     soundOff: 'Sound off',
+    tapSound: 'Tap anywhere for sound',
   },
   reach: {
     consult: 'Order line',
@@ -57,6 +58,7 @@ const en: Dict = {
     deafNote:
       'Owner Jeong Yeong-sun is deaf and communicates in writing. Please call the order line: the person who answers will pass your message on to him. Photos, drawings and questions sent by text go straight to him, and he replies himself.',
     intlNote: 'We answer in Korean, so a short text message works best (a translation app is fine).',
+    sayName: 'When you call, please say <b>“Chowol”</b> (초월공예사) first.',
   },
   footer: {
     tagline: `${YEARS} years at the lathe. Every piece true to the sample.`,
@@ -88,6 +90,7 @@ const en: Dict = {
     ],
     chaptersTitle: 'Jump to a scene',
     chaptersJump: 'Jump to a scene',
+    chaptersHint: 'Select a scene to play the film from there.',
     chapters: [
       { title: 'By eye, not by ear', text: 'When the machine noise fades, only the grain and his hands remain.' },
       { title: 'Reading the grain', text: 'Every piece of wood is different, so the blade follows the grain.' },
@@ -227,7 +230,7 @@ const en: Dict = {
   },
   cta: {
     title: 'Order',
-    lead: 'Call the order line, and send photos and drawings by text.',
+    lead: 'Have something in mind? Feel free to get in touch. A single photo and a rough size are enough to start.',
     form: 'Order form',
   },
   visit: {
@@ -376,7 +379,7 @@ const en: Dict = {
     metaDescription:
       "Order from Chowol Craft in Gwangju, Korea. Order line +82 10-8548-7264; owner's mobile (text) +82 10-5216-4554; fax +82 31-797-0784.",
     title: 'Orders & inquiries',
-    lead: "Call the order line, and text photos and drawings to the owner's mobile.",
+    lead: 'Have something in mind? Feel free to get in touch. A single photo and a rough size are enough to start.',
     formTitle: 'Order form',
     formLead:
       "Fill in the form and tap <b>Send as text</b> to open your messaging app with the order written out, addressed to the owner. On a computer, use <b>Copy</b> and send it as a text message from your phone.",
@@ -410,7 +413,7 @@ const en: Dict = {
       { q: 'Can I order just one piece?', a: 'Yes. Most of our orders are large, but we also take single-piece orders from individuals.' },
       {
         q: 'Who answers when I call?',
-        a: 'Calls to our order line (+82 10-8548-7264) are answered by the person who handles orders. To reach the owner directly, send a text message to his mobile (+82 10-5216-4554). He reads every photo, drawing and question you text him, and replies himself.',
+        a: 'Calls to our order line (+82 10-8548-7264) are answered by the person who handles orders. When you call, please say “Chowol” (초월공예사) first. To reach the owner directly, send a text message to his mobile (+82 10-5216-4554). He reads every photo, drawing and question you text him, and replies himself.',
       },
       {
         q: 'How is the price set?',

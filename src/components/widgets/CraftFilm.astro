@@ -1,7 +1,9 @@
 ---
 // 작업 영상 '소리 대신 눈으로' (1분, v4). 시끄러운 기계 소리 → 소리가 사라지고 → 눈으로 일하는 장인 → 결을 읽는 40년의 감각
 // → 견본은 손으로, 수량은 자동 로구로로 → 만드는 것 → 이름 → '같은 모양을, 한결같이' → 상호·전화.
-// 화면에 들어오면 소리 없이 저절로 재생(큰 화면)되고, '소리 켜고 처음부터'를 누르면 처음부터 소리와 함께 봅니다.
+// 화면에 들어오면 저절로 재생(큰 화면)되고, 사이트 소리가 켜짐(기본)이면 소리와 함께 나옵니다(사용자 요청 2026-11-21).
+// 브라우저가 소리를 막으면(아직 화면을 한 번도 누르지 않음) 소리 없이 재생하다가, 화면을 처음 누르는 순간 소리를 켭니다.
+// '소리 켜고 처음부터'를 누르면 처음부터 소리와 함께 봅니다. 사이트 소리를 끄면(상단 소리 단추) 영상 소리도 꺼집니다.
 // 자막·상호는 영상에 새기지 않고 사이트가 영상 위에 글자로 겹쳐 보여 줌 → 언어마다 자막이 바뀌고, 문구는 src/i18n/ 의 film.cues.
 // 자막이 나오는 동안 영상 가운데를 살짝 어둡게 해서(.film-dim) 글씨가 잘 보이게 합니다.
 // 아래 CUES·CHAPTER_TIMES의 숫자는 영상 속 시간(초)입니다. 영상을 다시 만들면 design-preview/film-v3/film4.py의 FILM과 맞추세요.
@@ -147,13 +149,17 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
           </button>
         </div>
 
-        <!-- 휴대폰·태블릿: 영상 바로 아래 장면 바로 가기 -->
-        <div class="mt-4 lg:hidden">
-          <p class="sr-only">{f.chaptersJump}</p>
-          <div class="scroll-gold -mx-5 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2">
+        <!-- 휴대폰·태블릿: 영상 바로 아래 장면 바로 보기 단추 (금빛 재생 동그라미 = 누르는 곳) -->
+        <div class="mt-6 lg:hidden">
+          <p class="font-bold text-gold">{f.chaptersTitle}</p>
+          <p class="mt-0.5 text-[0.95rem] text-ivory-2">{f.chaptersHint}</p>
+          <div class="scroll-gold -mx-5 mt-3 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2">
             {
               f.chapters.map((ch, i) => (
                 <button type="button" class="chapter-chip snap-start" data-chapter={CHAPTER_TIMES[i]}>
+                  <span class="chip-play" aria-hidden="true">
+                    <Icon name="tabler:player-play-filled" class="h-3.5 w-3.5" />
+                  </span>
                   <span class="tabular-nums text-gold-2">{fmt(CHAPTER_TIMES[i])}</span>
                   {ch.title}
                 </button>
@@ -168,16 +174,25 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         <div class="space-y-4 text-[1.05rem] leading-[1.9] text-ivory-2">
           {f.paragraphs.map((p) => <p>{p}</p>)}
         </div>
-        <p class="mt-8 hidden font-bold text-gold lg:block">{f.chaptersTitle}</p>
-        <ol class="mt-3 hidden border-b border-[var(--line)] lg:block" data-chapters>
+        <!-- 큰 화면: 장면 바로 보기 — 한 줄 한 줄이 단추 (왼쪽 금빛 재생 동그라미, 올리면 밝아짐, 지금 장면은 금빛) -->
+        <div class="mt-9 hidden lg:block">
+          <p class="font-bold text-gold">{f.chaptersTitle}</p>
+          <p class="mt-1 text-[0.95rem] text-ivory-2">{f.chaptersHint}</p>
+        </div>
+        <ol class="chapter-list mt-4 hidden lg:grid" data-chapters>
           {
             f.chapters.map((ch, i) => (
               <li>
                 <button type="button" class="chapter" data-chapter={CHAPTER_TIMES[i]}>
-                  <span class="t">{fmt(CHAPTER_TIMES[i])}</span>
-                  <span>
-                    <strong>{ch.title}</strong>
-                    <span class="text-[0.98rem] leading-relaxed">{ch.text}</span>
+                  <span class="chapter-play" aria-hidden="true">
+                    <Icon name="tabler:player-play-filled" class="h-4 w-4" />
+                  </span>
+                  <span class="min-w-0">
+                    <span class="chapter-head">
+                      <strong>{ch.title}</strong>
+                      <span class="t">{fmt(CHAPTER_TIMES[i])}</span>
+                    </span>
+                    <span class="chapter-text">{ch.text}</span>
                   </span>
                 </button>
               </li>
@@ -234,6 +249,13 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     let userPaused = false;
     let subs = true;
     let seeking = false;
+    // 소리: 사이트 소리 설정(기본 켜짐)을 따름. userMuted = 이 영상의 소리 단추로 직접 끔, blocked = 브라우저가 막아 소리 없이 재생 중
+    let userMuted = false;
+    let blocked = false;
+    const sitePref = () => (window.cwSound && window.cwSound.get ? window.cwSound.get() : true);
+    const wantSound = () => sitePref() && !userMuted;
+    // 이 문서에서 사람이 한 번이라도 눌렀는지 (안 눌렀으면 소리 나는 재생은 막히므로 처음부터 소리 없이)
+    const mayHaveSound = () => !navigator.userActivation || navigator.userActivation.hasBeenActive;
 
     const ensureSrc = () => {
       if (loaded) return;
@@ -302,25 +324,35 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       syncButtons();
     });
 
+    // 재생. withSound면 소리와 함께 — 막히면 소리 없이 재생하고, 화면을 처음 누를 때 소리를 켬(아래 unblock)
     const start = (withSound) => {
       ensureSrc();
-      if (withSound) video.muted = false;
       if (video.ended) video.currentTime = 0;
       userPaused = false;
+      const audible = withSound && mayHaveSound();
+      video.muted = !audible;
+      blocked = withSound && !audible;
       video.play().catch(() => {
+        if (video.muted) return;
+        blocked = true;
         video.muted = true;
         video.play().catch(() => {});
       });
     };
-    bigplay.addEventListener('click', () => start(true));
+    bigplay.addEventListener('click', () => {
+      userMuted = false;
+      start(true);
+    });
     // 소리 없이 저절로 재생되던 중이면, 소리를 켜고 처음부터 (이 영상은 첫 5초의 기계 소리가 사라지는 순간이 중요해서)
     unmute.addEventListener('click', (e) => {
       e.stopPropagation();
       if (video.currentTime > 4) video.currentTime = 0;
+      userMuted = false;
+      blocked = false;
       video.muted = false;
     });
     btnToggle.addEventListener('click', () => {
-      if (video.paused || video.ended) start(false);
+      if (video.paused || video.ended) start(wantSound());
       else {
         userPaused = true;
         video.pause();
@@ -330,12 +362,34 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       if (!video.paused) {
         userPaused = true;
         video.pause();
-      } else start(false);
+      } else start(wantSound());
     });
     btnMute.addEventListener('click', () => {
       video.muted = !video.muted;
+      userMuted = video.muted;
+      blocked = false;
       if (video.paused && !video.muted) start(true);
     });
+    // 소리가 막혀 소리 없이 돌던 중이면, 화면 아무 데나 처음 누르는 순간 소리를 켬 (영상의 단추들은 각자 처리)
+    const unblock = (e) => {
+      if (!blocked || video.paused || !wantSound()) return;
+      if (e.target && e.target.closest && e.target.closest('[data-film], [data-film-controls], .sound-toggle')) return;
+      blocked = false;
+      video.muted = false;
+    };
+    ['click', 'keydown', 'touchend'].forEach((type) => document.addEventListener(type, unblock, { capture: true, passive: true }));
+    // 사이트 소리를 끄면 영상도 소리를 끄고, 켜면 (재생 중일 때) 다시 켬
+    const onSite = (e) => {
+      const on = !!(e.detail && e.detail.on);
+      if (!on) {
+        blocked = false;
+        video.muted = true;
+      } else if (!userMuted && !video.paused) {
+        blocked = false;
+        video.muted = false;
+      }
+    };
+    window.addEventListener('cw:sound', onSite);
     btnSubs.addEventListener('click', () => {
       subs = !subs;
       const label = btnSubs.querySelector('span');
@@ -359,7 +413,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         ensureSrc();
         const go = () => {
           video.currentTime = Number(ch.dataset.chapter);
-          start(false);
+          start(wantSound());
         };
         if (video.readyState >= 1) go();
         else video.addEventListener('loadedmetadata', go, { once: true });
@@ -377,8 +431,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !userPaused && (auto || loaded)) {
-          ensureSrc();
-          video.play().catch(() => {});
+          if (video.paused) start(wantSound());
         } else if (!entry.isIntersecting && !video.paused) {
           video.pause();
           // 휴대폰에서는 화면 밖으로 나가 멈추면, 다시 와도 소리와 함께 저절로 시작하지 않게
@@ -388,7 +441,11 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       { threshold: 0.5 }
     );
     io.observe(frame);
-    cleanup = () => io.disconnect();
+    cleanup = () => {
+      io.disconnect();
+      ['click', 'keydown', 'touchend'].forEach((type) => document.removeEventListener(type, unblock, { capture: true }));
+      window.removeEventListener('cw:sound', onSite);
+    };
     syncButtons();
   };
   document.addEventListener('astro:page-load', setup);

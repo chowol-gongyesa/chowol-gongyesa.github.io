@@ -22,14 +22,20 @@
   const specks: Speck[] = [];
   let ctx: CanvasRenderingContext2D | null = null;
   let running = false;
+  let W = 0;
+  let H = 0;
+  // 그림판(canvas)의 화면 크기는 CSS(tailwind.css의 #cursor-dust: width·height 100%)가 정하고, 여기서는 그 크기 × 화면 배율만큼 점을 만듦.
+  // (예전 오류: CSS 크기가 없어서 레티나 화면(배율 2)에서는 그림판이 두 배로 커져 보여, 가루가 마우스의 두 배 자리에 나왔음)
   const resize = () => {
     const cv = document.getElementById('cursor-dust') as HTMLCanvasElement | null;
     if (!cv) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = innerWidth * dpr;
-    cv.height = innerHeight * dpr;
+    W = cv.clientWidth || innerWidth;
+    H = cv.clientHeight || innerHeight;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
     ctx = cv.getContext('2d');
-    ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx?.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
   };
   window.addEventListener('resize', resize);
 
@@ -39,7 +45,7 @@
       running = false;
       return;
     }
-    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    ctx.clearRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
     for (let i = specks.length - 1; i >= 0; i--) {
       const s = specks[i];
