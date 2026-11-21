@@ -2,8 +2,8 @@
 
 결과: src/assets/images/og/og-ko|en|ja|zh.jpg (1200x630)
 필요한 것: Python 3 + Pillow, Noto Sans/Serif CJK 글꼴 (아래 FONT_DIR). Claude 작업 환경(리눅스)에서 만들었습니다.
-홈페이지와 같은 '먹감나무 공방' 모양: 짙은 호두나무 결 바탕, 검은 액자에 넣은 대표 사진, 붉은 낙관, 금박 상호.
-(사이트의 상호 글꼴 '송명'은 이 환경에 없어서, 미리보기 그림에서는 같은 계열의 명조(Noto Serif CJK)로 씁니다.)
+홈페이지와 같은 '먹감나무 공방' 모양: 짙은 호두나무 결 바탕, 검은 액자에 넣은 대표 사진, 붉은 낙관,
+나무로 깎은 글자 상호 그림(public/brand/wordmark.webp, 만드는 법 scripts/make_logo.py).
 전화번호나 문구가 바뀌면 TXT를 고치고 다시 실행하세요:  python3 scripts/make_og.py
 """
 from pathlib import Path
@@ -14,7 +14,7 @@ FONT_DIR = Path('/usr/share/fonts/opentype/noto')
 F_BOLD, F_MED = (str(FONT_DIR / n) for n in ('NotoSansCJK-Bold.ttc', 'NotoSansCJK-Medium.ttc'))
 F_SERIF_B, F_SERIF_K = str(FONT_DIR / 'NotoSerifCJK-Bold.ttc'), str(FONT_DIR / 'NotoSerifCJK-Black.ttc')
 IDX = {'ko': 1, 'ja': 0, 'zh': 2, 'en': 1}  # Sans 글꼴 묶음 안의 언어 순서
-SIDX = {'ko': 4, 'ja': 2, 'zh': 0, 'en': 4}  # Serif 글꼴 묶음 안의 언어 순서 (SC, TC, JP, HK, KR)
+SIDX = {'ko': 1, 'ja': 0, 'zh': 2, 'en': 1}  # Serif 글꼴 묶음 안의 언어 순서 (JP, KR, SC, TC, HK)
 BG = (18, 13, 9)
 IVORY, IVORY2 = (243, 233, 216), (216, 202, 177)
 GOLD, GOLD2, GOLD3 = (205, 167, 99), (232, 201, 140), (142, 107, 52)
@@ -85,10 +85,11 @@ def make(lang, t, photo, wood):
     seal = seal.rotate(-3, resample=Image.BICUBIC, expand=True)
     im.paste(seal, (px - 46, py + ph - 52), seal)
 
-    # 왼쪽: 금박 상호 + 띠
+    # 왼쪽: 나무 글자 상호 그림 + 띠
     x0, limit = 76, px - 70
-    brand = gold_text(ImageFont.truetype(F_SERIF_K, 84, index=SIDX['ko']), '초월공예사')
-    im.paste(brand, (x0 - 8, 58), brand)
+    brand = Image.open(ROOT / 'public/brand/wordmark.webp').convert('RGBA')
+    brand = brand.resize((round(brand.width * 88 / brand.height), 88), Image.LANCZOS)
+    im.paste(brand, (x0 - 6, 58), brand)
     d = ImageDraw.Draw(im)
     fp = ImageFont.truetype(F_BOLD, 21, index=IDX[lang])
     pl = d.textlength(t['pill'], font=fp)

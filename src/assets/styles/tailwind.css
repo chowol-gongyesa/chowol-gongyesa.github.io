@@ -234,6 +234,33 @@
   }
 
   /* ───────────────────────── 상호 (금박 붓글씨, 빛이 주기적으로 스침) ───────────────────────── */
+  /* 로고 그림 위로 지나가는 빛 (Logo.astro). 글자 모양(logo-mask.webp)으로만 보임 */
+  .logo-shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    -webkit-mask: url('/brand/logo-mask.webp') center / 100% 100% no-repeat;
+    mask: url('/brand/logo-mask.webp') center / 100% 100% no-repeat;
+    background: linear-gradient(105deg, transparent 38%, rgb(255 246 222 / 0.7) 50%, transparent 62%);
+    background-size: 300% 100%;
+    background-position: 120% 0;
+    mix-blend-mode: screen;
+    animation: logoShine 7s ease-in-out infinite 1.5s;
+  }
+  @keyframes logoShine {
+    0%,
+    64% {
+      background-position: 120% 0;
+    }
+    100% {
+      background-position: -20% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-shine {
+      display: none;
+    }
+  }
   .brand-mark {
     display: inline-block;
     font-family: var(--brand-font);
@@ -678,6 +705,24 @@
     color: var(--gold-2);
     font-weight: 700;
   }
+  /* 아주 좁은 휴대폰(360px 등)에서도 탭이 한 줄에 다 들어가게 */
+  @media (max-width: 374px) {
+    .mobile-tabs-list {
+      padding-left: 0.5rem;
+    }
+    .mobile-tab {
+      padding: 0 0.42rem;
+      font-size: 0.94rem;
+    }
+    .mobile-tabs-list li:has(> .is-cta) {
+      padding-left: 0.6rem;
+    }
+  }
+  #header .mobile-tab.is-home {
+    min-width: 2.75rem;
+    justify-content: center;
+    color: var(--ivory);
+  }
   @media (width < 25rem) {
     #header .mobile-tab.is-cta svg {
       display: none;
@@ -767,7 +812,7 @@
     }
   }
 
-  /* ───────────────────────── 입장 화면 (Intro.astro) ───────────────────────── */
+  /* ───────────────────────── 입장 화면 (Intro.astro): 모션 그래픽 ───────────────────────── */
   html.intro-active,
   html.intro-active body {
     overflow: hidden;
@@ -782,8 +827,8 @@
     background: #000;
     cursor: pointer;
     transition:
-      opacity 1.1s ease 0.35s,
-      visibility 0s linear 1.5s;
+      opacity 1.1s ease 0.45s,
+      visibility 0s linear 1.6s;
   }
   #intro video,
   #intro .intro-poster {
@@ -792,18 +837,32 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.55) sepia(0.25) saturate(0.6);
-    transform: scale(1.04);
+    filter: brightness(0.5) sepia(0.3) saturate(0.6);
+    transform: scale(1.06);
+    opacity: 0;
+    animation: introVideo 2.4s ease forwards 0.9s;
     transition:
       transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1),
       filter 1.4s ease;
+  }
+  @keyframes introVideo {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
   #intro .intro-shade {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(60% 55% at 50% 50%, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.82)),
+      radial-gradient(55% 50% at 50% 46%, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.86)),
       linear-gradient(0deg, rgb(0 0 0 / 0.7), transparent 40%);
+  }
+  #intro .intro-dust {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
   }
   #intro .intro-stage {
     position: relative;
@@ -812,33 +871,160 @@
     text-align: center;
     color: var(--ivory);
     transition:
-      opacity 0.7s ease,
-      transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1),
-      filter 0.7s ease;
+      opacity 0.8s ease,
+      transform 1.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+      filter 0.8s ease;
   }
-  #intro .intro-brand {
-    font-size: clamp(3.4rem, 13vw, 9.5rem);
-    clip-path: inset(0 100% 0 0);
-    animation: brushIn 1.6s cubic-bezier(0.65, 0, 0.25, 1) 0.5s forwards, brandShine 7s ease-in-out 2.4s infinite;
+
+  /* 나이테 원판 + 고리 + 축선 */
+  #intro .intro-emblem-wrap {
+    --em: clamp(5.6rem, 15vh, 9rem);
+    position: relative;
+    width: var(--em);
+    height: var(--em);
+    margin: 0 auto;
   }
-  @keyframes brushIn {
-    from {
-      clip-path: inset(-10% 100% -10% 0);
-      filter: blur(6px) drop-shadow(0 1px 0 rgb(0 0 0 / 0.65));
+  #intro .intro-rings {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--em) * 9);
+    height: calc(var(--em) * 9);
+    transform: translate(-50%, -50%);
+    overflow: visible;
+    pointer-events: none;
+    transition:
+      transform 1.4s cubic-bezier(0.3, 0, 0.2, 1),
+      opacity 1s ease;
+  }
+  #intro .intro-rings-g {
+    transform-origin: 0 0;
+    animation: ringsTurn 60s linear infinite;
+  }
+  #intro .intro-rings path {
+    fill: none;
+    stroke: rgb(232 201 140 / calc(0.5 - var(--i) * 0.026));
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    filter: drop-shadow(0 0 4px rgb(232 201 140 / 0.35));
+    animation: ringDraw 1.6s cubic-bezier(0.55, 0, 0.25, 1) forwards;
+    animation-delay: calc(0.3s + var(--i) * 0.09s);
+  }
+  @keyframes ringDraw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes ringsTurn {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  #intro .intro-axis {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200vw;
+    height: 2px;
+    transform: translate(-50%, -50%);
+    overflow: visible;
+    pointer-events: none;
+    opacity: 0.85;
+    animation: axisFade 1.2s ease forwards 1.6s;
+  }
+  #intro .intro-axis line {
+    stroke: rgb(255 226 165 / 0.9);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    filter: drop-shadow(0 0 6px rgb(255 214 140 / 0.8));
+    animation: ringDraw 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.05s;
+  }
+  @keyframes axisFade {
+    to {
+      opacity: 0.18;
+    }
+  }
+  #intro .intro-emblem {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.25) rotate(-720deg);
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.7));
+    animation: emblemSpin 1.5s cubic-bezier(0.15, 0.7, 0.2, 1) forwards 1.15s;
+    transition: transform 1.3s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  @keyframes emblemSpin {
+    40% {
+      opacity: 1;
     }
     to {
-      clip-path: inset(-10% -5% -10% 0);
-      filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.65)) drop-shadow(0 6px 14px rgb(0 0 0 / 0.45));
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* '초월공예사' 나무 글자: 날이 지나가듯 왼쪽부터 깎여 나타남 */
+  #intro .intro-word-wrap {
+    position: relative;
+    display: inline-block;
+    width: clamp(15rem, 64vw, 38rem);
+    margin-top: clamp(1rem, 2.4vh, 1.6rem);
+  }
+  #intro .intro-word {
+    display: block;
+    width: 100%;
+    height: auto;
+    clip-path: inset(-12% 100% -12% 0);
+    animation: wordCarve 1.1s cubic-bezier(0.6, 0, 0.3, 1) forwards 2s;
+  }
+  @keyframes wordCarve {
+    to {
+      clip-path: inset(-12% -4% -12% 0);
+    }
+  }
+  #intro .intro-blade {
+    position: absolute;
+    top: -8%;
+    bottom: -8%;
+    left: 0;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, transparent, #fff3d0 20%, #ffd890 50%, #fff3d0 80%, transparent);
+    box-shadow:
+      0 0 12px 3px rgb(255 214 140 / 0.85),
+      0 0 34px 8px rgb(255 190 100 / 0.35);
+    opacity: 0;
+    animation: bladeRun 1.1s cubic-bezier(0.6, 0, 0.3, 1) forwards 2s;
+  }
+  @keyframes bladeRun {
+    0% {
+      left: 0;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    88% {
+      opacity: 1;
+    }
+    100% {
+      left: 100%;
+      opacity: 0;
     }
   }
   #intro .intro-seal {
-    --seal-size: clamp(2.6rem, 6vw, 4rem);
+    --seal-size: clamp(2.4rem, 5.4vw, 3.6rem);
     position: absolute;
-    right: calc(-1 * var(--seal-size) - 0.35rem); /* 상호 글자와 겹치지 않게, 글씨 끝 오른쪽 아래에 찍듯 */
-    top: auto;
-    bottom: 0.1em;
+    right: calc(-1 * var(--seal-size) - 0.4rem);
+    bottom: 4%;
     opacity: 0;
-    animation: stampIn 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) forwards 2.05s;
+    animation: stampIn 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) forwards 3.05s;
   }
   @keyframes stampIn {
     0% {
@@ -855,30 +1041,36 @@
     }
   }
   #intro .intro-line {
-    margin-top: 1.4rem;
+    margin-top: clamp(1.1rem, 2.6vh, 1.6rem);
     font-family: var(--aw-font-heading);
     font-weight: 800;
     font-size: clamp(1.25rem, 3.2vw, 2.1rem);
     line-height: 1.5;
     letter-spacing: 0.02em;
     color: var(--ivory);
-    text-shadow: 0 2px 18px rgb(0 0 0 / 0.8);
+    text-shadow: 0 2px 18px rgb(0 0 0 / 0.85);
     opacity: 0;
     transform: translateY(0.8rem);
-    animation: introRise 1s ease forwards 2.2s;
+    animation: introRise 0.9s ease forwards 3s;
+  }
+  #intro .intro-count {
+    display: inline-block;
+    min-width: 1.3em;
+    color: var(--gold-2);
+    font-variant-numeric: tabular-nums;
   }
   #intro .intro-sub {
-    margin-top: 0.7rem;
+    margin-top: 0.6rem;
     font-size: clamp(0.95rem, 2vw, 1.1rem);
     letter-spacing: 0.18em;
     color: var(--gold-2);
     opacity: 0;
-    animation: introRise 1s ease forwards 2.6s;
+    animation: introRise 0.9s ease forwards 3.5s;
   }
   #intro .intro-enter {
-    margin-top: 2.6rem;
+    margin-top: clamp(1.6rem, 4vh, 2.6rem);
     opacity: 0;
-    animation: introRise 0.9s ease forwards 3s;
+    animation: introRise 0.9s ease forwards 4s;
   }
   #intro .enter-ring {
     position: relative;
@@ -887,13 +1079,13 @@
     width: 6.4rem;
     height: 6.4rem;
     border-radius: 999px;
-    border: 1px solid rgb(232 201 140 / 0.8);
+    border: 1px solid rgb(232 201 140 / 0.85);
     color: var(--ivory);
     font-family: var(--aw-font-heading);
     font-weight: 800;
     font-size: 1.05rem;
     letter-spacing: 0.08em;
-    background: rgb(0 0 0 / 0.25);
+    background: rgb(0 0 0 / 0.3);
     transition:
       background-color 0.3s ease,
       transform 0.3s ease;
@@ -949,15 +1141,27 @@
     color: var(--ivory);
     border-color: var(--gold-2);
   }
-  /* 들어갈 때: 글씨가 다가오며 사라지고, 배경 영상이 밝아지며 첫 화면으로 이어짐 */
+  @media (max-height: 640px) {
+    #intro .intro-hint {
+      display: none;
+    }
+  }
+  /* 들어갈 때: 고리가 크게 퍼지고, 원판이 돌며 다가와 사라지고, 배경 영상이 밝아지며 첫 화면으로 */
   #intro.is-out {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
+  #intro.is-out .intro-rings {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+  #intro.is-out .intro-emblem {
+    transform: rotate(360deg) scale(1.25);
+  }
   #intro.is-out .intro-stage {
     opacity: 0;
-    transform: scale(1.12);
+    transform: scale(1.18);
     filter: blur(6px);
   }
   #intro.is-out video,
@@ -972,6 +1176,9 @@
       animation-duration: 0.01s !important;
       animation-delay: 0s !important;
       transition-duration: 0.2s !important;
+    }
+    #intro .intro-rings-g {
+      animation: none !important;
     }
   }
 
@@ -1252,16 +1459,6 @@
     height: 100%;
     object-fit: cover;
   }
-  /* 자막이 잘 보이도록 영상 아래쪽을 늘 어둡게 */
-  .film-frame::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 42%;
-    z-index: 2;
-    pointer-events: none;
-    background: linear-gradient(0deg, rgb(0 0 0 / 0.78), transparent);
-  }
   .film-frame:fullscreen {
     display: grid;
     place-items: center;
@@ -1298,6 +1495,21 @@
     opacity: 0;
     pointer-events: none;
   }
+  /* 자막이 나오는 동안 영상 가운데를 어둡게 (CraftFilm.astro 스크립트가 --cue-dim 0~1을 넣음) */
+  .film-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+      radial-gradient(75% 62% at 50% 50%, rgb(0 0 0 / 0.6), rgb(0 0 0 / 0.38) 70%, rgb(0 0 0 / 0.2)),
+      linear-gradient(0deg, rgb(0 0 0 / 0.35), transparent 45%);
+    opacity: var(--cue-dim, 0);
+    transition: opacity 0.7s ease;
+  }
+  .film-frame {
+    container-type: inline-size; /* 자막 글씨를 영상 크기에 맞춤 */
+  }
   .film-cue {
     position: absolute;
     z-index: 3;
@@ -1305,111 +1517,96 @@
     right: 5%;
     pointer-events: none;
     text-align: center;
-    color: #fff8ec;
+    color: #fffaf0;
     text-shadow:
-      0 2px 4px rgb(0 0 0 / 0.95),
-      0 0 22px rgb(0 0 0 / 0.75);
+      0 2px 3px rgb(0 0 0 / 0.95),
+      0 0 18px rgb(0 0 0 / 0.85),
+      0 0 42px rgb(0 0 0 / 0.6);
     opacity: 0;
-    transition:
-      opacity 0.45s ease,
-      transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
-      clip-path 0.7s cubic-bezier(0.65, 0, 0.25, 1);
+    transition: opacity 0.5s ease;
   }
   .film-cue.is-on {
     opacity: 1;
   }
-  /* 아래 자막: 굵은 명조 + 위에 짧은 금색 선 */
-  .film-cue[data-kind='sub'] {
-    bottom: 7%;
+  .film-cue .cue-line {
+    display: block;
+  }
+  /* 가운데 큰 글귀: 흐릿하게 떠올라 또렷해지고, 줄마다 조금씩 늦게 */
+  .film-cue[data-kind='line'],
+  .film-cue[data-kind='motto'] {
+    top: 50%;
+    transform: translateY(-50%);
     font-family: var(--aw-font-heading);
     font-weight: 800;
-    font-size: clamp(1rem, 3.9cqi, 1.75rem);
-    line-height: 1.45;
-    letter-spacing: 0.02em;
-    transform: translateY(0.6rem);
+    font-size: clamp(1.35rem, 6.3cqi, 3.2rem);
+    line-height: 1.42;
+    letter-spacing: 0.01em;
+    word-break: keep-all;
   }
-  .film-cue[data-kind='sub']::before {
-    content: '';
-    display: block;
-    width: 2.6rem;
-    height: 2px;
-    margin: 0 auto 0.6rem;
-    background: var(--gold-2);
-    box-shadow: 0 1px 6px rgb(0 0 0 / 0.8);
+  .film-cue[data-kind='line'] .cue-line,
+  .film-cue[data-kind='motto'] .cue-line {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(0.35em);
+    transition:
+      opacity 0.8s ease,
+      filter 1s ease,
+      transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
-  .film-cue[data-kind='sub'].is-on {
+  .film-cue.is-on .cue-line {
+    opacity: 1;
+    filter: none;
     transform: none;
   }
-  /* 큰 낱말 (절정에서 박자마다) */
+  .film-cue.is-on .cue-line:nth-child(2) {
+    transition-delay: 0.45s;
+  }
+  .film-cue[data-kind='motto'] {
+    font-size: clamp(1.8rem, 9cqi, 4.6rem);
+    line-height: 1.3;
+    letter-spacing: 0.04em;
+  }
+  .film-cue[data-kind='motto'] .cue-line:nth-child(2) {
+    color: #f6dfa8;
+  }
+  :root:lang(en) .film-cue[data-kind='line'] {
+    font-size: clamp(1.15rem, 5.3cqi, 2.7rem);
+  }
+  :root:lang(en) .film-cue[data-kind='motto'] {
+    font-size: clamp(1.6rem, 8cqi, 4rem);
+  }
+  /* 만드는 것 이름 (사진이 바뀔 때마다) */
   .film-cue[data-kind='word'] {
     top: 50%;
     font-family: var(--aw-font-heading);
     font-weight: 800;
-    font-size: clamp(1.8rem, 9cqi, 4.6rem);
-    letter-spacing: 0.16em;
+    font-size: clamp(1.7rem, 8.6cqi, 4.4rem);
+    letter-spacing: 0.14em;
     color: #f6e1b0;
-    transform: translateY(-50%) scale(1.12);
+    transform: translateY(-50%) scale(1.1);
+    transition:
+      opacity 0.25s ease,
+      transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   .film-cue[data-kind='word'].is-on {
     transform: translateY(-50%) scale(1);
   }
-  /* 큰 문장 */
-  .film-cue[data-kind='big'] {
-    top: 50%;
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
-    font-size: clamp(1.5rem, 7cqi, 3.6rem);
-    line-height: 1.3;
-    transform: translateY(-46%);
+  :root:lang(en) .film-cue[data-kind='word'] {
+    font-size: clamp(1.4rem, 7cqi, 3.6rem);
+    letter-spacing: 0.06em;
   }
-  .film-cue[data-kind='big'].is-on {
-    transform: translateY(-50%);
-  }
-  .film-cue[data-kind='big'] .gold {
-    color: #f6e1b0;
-  }
-  /* 상호·마지막 화면 */
-  .film-cue[data-kind='brand'],
-  .film-cue[data-kind='end'] {
-    top: 50%;
-    transform: translateY(-50%);
-    clip-path: inset(-20% 100% -20% 0);
-  }
-  .film-cue[data-kind='brand'].is-on,
-  .film-cue[data-kind='end'].is-on {
-    clip-path: inset(-20% -5% -20% 0);
-  }
-  .film-frame {
-    container-type: inline-size; /* 자막 글씨를 영상 크기에 맞춤 */
-  }
-  .film-cue .cue-brand {
-    font-size: clamp(2.2rem, 11cqi, 6rem);
-  }
-  .film-cue .cue-small {
-    display: block;
-    margin-top: 0.6rem;
-    font-family: var(--aw-font-heading);
-    font-weight: 700;
-    font-size: clamp(0.95rem, 2.6cqi, 1.3rem);
-    letter-spacing: 0.22em;
-    color: #f3e1b8;
-  }
-  .film-cue .cue-tel {
-    display: block;
-    margin-top: 0.9rem;
-    font-size: clamp(1rem, 2.9cqi, 1.35rem);
-    letter-spacing: 0.08em;
-    color: #fff8ec;
-  }
-  /* 이름 자막 (왼쪽 아래) */
+  /* 이름 (왼쪽 아래) */
   .film-cue[data-kind='name'] {
     left: 6%;
     right: auto;
-    bottom: 11%;
+    bottom: 9%;
     text-align: left;
-    padding-left: 1rem;
-    border-left: 2px solid var(--gold-2);
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--gold-2);
     transform: translateX(-0.8rem);
+    transition:
+      opacity 0.5s ease,
+      transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   .film-cue[data-kind='name'].is-on {
     transform: none;
@@ -1418,12 +1615,94 @@
     display: block;
     font-family: var(--aw-font-heading);
     font-weight: 800;
-    font-size: clamp(1.3rem, 5cqi, 2.6rem);
-    letter-spacing: 0.08em;
+    font-size: clamp(1.5rem, 6.4cqi, 3rem);
+    letter-spacing: 0.06em;
+    line-height: 1.2;
   }
   .film-cue[data-kind='name'] .cue-small {
-    margin-top: 0.15rem;
-    letter-spacing: 0.08em;
+    display: block;
+    margin-top: 0.3rem;
+    font-weight: 700;
+    font-size: clamp(0.95rem, 3.3cqi, 1.35rem);
+    letter-spacing: 0.06em;
+    color: #f3e1b8;
+  }
+  /* 마지막 화면: 나이테 원판이 돌며 들어오고 → 나무 글자 상호가 깎이듯 나타나고 → 전화번호 */
+  .film-cue[data-kind='end'] {
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .film-cue .cue-emblem {
+    width: clamp(4rem, 21cqi, 9rem);
+    height: auto;
+    filter: drop-shadow(0 8px 18px rgb(0 0 0 / 0.7));
+    opacity: 0;
+    transform: rotate(-540deg) scale(0.4);
+    transition:
+      opacity 0.6s ease,
+      transform 1.6s cubic-bezier(0.15, 0.7, 0.2, 1);
+  }
+  .film-cue .cue-word {
+    width: clamp(13rem, 70cqi, 30rem);
+    height: auto;
+    margin-top: clamp(0.6rem, 3cqi, 1.3rem);
+    filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.75));
+    clip-path: inset(-12% 100% -12% 0);
+    transition: clip-path 1.1s cubic-bezier(0.6, 0, 0.3, 1) 0.6s;
+  }
+  .film-cue[data-kind='end'] .cue-small {
+    margin-top: clamp(0.6rem, 2.6cqi, 1.1rem);
+    font-family: var(--aw-font-heading);
+    font-weight: 800;
+    font-size: clamp(1rem, 3.6cqi, 1.5rem);
+    letter-spacing: 0.2em;
+    color: #f3e1b8;
+  }
+  .film-cue[data-kind='end'] .cue-tel {
+    margin-top: 0.5rem;
+    font-weight: 800;
+    font-size: clamp(1.1rem, 4.6cqi, 1.9rem);
+    letter-spacing: 0.04em;
+    color: #fffaf0;
+  }
+  .film-cue[data-kind='end'] .cue-small,
+  .film-cue[data-kind='end'] .cue-tel {
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity 0.7s ease 1.3s,
+      transform 0.9s ease 1.3s;
+  }
+  .film-cue[data-kind='end'].is-on .cue-emblem {
+    opacity: 1;
+    transform: none;
+  }
+  .film-cue[data-kind='end'].is-on .cue-word {
+    clip-path: inset(-12% -4% -12% 0);
+  }
+  .film-cue[data-kind='end'].is-on .cue-small,
+  .film-cue[data-kind='end'].is-on .cue-tel {
+    opacity: 1;
+    transform: none;
+  }
+  @media (min-width: 768px) {
+    .film-cue .cue-emblem {
+      width: clamp(4rem, 12cqi, 8rem);
+    }
+    .film-cue .cue-word {
+      width: clamp(13rem, 52cqi, 30rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .film-cue .cue-line,
+    .film-cue .cue-emblem,
+    .film-cue .cue-word {
+      transition-duration: 0.01s !important;
+      transition-delay: 0s !important;
+    }
   }
   .film-btn {
     display: inline-flex;

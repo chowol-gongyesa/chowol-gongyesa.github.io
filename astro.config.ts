@@ -1,3 +1,4 @@
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -19,12 +20,24 @@ import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin } from './src/uti
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// 개발 서버를 켤 때, 같은 와이파이의 휴대폰에서 열 주소를 dev.log에 적어 줌
+if (process.argv.includes('dev')) {
+  const lan = Object.values(os.networkInterfaces())
+    .flat()
+    .filter((i) => i && i.family === 'IPv4' && !i.internal)
+    .map((i) => `http://${i!.address}:4322/`);
+  if (lan.length) console.log(`[휴대폰 미리보기] 같은 와이파이에서 열기: ${lan.join('  ')}`);
+}
+
 const hasExternalScripts = false;
 const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroIntegration)[] = []) =>
   hasExternalScripts ? (Array.isArray(items) ? items.map((item) => item()) : [items()]) : [];
 
 export default defineConfig({
   output: 'static',
+
+  // 개발 서버(npm run dev)를 같은 와이파이의 휴대폰에서도 열 수 있게. 배포되는 사이트에는 영향 없음
+  server: { host: true },
 
   // Prefetch links as they enter the viewport for snappier navigations
   // (works together with <ClientRouter />, which enables prefetch by default).

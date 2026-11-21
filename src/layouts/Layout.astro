@@ -56,13 +56,13 @@ const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> 
 };
 
 // 글꼴: 제목 나눔명조(굵게)만 내려받고, 본문은 기기에 있는 고딕(휴대폰에서 2MB 넘게 아낌 — CustomStyles.astro).
-// 상호 '송명'은 상호 글자와 숫자만 잘라서 받음(&text=). 일본어·중국어 페이지는 그 나라 명조를 더 불러옵니다.
+// 상호는 그림(public/brand/)이라 글꼴이 필요 없음. 일본어·중국어 페이지는 그 나라 명조를 더 불러옵니다.
 const extraFonts: Partial<Record<Lang, string>> = {
   ja: '&family=Shippori+Mincho+B1:wght@800',
   zh: '&family=Noto+Serif+SC:wght@700;900',
 };
 const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800${extraFonts[lang] ?? ''}&display=swap`;
-const brandFontHref = `https://fonts.googleapis.com/css2?family=Song+Myung&text=${encodeURIComponent('초월공예사0123456789')}&display=swap`;
+
 ---
 
 <!doctype html>
@@ -79,7 +79,6 @@ const brandFontHref = `https://fonts.googleapis.com/css2?family=Song+Myung&text=
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href={fontHref} />
-    <link rel="stylesheet" href={brandFontHref} />
     <CustomStyles />
     <ApplyColorMode />
     <Metadata

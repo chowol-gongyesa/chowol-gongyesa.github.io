@@ -1,8 +1,10 @@
 ---
-// 작업 영상 (55초, 웅장한 배경 음악). 화면에 들어오면 소리 없이 저절로 재생되고 '소리 켜기'로 소리를 켭니다.
-// 크기는 보기 편하게 줄이고, 옆에 영상 설명과 장면 목록(누르면 그 장면으로)을 둡니다.
-// 자막·상호는 영상에 새기지 않고 사이트가 영상 위에 글자로 겹쳐 보여 줌 → 언어마다 자막이 바뀌고, 문구는 src/i18n/ 의 film.
-// 아래 CUES·CHAPTERS의 숫자는 영상 속 시간(초)입니다. 영상을 다시 만들면 /home/claude/film/film2.py의 SHOTS와 맞추세요.
+// 작업 영상 '소리 대신 눈으로' (1분). 시끄러운 기계 소리 → 소리가 사라지고 → 눈으로 일하는 장인 → 결을 읽는 40년의 감각
+// → 견본은 손으로, 수량은 자동 로구로로 → 만드는 것 → 이름 → '같은 모양을, 한결같이' → 상호·전화.
+// 화면에 들어오면 소리 없이 저절로 재생(큰 화면)되고, '소리 켜고 처음부터'를 누르면 처음부터 소리와 함께 봅니다.
+// 자막·상호는 영상에 새기지 않고 사이트가 영상 위에 글자로 겹쳐 보여 줌 → 언어마다 자막이 바뀌고, 문구는 src/i18n/ 의 film.cues.
+// 자막이 나오는 동안 영상 가운데를 살짝 어둡게 해서(.film-dim) 글씨가 잘 보이게 합니다.
+// 아래 CUES·CHAPTER_TIMES의 숫자는 영상 속 시간(초)입니다. 영상을 다시 만들면 /home/claude/film/film3.py의 SHOTS와 맞추세요.
 // 영상: public/video/chowol-film.mp4(가로 16:9), chowol-film-mobile.mp4(휴대폰 4:5)
 // 휴대폰에서는 데이터를 아끼려고 저절로 재생하지 않고, 재생 단추를 눌러야 받습니다.
 import { Icon } from 'astro-icon/components';
@@ -18,26 +20,29 @@ const { lang, compact = false } = Astro.props;
 const f = useT(lang).film;
 const c = f.cues;
 
-type Cue = { start: number; end: number; kind: 'brand' | 'sub' | 'word' | 'big' | 'name' | 'end'; text?: string; small?: string; big?: string; tel?: string };
+// kind: line = 가운데 큰 글귀, motto = 구호(더 크게), word = 만드는 것 이름(사진마다), name = 이름(왼쪽 아래), end = 상호·전화
+// dim = 그동안 영상 가운데를 어둡게 하는 정도
+type Cue = { start: number; end: number; kind: 'line' | 'motto' | 'word' | 'name' | 'end'; lines?: string[]; small?: string; big?: string; tel?: string; dim: number };
+const L = (x: string | string[]) => (Array.isArray(x) ? x : [x]);
+const line = (start: number, end: number, x: string | string[]): Cue => ({ start, end, kind: 'line', lines: L(x), dim: 1 });
 const CUES: Cue[] = [
-  { start: 1.0, end: 4.4, kind: 'brand', small: c.brandSmall },
-  { start: 5.0, end: 7.0, kind: 'sub', text: c.load },
-  { start: 8.6, end: 11.8, kind: 'sub', text: c.cut },
-  { start: 12.2, end: 14.2, kind: 'sub', text: c.done },
-  { start: 14.6, end: 16.6, kind: 'sub', text: c.parts },
-  { start: 17.0, end: 19.0, kind: 'sub', text: c.hand },
-  { start: 19.4, end: 21.4, kind: 'sub', text: c.years },
-  { start: 21.8, end: 23.8, kind: 'sub', text: c.grain },
-  { start: 24.2, end: 26.2, kind: 'sub', text: c.quiet },
-  { start: 26.6, end: 28.6, kind: 'sub', text: c.precise },
-  ...c.words.map((text, i) => ({ start: 31.3 + i * 1.2, end: 32.2 + i * 1.2, kind: 'word' as const, text })),
-  { start: 38.6, end: 40.7, kind: 'big', text: c.range },
-  { start: 41.0, end: 43.0, kind: 'big', text: c.motto },
-  { start: 43.4, end: 45.4, kind: 'sub', text: c.sample },
-  { start: 45.8, end: 47.9, kind: 'name', big: c.owner.big, small: c.owner.small },
-  { start: 48.4, end: 54.8, kind: 'end', small: c.endSmall, tel: c.endTel },
+  line(5.4, 7.4, c.silence),
+  line(7.8, 9.9, c.grain),
+  line(10.5, 14.7, c.eyes),
+  line(15.4, 19.6, c.woods),
+  line(20.4, 24.6, c.follow),
+  line(25.4, 29.6, c.know),
+  line(30.4, 32.4, c.sample),
+  line(32.7, 34.9, c.copy),
+  line(35.3, 37.4, c.same),
+  ...c.words.map((text, i): Cue => ({ start: 37.6 + i * 1.25, end: 38.7 + i * 1.25, kind: 'word', lines: [text], dim: 0.75 })),
+  line(45.3, 47.4, c.range),
+  { start: 47.8, end: 49.9, kind: 'name', big: c.owner.big, small: c.owner.small, dim: 0.5 },
+  { start: 50.4, end: 54.7, kind: 'motto', lines: L(c.motto), dim: 1 },
+  // 영상이 끝난 뒤에도 상호와 전화번호가 남도록 끝 시간을 영상 길이(60초)보다 길게
+  { start: 55.4, end: 61, kind: 'end', small: c.endSmall, tel: c.endTel, dim: 0.7 },
 ];
-const CHAPTER_TIMES = [4.8, 12.0, 16.8, 24.0, 28.8, 45.6];
+const CHAPTER_TIMES = [0, 15.0, 30.0, 37.5, 47.5, 50.0];
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 ---
 
@@ -65,16 +70,16 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
               data-src-tall="/video/chowol-film-mobile.mp4"
               data-poster-tall="/video/chowol-film-mobile-poster.jpg"></video>
 
+            <div class="film-dim" aria-hidden="true"></div>
             {
               CUES.map((cue) => (
-                <div class="film-cue" data-kind={cue.kind} data-start={cue.start} data-end={cue.end} aria-hidden="true">
-                  {cue.kind === 'brand' || cue.kind === 'end' ? (
+                <div class="film-cue" data-kind={cue.kind} data-start={cue.start} data-end={cue.end} data-dim={cue.dim} aria-hidden="true">
+                  {cue.kind === 'end' ? (
                     <>
-                      <span class="brand-mark cue-brand" translate="no">
-                        {SHOP.name}
-                      </span>
+                      <img class="cue-emblem" src="/brand/emblem.webp" alt="" width="641" height="647" loading="lazy" decoding="async" />
+                      <img class="cue-word" src="/brand/wordmark.webp" alt={SHOP.name} width="1280" height="284" loading="lazy" decoding="async" />
                       <span class="cue-small">{cue.small}</span>
-                      {cue.tel && <span class="cue-tel">{cue.tel}</span>}
+                      <span class="cue-tel">{cue.tel}</span>
                     </>
                   ) : cue.kind === 'name' ? (
                     <>
@@ -82,7 +87,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
                       <span class="cue-small">{cue.small}</span>
                     </>
                   ) : (
-                    <span>{cue.text}</span>
+                    cue.lines!.map((l) => <span class="cue-line">{l}</span>)
                   )}
                 </div>
               ))
@@ -97,7 +102,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
               style="background-image:linear-gradient(180deg,#f0d79f,#b48b45)"
               data-unmute
             >
-              <Icon name="tabler:volume" class="h-5 w-5" aria-hidden="true" />{f.unmute}
+              <Icon name="tabler:volume" class="h-5 w-5" aria-hidden="true" />{f.unmuteStart}
             </button>
           </div>
         </div>
@@ -108,12 +113,12 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
             <Icon name="tabler:player-play" class="icon-play h-5 w-5" aria-hidden="true" />
             <Icon name="tabler:player-pause" class="icon-pause hidden h-5 w-5" aria-hidden="true" />
           </button>
-          <span class="mr-auto w-[6.2rem] text-center text-[0.95rem] tabular-nums text-ivory-2 sm:mr-0" data-time>0:00 / 0:55</span>
+          <span class="mr-auto w-[6.2rem] text-center text-[0.95rem] tabular-nums text-ivory-2 sm:mr-0" data-time>0:00 / 1:00</span>
           <input
             type="range"
             class="film-seek max-sm:order-first max-sm:basis-full sm:min-w-[5rem] sm:flex-1"
             min="0"
-            max="55"
+            max="60"
             step="0.1"
             value="0"
             aria-label={f.seek}
@@ -173,7 +178,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
     <!-- 화면 읽기 프로그램용 자막 전문 -->
     <ol class="sr-only">
-      {CUES.map((cue) => <li>{cue.text ?? [cue.big, cue.small].filter(Boolean).join(', ') ?? SHOP.name}</li>)}
+      {CUES.map((cue) => <li>{cue.lines ? cue.lines.join(' ') : cue.kind === 'end' ? `${SHOP.name}, ${cue.small}, ${cue.tel}` : `${cue.big}, ${cue.small}`}</li>)}
     </ol>
   </div>
 </section>
@@ -191,6 +196,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       el,
       start: Number(el.dataset.start),
       end: Number(el.dataset.end),
+      dim: Number(el.dataset.dim || 0),
     }));
     const btnToggle = controls.querySelector('[data-toggle]');
     const btnMute = controls.querySelector('[data-mute]');
@@ -238,9 +244,15 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     };
     const showCues = () => {
       const t = video.currentTime;
-      for (const cue of cues) cue.el.classList.toggle('is-on', subs && t >= cue.start && t < cue.end);
+      let dim = 0;
+      for (const cue of cues) {
+        const on = subs && t >= cue.start && t < cue.end;
+        cue.el.classList.toggle('is-on', on);
+        if (on) dim = Math.max(dim, cue.dim);
+      }
+      frame.style.setProperty('--cue-dim', String(dim));
       if (!seeking) seek.value = String(t);
-      time.textContent = `${fmt(t)} / ${fmt(video.duration || 55)}`;
+      time.textContent = `${fmt(t)} / ${fmt(video.duration || 60)}`;
       // 지금 장면 표시 (오른쪽 목록과 휴대폰 장면 단추 모두)
       let cur = -1;
       chapters.forEach((ch) => {
@@ -281,8 +293,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       });
     };
     bigplay.addEventListener('click', () => start(true));
+    // 소리 없이 저절로 재생되던 중이면, 소리를 켜고 처음부터 (이 영상은 첫 5초의 기계 소리가 사라지는 순간이 중요해서)
     unmute.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (video.currentTime > 4) video.currentTime = 0;
       video.muted = false;
     });
     btnToggle.addEventListener('click', () => {

@@ -17,7 +17,7 @@ export interface Props {
   imagePos?: string;
   /** 오른쪽 세로 글씨 */
   vlabel?: string;
-  /** 제목을 로고와 같은 금박 상호 글씨로 (소개 페이지: '초월공예사') */
+  /** 제목을 로고의 나무 글자 그림으로 (소개 페이지: '초월공예사') */
   brandTitle?: boolean;
 }
 const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitle = false } = Astro.props;
@@ -53,8 +53,14 @@ const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitl
     <div class="mt-9 max-w-3xl md:mt-14 md:pr-20">
       {
         brandTitle ? (
-          <h1 class="brand-mark text-[clamp(3rem,7vw,5.4rem)]" translate="no">
-            {title}
+          <h1 class="m-0">
+            <img
+              src="/brand/wordmark.webp"
+              alt={title}
+              width="1280"
+              height="284"
+              class="block h-auto w-[clamp(15rem,40vw,26rem)] drop-shadow-[0_8px_18px_rgb(0_0_0/0.55)]"
+            />
           </h1>
         ) : (
           <h1 class="display text-[clamp(2.8rem,6.4vw,5rem)]" data-split>

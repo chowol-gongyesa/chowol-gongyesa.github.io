@@ -46,10 +46,10 @@ const ALL = [
   w('chowol-03', '로구로로 깎은 원목 조명 받침', 'Lathe-turned wooden lamp base', 'ろくろで挽いた木の照明台', '车削实木灯座'),
   w(
     'chowol-06',
-    '자동 로구로에 나무를 거는 정영순 대표',
-    'Owner Jeong Yeong-sun loading wood into the automatic lathe',
-    '自動ろくろに木材を取り付けるチョン・ヨンスン代表',
-    '店主 Jeong Yeong-sun 将木料装上自动车床'
+    '정영순 대표',
+    'Jeong Yeong-sun',
+    'チョン・ヨンスン代表',
+    '店主 Jeong Yeong-sun'
   ),
   w(
     'chowol-10',
@@ -60,10 +60,10 @@ const ALL = [
   ),
   w(
     'chowol-07',
-    '손 로구로로 다리를 깎는 정영순 대표',
-    'Owner Jeong Yeong-sun turning a leg on the hand lathe',
-    '手ろくろで脚を削るチョン・ヨンスン代表',
-    '店主 Jeong Yeong-sun 用手动车床车削木腿'
+    '정영순 대표',
+    'Jeong Yeong-sun',
+    'チョン・ヨンスン代表',
+    '店主 Jeong Yeong-sun'
   ),
   w('chowol-04', '초월공예사 작업장', 'The Chowol Craft workshop', 'チョウォル工芸社の工房', 'Chowol 工艺社工坊'),
   w('chowol-05', '파란 초월공예사 간판', 'The blue Chowol Craft sign', '青いチョウォル工芸社の看板', '蓝色的 Chowol 工艺社招牌'),
