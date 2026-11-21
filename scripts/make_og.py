@@ -3,9 +3,11 @@
 결과: src/assets/images/og/og-ko|en|ja|zh.jpg (1200x630)
 필요한 것: Python 3 + Pillow, Noto Sans/Serif CJK 글꼴 (아래 FONT_DIR). Claude 작업 환경(리눅스)에서 만들었습니다.
 홈페이지와 같은 '먹감나무 공방' 모양: 짙은 호두나무 결 바탕, 검은 액자에 넣은 대표 사진, 붉은 낙관,
-나무로 깎은 글자 상호 그림(public/brand/wordmark.webp, 만드는 법 scripts/make_logo.py).
+붓글씨 상호 그림(public/brand/name-brush.svg, 나눔손글씨 붓 글꼴의 글자 모양). rsvg-convert가 필요합니다.
 전화번호나 문구가 바뀌면 TXT를 고치고 다시 실행하세요:  python3 scripts/make_og.py
 """
+import io
+import subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter, ImageEnhance
 
@@ -85,11 +87,14 @@ def make(lang, t, photo, wood):
     seal = seal.rotate(-3, resample=Image.BICUBIC, expand=True)
     im.paste(seal, (px - 46, py + ph - 52), seal)
 
-    # 왼쪽: 나무 글자 상호 그림 + 띠
+    # 왼쪽: 붓글씨 상호 그림(public/brand/name-brush.svg) + 띠
     x0, limit = 76, px - 70
-    brand = Image.open(ROOT / 'public/brand/wordmark.webp').convert('RGBA')
-    brand = brand.resize((round(brand.width * 88 / brand.height), 88), Image.LANCZOS)
-    im.paste(brand, (x0 - 6, 58), brand)
+    png = subprocess.run(['rsvg-convert', '-h', '104', str(ROOT / 'public/brand/name-brush.svg')], capture_output=True, check=True).stdout
+    brand = Image.open(io.BytesIO(png)).convert('RGBA')
+    shadow = Image.new('RGBA', brand.size, (0, 0, 0, 0))
+    shadow.putalpha(brand.getchannel('A').filter(ImageFilter.GaussianBlur(3)).point(lambda v: int(v * 0.8)))
+    im.paste((0, 0, 0), (x0 - 4, 52 + 3), shadow)
+    im.paste(brand, (x0 - 6, 52), brand)
     d = ImageDraw.Draw(im)
     fp = ImageFont.truetype(F_BOLD, 21, index=IDX[lang])
     pl = d.textlength(t['pill'], font=fp)

@@ -25,7 +25,6 @@ const en: Dict = {
     services: 'Products',
     works: 'Work',
     woods: 'Wood guide',
-    woodsShort: 'Wood',
     contact: 'Order',
     call: 'Call us',
     language: 'Choose language',
@@ -168,6 +167,7 @@ const en: Dict = {
       { label: 'Best for', auto: 'Furniture legs, balusters, rods, wooden balls', hand: 'Samples, thick columns, lamp bases, personal orders' },
     ],
     videoPlay: 'Play video',
+    videoBadge: 'Video',
     videoPause: 'Pause video',
   },
   process: {

@@ -76,7 +76,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
                 <div class="film-cue" data-kind={cue.kind} data-start={cue.start} data-end={cue.end} data-dim={cue.dim} aria-hidden="true">
                   {cue.kind === 'end' ? (
                     <>
-                      <img class="cue-word" src="/brand/wordmark.webp" alt={SHOP.name} width="1280" height="284" loading="lazy" decoding="async" />
+                      <span class="cue-lock">
+                        <img class="cue-word" src="/brand/name-brush.svg" alt={SHOP.name} width="631" height="207" loading="lazy" decoding="async" />
+                        <span class="seal cue-seal" aria-hidden="true">초월</span>
+                      </span>
                       <span class="cue-small">{cue.small}</span>
                       <span class="cue-tel">{cue.tel}</span>
                       <span class="cue-sms">{cue.sms}</span>

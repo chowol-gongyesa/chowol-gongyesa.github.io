@@ -26,7 +26,6 @@ const zh: Dict = {
     services: '我们做什么',
     works: '作品',
     woods: '如何选木材',
-    woodsShort: '木材',
     contact: '订购',
     call: '咨询专线',
     language: '选择语言',
@@ -168,6 +167,7 @@ const zh: Dict = {
       { label: '适合的订单', auto: '家具腿、栏杆柱、木棒、实木球', hand: '样品、粗柱子、灯座、个人订单' },
     ],
     videoPlay: '播放视频',
+    videoBadge: '工作视频',
     videoPause: '暂停视频',
   },
   process: {

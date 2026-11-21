@@ -27,7 +27,6 @@ const ko = {
     services: '만드는 것',
     works: '작업물',
     woods: '나무 고르기',
-    woodsShort: '나무',
     contact: '주문·문의',
     call: '상담전화',
     language: '언어 선택',
@@ -169,7 +168,8 @@ const ko = {
       { label: '깎는 방식', auto: '맞춰 둔 모양을 그대로 반복', hand: '한 개씩 손으로 다듬음' },
       { label: '잘 맞는 주문', auto: '가구 다리, 난간 동자, 봉, 원목 공', hand: '견본, 굵은 기둥, 조명 받침, 개인 주문' },
     ],
-    videoPlay: '영상 재생',
+    videoPlay: '영상 보기',
+    videoBadge: '작업 영상',
     videoPause: '영상 멈추기',
   },
   process: {

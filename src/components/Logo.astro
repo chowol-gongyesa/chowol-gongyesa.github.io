@@ -1,6 +1,6 @@
 ---
-// 로고: 나무로 깎은 글자 '초월공예사' 그림 (public/brand/wordmark.webp, 만드는 법 scripts/make_logo.py)
-// + 금테 '로구로 전문'. 글자 위로 빛이 주기적으로 스침(.logo-shine: 글자 모양으로만 보이게 wordmark-mask.webp로 가림).
+// 로고: 붓글씨 '초월공예사'(나눔손글씨 붓 글꼴의 글자 모양을 그림으로 옮긴 public/brand/name-brush.svg, OFL 무료 글꼴)
+// + 붉은 낙관 '초월' + 금테 '로구로 전문'. 사용자가 시안 B(먹 붓글씨)를 골랐습니다 (2026-11-21).
 // 외국어 페이지에서도 상호는 한글 그대로 두고, 띠의 글자만 그 나라 말로 바꿉니다.
 import { SHOP } from '~/data/shop';
 import { useT, type Lang } from '~/i18n';
@@ -14,9 +14,16 @@ const t = useT(lang);
 ---
 
 <span class="inline-flex items-center gap-3 whitespace-nowrap">
-  <span class:list={['logo-art relative block', size === 'lg' ? 'h-[3.4rem]' : 'h-[2.25rem] md:h-[2.6rem]']}>
-    <img src="/brand/wordmark.webp" alt={SHOP.name} width="1280" height="284" class="block h-full w-auto" decoding="async" />
-    <span class="logo-shine" aria-hidden="true"></span>
+  <span class="inline-flex items-center gap-2">
+    <img
+      src="/brand/name-brush.svg"
+      alt={SHOP.name}
+      width="631"
+      height="207"
+      class:list={['logo-brush block w-auto', size === 'lg' ? 'h-[3.2rem]' : 'h-[2.15rem] md:h-[2.45rem]']}
+      decoding="async"
+    />
+    <span class="seal logo-seal" aria-hidden="true" style={size === 'lg' ? '--seal-size:2.2rem' : undefined}>초월</span>
   </span>
   <span class:list={['logo-pill pill', size === 'lg' ? 'text-[0.95rem]' : 'text-[0.85rem] md:text-[0.9rem]']}>{t.pill}</span>
 </span>

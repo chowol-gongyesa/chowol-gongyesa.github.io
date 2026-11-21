@@ -25,7 +25,6 @@ const ja: Dict = {
     services: 'つくるもの',
     works: '作品',
     woods: '木の選び方',
-    woodsShort: '木材',
     contact: 'ご注文',
     call: '相談電話',
     language: '言語を選ぶ',
@@ -167,7 +166,8 @@ const ja: Dict = {
       { label: '削り方', auto: '合わせた形をそのままくり返す', hand: '1個ずつ手で仕上げる' },
       { label: '向いている注文', auto: '家具の脚、手すり子、棒、木の玉', hand: '見本、太い柱、照明台、個人のご注文' },
     ],
-    videoPlay: '映像を再生',
+    videoPlay: '映像を見る',
+    videoBadge: '作業映像',
     videoPause: '映像を停止',
   },
   process: {

@@ -30,7 +30,6 @@ const t = useT(lang);
 const shop = shopFor(lang);
 const callAction = actions.find((action) => String(action.href ?? '').startsWith('tel:'));
 const contactHref = localize(lang, '/contact');
-const woodsHref = localize(lang, '/woods');
 const isActive = (href?: string) => typeof href === 'string' && `/${trimSlash(href)}` === currentPath;
 
 // 상단 메뉴는 페이지를 옮겨도 그대로 남김(transition:persist). 언어가 바뀌면 새로 그리도록 이름에 언어를 넣음
@@ -122,13 +121,13 @@ const persistKey = `header-${lang}`;
                 href={href}
                 aria-label={i === 0 ? text : undefined}
               >
-                {/* 홈은 집 그림, 나무 고르기는 짧은 이름 (휴대폰 한 줄에 들어가게) */}
+                {/* 홈은 집 그림. 이름은 줄이지 않고 다 쓰며, 탭이 넘치면 옆으로 밀어서 봄 */}
                 {i === 0 ? (
                   <Icon name="tabler:home" class="h-5 w-5" aria-hidden="true" />
                 ) : (
                   <>
                     {href === contactHref && <Icon name="tabler:clipboard-text" class="h-4 w-4" aria-hidden="true" />}
-                    {href === woodsHref ? t.nav.woodsShort : text}
+                    {text}
                   </>
                 )}
               </a>
