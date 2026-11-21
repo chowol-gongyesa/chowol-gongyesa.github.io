@@ -1288,96 +1288,6 @@
     background: rgb(205 167 99 / 0.2);
     border-color: var(--gold-2);
   }
-  /* 소리 나는 자동 재생이 막혔을 때 (Intro.astro의 openGate): 포스터 위 가운데 큰 금빛 재생 단추 '소리와 함께 보기' */
-  #intro .intro-gate {
-    position: absolute;
-    inset: 0;
-    z-index: 3; /* 아래 소리 단추 줄(.intro-ui, 4)보다 아래 — 소리 단추를 누를 수 있게 */
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.1rem;
-    padding: 1.5rem;
-    text-align: center;
-    background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
-  }
-  #intro.is-gate {
-    cursor: pointer;
-  }
-  #intro.is-gate .intro-gate {
-    display: flex;
-    animation: introGateIn 0.6s ease both;
-  }
-  #intro.is-gate .intro-progress {
-    opacity: 0;
-  }
-  #intro .intro-start {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    color: var(--ivory);
-    font-size: clamp(1.1rem, 2.4vw, 1.35rem);
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-shadow: 0 2px 12px rgb(0 0 0 / 0.9);
-  }
-  #intro .intro-start-icon {
-    display: grid;
-    place-items: center;
-    width: clamp(5rem, 14vw, 6.5rem);
-    height: clamp(5rem, 14vw, 6.5rem);
-    border-radius: 999px;
-    background: linear-gradient(180deg, #f5e0b2 0%, #cda763 55%, #a97f3c 100%);
-    color: #1b130b;
-    box-shadow:
-      inset 0 1px 0 rgb(255 250 235 / 0.7),
-      0 0 0 10px rgb(205 167 99 / 0.16),
-      0 20px 44px -14px rgb(0 0 0 / 0.95);
-    animation: introStartRing 2.2s ease-in-out infinite;
-    transition: transform 0.2s ease;
-  }
-  #intro .intro-start:hover .intro-start-icon {
-    transform: scale(1.05);
-  }
-  #intro .intro-start:focus-visible {
-    outline: none;
-  }
-  #intro .intro-start:focus-visible .intro-start-icon {
-    outline: 3px solid var(--ivory);
-    outline-offset: 6px;
-  }
-  #intro .intro-start-hint {
-    font-size: 0.95rem;
-    color: var(--ivory-2);
-    text-shadow: 0 1px 10px rgb(0 0 0 / 0.9);
-  }
-  @keyframes introGateIn {
-    from {
-      opacity: 0;
-      transform: scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes introStartRing {
-    0%,
-    100% {
-      box-shadow:
-        inset 0 1px 0 rgb(255 250 235 / 0.7),
-        0 0 0 8px rgb(205 167 99 / 0.14),
-        0 20px 44px -14px rgb(0 0 0 / 0.95);
-    }
-    50% {
-      box-shadow:
-        inset 0 1px 0 rgb(255 250 235 / 0.7),
-        0 0 0 16px rgb(205 167 99 / 0.06),
-        0 20px 44px -14px rgb(0 0 0 / 0.95);
-    }
-  }
   /* 브라우저가 소리를 막았을 때: 소리 단추가 금빛으로 숨 쉬고, 옆에 '화면을 누르면 소리가 나옵니다' */
   #intro .intro-tap {
     display: none;
@@ -2740,8 +2650,6 @@
     }
     .sound-toggle .bars i,
     .sound-toggle[data-state='wait'],
-    #intro .intro-start-icon,
-    #intro.is-gate .intro-gate,
     #intro.needs-tap .intro-tap,
     #intro.needs-tap .intro-btn,
     .clip .clip-badge i {

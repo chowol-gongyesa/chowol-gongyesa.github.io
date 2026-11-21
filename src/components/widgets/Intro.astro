@@ -11,8 +11,8 @@
 // 예고편이 끝나기 전에는 건너뛸 수 없고 뒤의 페이지도 누를 수 없습니다(사용자 요청 2026-11-21). '소리 켜기/끄기'만 됩니다.
 // 소리는 처음부터 켜짐이 기본(사용자 요청 2026-11-21, 끈 적이 있으면 꺼짐 — localStorage 'cw-sound', SoundSystem.astro와 같은 값).
 // 브라우저는 사람이 화면을 한 번 누르기 전에는 소리 나는 자동 재생을 막습니다(크롬·사파리·휴대폰 대부분, 처음 방문).
-// 그래서 먼저 소리와 함께 재생을 해 보고, 막히면 포스터 위에 '소리와 함께 보기' 단추를 띄워 누르면 처음부터 소리와 함께 재생합니다.
-// (소리를 꺼 둔 방문이면 기다리지 않고 소리 없이 바로 재생. 기다리는 화면의 '소리 끄기'를 누르면 소리 없이 시작)
+// 그래서 소리와 함께 재생을 먼저 해 보고, 막히면 소리 없이 그대로 자동 재생하면서 '화면을 누르면 소리가 나옵니다'를 보여 주고
+// 화면을 처음 누르는 순간 소리를 켭니다. (가운데 '소리와 함께 보기' 단추를 띄우던 방식은 사용자 의견으로 되돌림 2026-11-21)
 // 영상: public/video/intro-trailer.mp4(가로) · intro-trailer-m.mp4(휴대폰 세로). 만드는 도구 design-preview/film-v3/ (film5.py trailer-*)
 // 글귀는 src/i18n/ 의 intro. 시간을 바꾸면 영상(film5.py의 TRAILER_SHOTS)과 같이 바꾸세요.
 import { Icon } from 'astro-icon/components';
@@ -56,19 +56,6 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       <i class="intro-count" aria-hidden="true"></i>
     </button>
     <span id="intro-enter-hint" class="sr-only">{t.enterHint}</span>
-  </div>
-
-  <!-- 브라우저가 소리 나는 자동 재생을 막았을 때만 보임: 누르면 예고편이 처음부터 소리와 함께 -->
-  <div class="intro-gate" aria-hidden="true">
-    <button type="button" class="intro-start" data-intro-start tabindex="-1">
-      <!-- 재생 세모는 <Icon> 대신 직접 그림: 입장 화면은 들어간 뒤 통째로 지워지는데, 아이콘 그림 모음(sprite)의 원본이
-           여기 먼저 들어가 있으면 같이 지워져서 페이지의 다른 재생 단추 세모가 모두 사라졌음 (2026-11-21 오류) -->
-      <span class="intro-start-icon">
-        <svg class="ml-1 h-9 w-9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path></svg>
-      </span>
-      <span class="intro-start-label">{t.start}</span>
-    </button>
-    <p class="intro-start-hint">{t.startHint}</p>
   </div>
 
   <div class="intro-ui">
@@ -130,10 +117,6 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
         /* storage unavailable */
       }
     };
-    // gate = 브라우저가 소리 나는 자동 재생을 막아 '소리와 함께 보기' 단추를 기다리는 중
-    var gate = false;
-    var gateBox = intro.querySelector('.intro-gate');
-    var btnStart = intro.querySelector('[data-intro-start]');
     if (!reduce) video.src = tall ? video.dataset.srcTall : video.dataset.srcWide;
     paintSound();
     // 막혀 있던 소리를 켬 — 반드시 누르기(click·keydown) 처리 안에서 불러야 함
@@ -211,45 +194,6 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       fallback = window.setTimeout(finish, 12000);
       raf = requestAnimationFrame(tick);
     };
-    var openGate = function () {
-      gate = true;
-      intro.classList.add('is-gate');
-      if (gateBox) gateBox.removeAttribute('aria-hidden');
-      if (btnStart) {
-        btnStart.tabIndex = 0;
-        btnStart.focus({ preventScroll: true });
-      }
-    };
-    // 기다리는 화면에서 시작 — 반드시 누르기(click·keydown) 처리 안에서 불러야 소리가 남. sound=false면 소리 없이
-    var startFromGate = function (sound) {
-      if (!gate) return;
-      gate = false;
-      intro.classList.remove('is-gate');
-      if (gateBox) gateBox.setAttribute('aria-hidden', 'true');
-      if (btnStart) btnStart.tabIndex = -1;
-      soundOn = sound;
-      keep(soundOn);
-      blocked = false;
-      video.muted = !soundOn;
-      try {
-        video.currentTime = 0;
-      } catch (e) {
-        /* not loaded yet */
-      }
-      var p = video.play();
-      if (p && p.catch)
-        p.catch(function () {
-          if (video.muted) return;
-          blocked = true;
-          video.muted = true;
-          paintSound();
-          video.play().catch(function () {});
-        });
-      paintSound();
-      begin();
-      intro.focus({ preventScroll: true });
-    };
-
     // 5초 세기 (단추 밑 금줄이 차오름). 한 번만 셈 — 마우스를 움직이거나 키를 눌러도 다시 세지 않음
     var countdown = function () {
       window.clearTimeout(waitTimer);
@@ -301,10 +245,6 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
 
     btnSound.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (gate) {
-        startFromGate(!soundOn); // 기다리는 화면에서 '소리 끄기' → 소리 없이 시작
-        return;
-      }
       if (blocked && soundOn) unmuteNow(); // 막혀서 조용하던 것을 켬
       else {
         soundOn = !soundOn;
@@ -315,20 +255,13 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       }
       keep(soundOn);
     });
-    if (btnStart)
-      btnStart.addEventListener('click', function (e) {
-        e.stopPropagation();
-        startFromGate(true);
-      });
     btnEnter.addEventListener('click', function (e) {
       e.stopPropagation();
       if (ended) close();
     });
-    // 기다리는 화면: 아무 데나 누르면 소리와 함께 시작. 끝난 뒤: 어디를 눌러도·밀어도·스크롤해도 들어감.
-    // 재생 중: (소리가 막혀 있었으면) 소리만 켬
+    // 끝난 뒤: 어디를 눌러도·밀어도·스크롤해도 들어감. 재생 중: (소리가 막혀 있었으면) 소리만 켬
     intro.addEventListener('click', function () {
-      if (gate) startFromGate(true);
-      else if (ended) close();
+      if (ended) close();
       else unmuteNow();
     });
     intro.addEventListener(
@@ -348,17 +281,6 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       { passive: false }
     );
     intro.addEventListener('keydown', function (e) {
-      if (gate) {
-        // 기다리는 화면: Tab은 '소리와 함께 보기' ↔ 소리 단추, Enter·Space는 시작 (단추 위에서는 단추가 처리)
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          (document.activeElement === btnStart ? btnSound : btnStart).focus({ preventScroll: true });
-        } else if ((e.key === 'Enter' || e.key === ' ') && e.target !== btnStart && e.target !== btnSound) {
-          e.preventDefault();
-          startFromGate(true);
-        } else if (e.key === 'Escape' || e.key === 'PageDown' || e.key === 'ArrowDown' || e.key === ' ') e.preventDefault();
-        return;
-      }
       // 소리 단추 위에서 누른 키는 단추가 처리 (여기서 켜면 바로 이어지는 단추 누르기가 다시 꺼 버림)
       if (e.key !== 'Tab' && e.key !== 'Escape' && e.target !== btnSound) unmuteNow();
       if (!ended) {
@@ -381,7 +303,7 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     document.addEventListener('astro:before-swap', stop, { once: true });
 
     window.setTimeout(function () {
-      if (!closed && !ended && !gate) intro.focus({ preventScroll: true });
+      if (!closed && !ended) intro.focus({ preventScroll: true });
     }, 100);
     if (reduce) {
       // 움직임 줄이기: 예고편 없이 상호와 '입장하기'를 바로 보여 줌
@@ -390,50 +312,24 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     }
     video.addEventListener('ended', finish);
     if (!soundOn) {
-      // 소리를 꺼 둔 방문: 기다리지 않고 소리 없이 바로 재생
+      // 소리를 꺼 둔 방문: 소리 없이 재생
       video.muted = true;
       var pm = video.play();
       if (pm && pm.catch) pm.catch(function () {});
       begin();
     } else {
-      // 먼저 소리와 함께 자동 재생을 해 봄 → 막히면(대부분의 첫 방문) '소리와 함께 보기'를 띄우고 누르기를 기다림.
-      // 막혔는지는 거의 바로 알 수 있음. 0.4초 안에 답이 없으면(영상을 받는 중) 시계를 먼저 시작
+      // 소리와 함께 자동 재생을 먼저 해 봄 → 막히면(대부분의 첫 방문) 소리 없이 그대로 이어 가고, 화면을 처음 누를 때 소리를 켬
       video.muted = false;
-      var decided = false;
-      var guard = window.setTimeout(function () {
-        if (decided) return;
-        decided = true;
-        begin();
-      }, 400);
       var ps = video.play();
-      if (ps && ps.then)
-        ps.then(
-          function () {
-            window.clearTimeout(guard);
-            if (decided) return;
-            decided = true;
-            begin();
-          },
-          function () {
-            window.clearTimeout(guard);
-            if (!decided) {
-              decided = true;
-              openGate();
-              return;
-            }
-            // 시계가 이미 돈 뒤에 막힘(느린 인터넷) → 소리 없이 이어 가고, 처음 누를 때 소리를 켬
-            if (video.muted) return;
-            blocked = true;
-            video.muted = true;
-            paintSound();
-            video.play().catch(function () {});
-          }
-        );
-      else {
-        window.clearTimeout(guard);
-        decided = true;
-        begin();
-      }
+      if (ps && ps.catch)
+        ps.catch(function (err) {
+          if (video.muted || (err && err.name && err.name !== 'NotAllowedError')) return;
+          blocked = true;
+          video.muted = true;
+          paintSound();
+          video.play().catch(function () {});
+        });
+      begin();
     }
   })();
 </script>

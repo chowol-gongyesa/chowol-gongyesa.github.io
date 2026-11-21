@@ -41,8 +41,6 @@ const en: Dict = {
     sound: 'Sound on',
     soundOff: 'Sound off',
     tapSound: 'Tap anywhere for sound',
-    start: 'Play with sound',
-    startHint: 'Tap anywhere to start',
   },
   reach: {
     consult: 'Order line',

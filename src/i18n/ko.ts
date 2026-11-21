@@ -44,8 +44,6 @@ const ko = {
     sound: '소리 켜기',
     soundOff: '소리 끄기',
     tapSound: '화면을 누르면 소리가 나옵니다',
-    start: '소리와 함께 보기',
-    startHint: '화면 아무 곳이나 눌러도 시작합니다',
   },
   reach: {
     consult: '상담전화',

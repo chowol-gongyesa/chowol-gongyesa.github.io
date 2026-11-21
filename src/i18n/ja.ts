@@ -41,8 +41,6 @@ const ja: Dict = {
     sound: '音を出す',
     soundOff: '音を消す',
     tapSound: '画面に触れると音が出ます',
-    start: '音ありで見る',
-    startHint: '画面のどこを押しても始まります',
   },
   reach: {
     consult: 'ご注文・ご相談窓口',

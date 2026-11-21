@@ -42,8 +42,6 @@ const zh: Dict = {
     sound: '打开声音',
     soundOff: '关闭声音',
     tapSound: '轻触屏幕即可播放声音',
-    start: '有声播放',
-    startHint: '轻触屏幕任意位置即可开始',
   },
   reach: {
     consult: '咨询专线',
