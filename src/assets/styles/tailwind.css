@@ -202,7 +202,7 @@
     text-wrap: balance;
   }
   :root:lang(en) body {
-    word-break: keep-all; /* 영어 글 속의 한글(초월공예사)이 '초|월공예사'처럼 끊기지 않게. 영어 낱말에는 영향 없음 */
+    word-break: keep-all; /* 영어 글 속의 한글(초월공예)이 '초|월공예'처럼 끊기지 않게. 영어 낱말에는 영향 없음 */
     overflow-wrap: anywhere;
   }
   :root:lang(ja) body,
@@ -332,7 +332,7 @@
     visibility: visible;
     transition: transform 0.35s ease;
   }
-  /* 띠 맨 위 한 줄: 상담전화로 걸 때 '초월공예사'라고 말해 달라는 안내 */
+  /* 띠 맨 위 한 줄: 상담전화로 걸 때 '초월공예'라고 말해 달라는 안내 */
   .call-bar-note {
     grid-column: 1 / -1;
     margin: 0 0 0.05rem;
@@ -1107,7 +1107,7 @@
   #intro .intro-title img {
     position: relative;
     display: block;
-    width: 82%;
+    width: 65%; /* 붓글씨 상호 '초월공예'(4글자) — 글자 크기는 예전 5글자 때와 같게 */
     height: auto;
     filter: drop-shadow(0 10px 30px rgb(0 0 0 / 0.85)) drop-shadow(0 0 40px rgb(255 200 120 / 0.25));
   }
@@ -1627,7 +1627,7 @@
       font-size: 1.32rem;
     }
   }
-  /* 상담전화 안내 한 줄: '초월공예사'라고 말씀해 달라는 부탁 (영상 위라 어두운 바탕을 깔아 잘 읽히게) */
+  /* 상담전화 안내 한 줄: '초월공예'라고 말씀해 달라는 부탁 (영상 위라 어두운 바탕을 깔아 잘 읽히게) */
   .hero-callnote {
     display: flex;
     width: fit-content;
@@ -1994,8 +1994,8 @@
     flex: none;
   }
   .film-cue .cue-word {
-    width: 62cqi;
-    max-width: 30rem;
+    width: 49cqi;
+    max-width: 24rem;
     height: auto;
     filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.75));
   }
@@ -2045,7 +2045,7 @@
   }
   @media (min-width: 768px) {
     .film-cue .cue-word {
-      width: 46cqi;
+      width: 36cqi;
     }
     .film-cue .cue-seal {
       --seal-size: 9cqw;
@@ -2076,7 +2076,7 @@
       font-size: 1rem;
     }
     .film-cue .cue-word {
-      width: 60%;
+      width: 48%;
     }
     .film-cue .cue-seal {
       --seal-size: 2.4rem;
@@ -2434,7 +2434,7 @@
       font-size: clamp(1.3rem, 2.1vw, 1.9rem);
     }
   }
-  /* 상담전화 안내: '초월공예사'라고 말씀해 주세요 */
+  /* 상담전화 안내: '초월공예'라고 말씀해 주세요 */
   .reach-say {
     display: flex;
     gap: 0.5rem;

@@ -1,7 +1,7 @@
 {
   "name": "chowol-homepage",
   "version": "0.1.0",
-  "description": "초월공예사 홈페이지 (AstroWind 템플릿 기반)",
+  "description": "초월공예 홈페이지 (AstroWind 템플릿 기반)",
   "type": "module",
   "private": true,
   "engines": {

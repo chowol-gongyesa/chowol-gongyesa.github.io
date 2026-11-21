@@ -18,7 +18,7 @@ export interface Props {
   imagePos?: string;
   /** 오른쪽 세로 글씨 */
   vlabel?: string;
-  /** 제목을 로고의 붓글씨 상호로 (소개 페이지: '초월공예사') */
+  /** 제목을 로고의 붓글씨 상호로 (소개 페이지: '초월공예') */
   brandTitle?: boolean;
 }
 const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitle = false } = Astro.props;
@@ -59,9 +59,9 @@ const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitl
               <img
                 src={getAsset("/brand/name-brush.svg")}
                 alt={title}
-                width="631"
+                width="500"
                 height="207"
-                class="block h-auto w-[clamp(15rem,40vw,25rem)] drop-shadow-[0_6px_14px_rgb(0_0_0/0.6)]"
+                class="block h-auto w-[clamp(12rem,32vw,20rem)] drop-shadow-[0_6px_14px_rgb(0_0_0/0.6)]"
               />
               <span class="seal" aria-hidden="true" style="--seal-size:clamp(2.4rem,4.4vw,3.4rem)">초월</span>
             </span>

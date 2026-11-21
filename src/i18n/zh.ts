@@ -1,14 +1,14 @@
 // 简体中文。必须和 ko.ts 结构相同（类型检查会确认）。
 // 由 Claude 翻译 — 最好请母语者确认。
-// 店名的汉字写法未确认（可能是地名「草月」），所以用 Chowol 工艺社。
+// 店名的汉字写法未确认（可能是地名「草月」），所以用 Chowol 工艺。
 import type { Dict } from './index';
 import { YEARS } from '~/data/years';
 
 const zh: Dict = {
-  brand: 'Chowol 工艺社',
+  brand: 'Chowol 工艺',
   pill: '专业木工车削',
   shop: {
-    name: 'Chowol 工艺社',
+    name: 'Chowol 工艺',
     address: '韩国 京畿道 广州市 草月邑 京忠大路963番街 35',
     addressShort: '韩国 京畿道 广州市 草月邑',
     hours: '周一至周六 8:00–18:00（韩国时间）',
@@ -33,7 +33,7 @@ const zh: Dict = {
   },
   sound: { on: '打开背景音乐', off: '关闭背景音乐', label: '声音' },
   intro: {
-    label: 'Chowol 工艺社入场画面',
+    label: 'Chowol 工艺的入场画面',
     beat1: `木工车削${YEARS}年`,
     beat2: '以眼代耳',
     sub: '韩国京畿道广州草月邑的木工车床工坊',
@@ -51,14 +51,14 @@ const zh: Dict = {
     sms: '发短信',
     mobileSms: '店主手机（短信）',
     callBar: { call: '咨询专线', sms: '发短信' },
-    smsTemplate: '[초월공예사 주문 문의 · 订购咨询]\n성함 / 姓名：\n만들 물건 / 物品：\n수량 / 数量：\n크기 / 尺寸：\n（请附上照片或图纸）\n',
+    smsTemplate: '[초월공예 주문 문의 · 订购咨询]\n성함 / 姓名：\n만들 물건 / 物品：\n수량 / 数量：\n크기 / 尺寸：\n（请附上照片或图纸）\n',
     call: '打电话',
     tel: '工坊电话',
     fax: '传真',
     faxNote: '图纸也可以传真',
     deafNote: '店主 Jeong Yeong-sun 不靠声音，而是用文字与人沟通。打电话请拨咨询专线，由工作人员接听后转达给店主；用短信发来的照片、图纸和咨询，由店主亲自回复。',
     intlNote: '从海外联系请使用 +82 号码。我们使用韩语沟通，建议发送简短信息。',
-    sayName: '来电时请先说<b>“Chowol（초월공예사）”</b>。',
+    sayName: '来电时请先说<b>“Chowol（초월공예）”</b>。',
   },
   footer: {
     tagline: `木工车削${YEARS}年，每一件都与样品一致。`,
@@ -109,7 +109,7 @@ const zh: Dict = {
     subsOff: '隐藏字幕',
     fullscreen: '全屏',
     seek: '播放进度',
-    label: 'Chowol 工艺社工作影片（1分钟，含背景音乐）',
+    label: 'Chowol 工艺的工作影片（1分钟，含背景音乐）',
     cues: {
       silence: '当声音消失，',
       grain: '木纹便清晰可见。',
@@ -122,7 +122,7 @@ const zh: Dict = {
       same: '直到最后一件，尺寸都一样。',
       words: ['家具腿', '栏杆柱', '木棒', '实木球', '装饰柱', '木碗与小物'],
       home: ['这些木头，', '会成为某个家的一部分。'],
-      owner: { big: 'Jeong Yeong-sun', small: 'Chowol 工艺社店主' },
+      owner: { big: 'Jeong Yeong-sun', small: 'Chowol 工艺店主' },
       motto: ['同一个形状，', '始终如一。'],
       endSmall: `木工车削${YEARS}年`,
       endTel: '店主 +82 10-5216-4554',
@@ -138,8 +138,8 @@ const zh: Dict = {
       `${YEARS}年来，他就这样只看着木头车削。尺寸一旦定好，就一直守到最后一件。`,
       '欢迎用短信下单。照片和图纸由店主亲自查看回复；需要通话时，请拨打咨询专线。',
     ],
-    sign: 'Chowol 工艺社店主 Jeong Yeong-sun',
-    link: '关于 Chowol 工艺社',
+    sign: 'Chowol 工艺店主 Jeong Yeong-sun',
+    link: '关于 Chowol 工艺',
     alt: '店主 Jeong Yeong-sun',
   },
   compare: {
@@ -239,8 +239,8 @@ const zh: Dict = {
     naver: 'NAVER 地图',
     kakao: 'Kakao 地图',
     google: 'Google 地图',
-    mapTitle: 'Chowol 工艺社位置地图',
-    storeAlt: '挂着蓝色 Chowol 工艺社招牌的工坊门口',
+    mapTitle: 'Chowol 工艺的位置地图',
+    storeAlt: '挂着蓝色 Chowol 工艺招牌的工坊门口',
     status: {
       open: '营业中，至18:00',
       soon: '即将打烊，至18:00',
@@ -261,19 +261,19 @@ const zh: Dict = {
     next: '下一张',
   },
   home: {
-    metaTitle: 'Chowol 工艺社 — 韩国木工车削工坊｜家具腿、栏杆柱批量定制',
-    metaDescription: `Chowol 工艺社是位于韩国京畿道广州市草月邑的木工车削工坊。从事车削${YEARS}年的店主用自动车床批量生产形状相同的家具腿、栏杆柱、木棒和实木球，也接单件订单。`,
+    metaTitle: 'Chowol 工艺 — 韩国木工车削工坊｜家具腿、栏杆柱批量定制',
+    metaDescription: `Chowol 工艺是位于韩国京畿道广州市草月邑的木工车削工坊。从事车削${YEARS}年的店主用自动车床批量生产形状相同的家具腿、栏杆柱、木棒和实木球，也接单件订单。`,
     worksLink: '查看加工案例',
   },
   about: {
     metaTitle: '简介',
-    metaDescription: `介绍从事木工车削${YEARS}年的店主与 Chowol 工艺社。工坊自2016年起设在京畿道广州市草月邑。`,
-    title: 'Chowol 工艺社',
+    metaDescription: `介绍从事木工车削${YEARS}年的店主与 Chowol 工艺。工坊自2016年起设在京畿道广州市草月邑。`,
+    title: 'Chowol 工艺',
     lead: `从事木工车削${YEARS}年，现在在京畿道广州草月邑。`,
     eyebrow: '工坊介绍',
     heading: '车削木头的工坊',
     paragraphs: [
-      `Chowol 工艺社是旋转木料进行车削的<b>木工车床</b>工坊。店主 Jeong Yeong-sun 从事木工车削已有<b>${YEARS}年</b>，2016年搬到现在的京畿道广州市草月邑。`,
+      `Chowol 工艺是旋转木料进行车削的<b>木工车床</b>工坊。店主 Jeong Yeong-sun 从事木工车削已有<b>${YEARS}年</b>，2016年搬到现在的京畿道广州市草月邑。`,
       '我们主要用<b>自动车床</b>大量车削形状相同的零件，例如家具腿、栏杆柱、木棒和实木球。以批量订单为主，只要一两件的个人订单也会用<b>手动车床</b>车削。',
       '一个样品、一张图纸就够了。我们按需要的数量，准确车出相同的形状。',
     ],
@@ -296,7 +296,7 @@ const zh: Dict = {
   servicesPage: {
     metaTitle: '我们做什么',
     metaDescription:
-      '用自动车床车削的家具腿、栏杆柱、木棒、实木球、装饰柱，以及用手动车床车削的样品和个人订单 — Chowol 工艺社的产品与订购方式。',
+      '用自动车床车削的家具腿、栏杆柱、木棒、实木球、装饰柱，以及用手动车床车削的样品和个人订单 — Chowol 工艺的产品与订购方式。',
     title: '我们做什么',
     lead: '车削成圆形的木制零件，从一件样品到大批量。',
     howTitle: '自动车床的车削顺序',
@@ -320,7 +320,7 @@ const zh: Dict = {
     lead: (n: number, p: number) => `车削案例${n}件、照片${p}张。点按照片可查看大图。`,
     navLabel: '案例分类',
     categories: {
-      chowol: { title: 'Chowol 工艺社工坊实拍', description: '在 Chowol 工艺社工坊拍摄的照片' },
+      chowol: { title: 'Chowol 工艺的工坊实拍', description: '在 Chowol 工艺的工坊拍摄的照片' },
       column: { title: '柱子、栏杆与家具腿', description: '按同一形状批量车削的木料' },
       lathe: { title: '车削小物与木器', description: '车削而成的底座、器皿和生活用品' },
     },
@@ -369,7 +369,7 @@ const zh: Dict = {
   contact: {
     metaTitle: '订购与咨询',
     metaDescription:
-      'Chowol 工艺社订购咨询 — 咨询专线 +82 10-8548-7264，店主手机（短信）+82 10-5216-4554，工坊 +82 31-797-0783，传真 +82 31-797-0784。韩国京畿道广州市草月邑。',
+      'Chowol 工艺订购咨询 — 咨询专线 +82 10-8548-7264，店主手机（短信）+82 10-5216-4554，工坊 +82 31-797-0783，传真 +82 31-797-0784。韩国京畿道广州市草月邑。',
     title: '订购与咨询',
     lead: '有想做的东西，欢迎随时联系我们。一张照片、一个大概的尺寸就可以开始。',
     formTitle: '订单',
@@ -405,7 +405,7 @@ const zh: Dict = {
       { q: '只订一件可以吗？', a: '可以。我们以批量订单为主，也接只要一件的个人订单。' },
       {
         q: '打电话是谁接听？',
-        a: '咨询专线（+82 10-8548-7264）由负责订单咨询的人员接听。来电时请先说“Chowol（초월공예사）”。如需直接联系店主，请发短信到店主手机（+82 10-5216-4554）。用短信发来的照片、图纸和咨询，都由店主亲自查看并回复。',
+        a: '咨询专线（+82 10-8548-7264）由负责订单咨询的人员接听。来电时请先说“Chowol（초월공예）”。如需直接联系店主，请发短信到店主手机（+82 10-5216-4554）。用短信发来的照片、图纸和咨询，都由店主亲自查看并回复。',
       },
       { q: '价格怎么定？', a: '取决于木种、尺寸、形状复杂程度和数量。请发来照片或图纸以及尺寸和数量，我们会为您报价。' },
       { q: '没有图纸也能订吗？', a: '可以。有样品（实物）、照片或大概尺寸就行。' },

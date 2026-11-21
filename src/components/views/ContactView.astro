@@ -28,7 +28,7 @@ const metadata = {
 const label = (key: 'name' | 'phone' | 'type' | 'qty' | 'size' | 'due' | 'message') =>
   lang === 'ko' ? ko[key] : `${ko[key]} / ${c[key]}`;
 const labels = {
-  header: lang === 'ko' ? `[초월공예사 ${ko.msgHeader}]` : `[초월공예사 ${ko.msgHeader} · ${c.msgHeader}]`,
+  header: lang === 'ko' ? `[초월공예 ${ko.msgHeader}]` : `[초월공예 ${ko.msgHeader} · ${c.msgHeader}]`,
   name: label('name'),
   phone: label('phone'),
   type: label('type'),

@@ -50,7 +50,7 @@ const en: Dict = {
     sms: 'Send a text',
     mobileSms: 'Owner\'s mobile (text)',
     callBar: { call: 'Order line', sms: 'Text us' },
-    smsTemplate: '[초월공예사 주문 문의 · Order inquiry]\n성함 / Name:\n만들 물건 / Item:\n수량 / Quantity:\n크기 / Size:\n(Please attach a photo or drawing)\n',
+    smsTemplate: '[초월공예 주문 문의 · Order inquiry]\n성함 / Name:\n만들 물건 / Item:\n수량 / Quantity:\n크기 / Size:\n(Please attach a photo or drawing)\n',
     call: 'Call',
     tel: 'Workshop phone',
     fax: 'Fax',
@@ -58,7 +58,7 @@ const en: Dict = {
     deafNote:
       'Owner Jeong Yeong-sun is deaf and communicates in writing. Please call the order line: the person who answers will pass your message on to him. Photos, drawings and questions sent by text go straight to him, and he replies himself.',
     intlNote: 'We answer in Korean, so a short text message works best (a translation app is fine).',
-    sayName: 'When you call, please say <b>“Chowol”</b> (초월공예사) first.',
+    sayName: 'When you call, please say <b>“Chowol”</b> (초월공예) first.',
   },
   footer: {
     tagline: `${YEARS} years at the lathe. Every piece true to the sample.`,
@@ -412,7 +412,7 @@ const en: Dict = {
       { q: 'Can I order just one piece?', a: 'Yes. Most of our orders are large, but we also take single-piece orders from individuals.' },
       {
         q: 'Who answers when I call?',
-        a: 'Calls to our order line (+82 10-8548-7264) are answered by the person who handles orders. When you call, please say “Chowol” (초월공예사) first. To reach the owner directly, send a text message to his mobile (+82 10-5216-4554). He reads every photo, drawing and question you text him, and replies himself.',
+        a: 'Calls to our order line (+82 10-8548-7264) are answered by the person who handles orders. When you call, please say “Chowol” (초월공예) first. To reach the owner directly, send a text message to his mobile (+82 10-5216-4554). He reads every photo, drawing and question you text him, and replies himself.',
       },
       {
         q: 'How is the price set?',

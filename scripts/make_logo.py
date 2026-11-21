@@ -1,9 +1,9 @@
-"""(예전 시안) 초월공예사 로고 그림 만들기 — '나무로 깎은 글자' + '나이테 원판'.
+"""(예전 시안) 초월공예 로고 그림 만들기 — '나무로 깎은 글자' + '나이테 원판'.
 2026-11-21에 상호를 '먹 붓글씨 + 붉은 낙관'(public/brand/name-brush.svg)으로 바꿔서, 여기서 만드는 그림은 지금 사이트에서 쓰지 않습니다.
 파비콘은 scripts/make_favicon.py 가 만듭니다 (이 파일을 다시 돌려도 파비콘은 건드리지 않음).
 
 결과 (design-preview/old-logo/ — 예전엔 public/brand/):
-  wordmark.webp        나무를 깎아 만든 것 같은 '초월공예사' 글자 (투명 바탕)
+  wordmark.webp        나무를 깎아 만든 것 같은 '초월공예' 글자 (투명 바탕)
   wordmark-mask.webp   로고 위 반짝임 효과용 글자 모양 (흰색)
   emblem.webp, logo-h.webp, logo-mask.webp  나이테 원판과 원판+글자 가로형
 필요한 것: Python 3 + numpy + scipy + Pillow, Noto Serif CJK 글꼴. Claude 작업 환경(리눅스)에서 만들었습니다.
@@ -106,11 +106,11 @@ def trim(img, pad=0):
     return img.crop((max(0, l - pad), max(0, t - pad), min(img.width, r + pad), min(img.height, b + pad)))
 
 
-# ── 1) 글자 '초월공예사'
+# ── 1) 글자 '초월공예'
 S = 3  # 크게 그린 뒤 줄여서 매끈하게
 size = 260 * S
 font = ImageFont.truetype(FONT, size, index=KR)
-text = '초월공예사'
+text = '초월공예'
 l, t, r, b = font.getbbox(text)
 W, H = r - l + 80 * S, b - t + 80 * S
 m = Image.new('L', (W, H), 0)

@@ -327,7 +327,7 @@ export const WOODS: Wood[] = [
   },
 ];
 
-/** 만들 물건별 추천 나무(key는 위 WOODS의 key). 초월공예사가 깎는 물건에 맞춰 골랐습니다 */
+/** 만들 물건별 추천 나무(key는 위 WOODS의 key). 초월공예가 깎는 물건에 맞춰 골랐습니다 */
 export const PICKS: { title: Text; woods: string[] }[] = [
   {
     title: { ko: '계단 난간 동자·엄지기둥', en: 'Stair balusters & newel posts', ja: '階段の手すり子・親柱', zh: '楼梯栏杆柱与端柱' },

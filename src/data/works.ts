@@ -1,7 +1,7 @@
 // 작업물 사진 목록 — 사진 파일은 src/assets/images/works/ 에 있습니다.
 // 새 사진을 올리려면 그 폴더에 파일을 넣고 아래 목록에 한 줄 추가하세요.
 // w('파일 이름', '한국어 설명', '영어', '일본어', '중국어') 순서입니다.
-// 파일 이름 앞부분이 분류입니다: chowol-(초월공예사에서 찍은 사진), column-(기둥·난간·가구 다리), lathe-(로구로 소품·목기)
+// 파일 이름 앞부분이 분류입니다: chowol-(초월공예에서 찍은 사진), column-(기둥·난간·가구 다리), lathe-(로구로 소품·목기)
 // column-·lathe- 사진은 성창공예 홈페이지의 로구로 작업 사진입니다 (두 사장님 허락, 2026-11-20).
 import type { Lang } from '~/i18n';
 
@@ -18,7 +18,7 @@ const w = (file: string, ko: string, en: string, ja: string, zh: string) => ({
 });
 
 const ALL = [
-  // ───── 초월공예사에서 찍은 사진 (2026-11-20 카톡으로 받은 사진·영상에서) ─────
+  // ───── 초월공예에서 찍은 사진 (2026-11-20 카톡으로 받은 사진·영상에서) ─────
   w(
     'chowol-01',
     '자동 로구로로 깎은 긴 테이퍼 봉',
@@ -65,8 +65,8 @@ const ALL = [
     'チョン・ヨンスン代表',
     '店主 Jeong Yeong-sun'
   ),
-  w('chowol-04', '초월공예사 작업장', 'The Chowol Craft workshop', 'チョウォル工芸社の工房', 'Chowol 工艺社工坊'),
-  w('chowol-05', '파란 초월공예사 간판', 'The blue Chowol Craft sign', '青いチョウォル工芸社の看板', '蓝色的 Chowol 工艺社招牌'),
+  w('chowol-04', '초월공예 작업장', 'The Chowol Craft workshop', 'チョウォル工芸の工房', 'Chowol 工艺的工坊'),
+  w('chowol-05', '파란 초월공예사 간판', 'The blue Chowol Craft sign', '青いチョウォル工芸の看板', '蓝色的 Chowol 工艺招牌'),
 
   // ───── 기둥 · 난간 · 가구 다리 ─────
   w(

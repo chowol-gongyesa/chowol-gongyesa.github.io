@@ -26,8 +26,8 @@ TXT = {
     # 연수(40년)는 해마다 바뀌므로 그림에 넣지 않음
     'ko': dict(name='', pill='로구로 전문', t1='같은 모양을', t2='한결같이', tel='상담전화 010-8548-7264', addr='경기도 광주시 초월읍 · 로구로 전문 공방'),
     'en': dict(name='Chowol Craft', pill='Woodturning', t1='The same shape,', t2='every single time', tel='Order line +82 10-8548-7264', addr='Chowol-eup, Gwangju, Gyeonggi-do, Korea · Woodturning workshop'),
-    'ja': dict(name='チョウォル工芸社', pill='木工ろくろ専門', t1='同じかたちを、', t2='何度でも', tel='ご注文・ご相談 +82 10-8548-7264', addr='韓国 京畿道 広州市 草月邑 · 木工ろくろ専門工房'),
-    'zh': dict(name='Chowol 工艺社', pill='专业木工车削', t1='同一个形状，', t2='始终如一', tel='咨询专线 +82 10-8548-7264', addr='韩国 京畿道 广州市 草月邑 · 专业木工车削工坊'),
+    'ja': dict(name='チョウォル工芸', pill='木工ろくろ専門', t1='同じかたちを、', t2='何度でも', tel='ご注文・ご相談 +82 10-8548-7264', addr='韓国 京畿道 広州市 草月邑 · 木工ろくろ専門工房'),
+    'zh': dict(name='Chowol 工艺', pill='专业木工车削', t1='同一个形状，', t2='始终如一', tel='咨询专线 +82 10-8548-7264', addr='韩国 京畿道 广州市 草月邑 · 专业木工车削工坊'),
 }
 
 

@@ -32,7 +32,7 @@ export interface Props {
 const { metadata: pageMeta = {}, lang = langFromPath(Astro.url.pathname), headerOver = false } = Astro.props;
 const { textDirection } = I18N;
 const t = useT(lang);
-// 외국어 페이지는 제목 뒤에 그 나라 말 가게 이름을 붙임 (예: 作品 — チョウォル工芸社)
+// 외국어 페이지는 제목 뒤에 그 나라 말 가게 이름을 붙임 (예: 作品 — チョウォル工芸)
 const metadata =
   lang !== 'ko' && pageMeta.title && !pageMeta.ignoreTitleTemplate
     ? { ...pageMeta, title: `${pageMeta.title} — ${t.brand}`, ignoreTitleTemplate: true }

@@ -1,9 +1,9 @@
 site:
-  name: 초월공예사
-  # 지금은 사장님께 보여 드릴 샘플: GitHub 조직(chowol-gongyesa)의 무료 주소 (2026-11-21)
-  # 도메인을 사서 연결하면: site만 그 주소로 바꾸면 됨 (base는 '/' 그대로)
+  name: 초월공예
+  # 정식 주소: 초월공예.com (컴퓨터용 글자 xn--ob0bn98bprap2r.com) — 2026-11-21 가비아에서 10년 구입.
+  # GitHub 저장소 Settings → Pages의 Custom domain과 같아야 함. 옛 샘플 주소(chowol-gongyesa.github.io)는 이 주소로 넘어감
   # 하위 폴더 주소(예: .../chowol-homepage/)에 올려야 하면 base에 그 폴더 이름을 — 사진·영상 경로는 base를 따라가게 만들어 둠
-  site: 'https://chowol-gongyesa.github.io'
+  site: 'https://xn--ob0bn98bprap2r.com'
   base: '/'
   trailingSlash: true
 
@@ -12,15 +12,15 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: 초월공예사 — 자동 로구로 전문
-    template: '%s — 초월공예사'
-  description: '경기도 광주시 초월읍의 로구로 공방 초월공예사. 자동 로구로로 가구 다리·난간 동자·봉·원목 공을 같은 모양으로 대량 생산하고, 개인 주문도 받습니다. 상담전화 010-8548-7264.'
+    default: 초월공예 — 자동 로구로 전문
+    template: '%s — 초월공예'
+  description: '경기도 광주시 초월읍의 로구로 공방 초월공예. 자동 로구로로 가구 다리·난간 동자·봉·원목 공을 같은 모양으로 대량 생산하고, 개인 주문도 받습니다. 상담전화 010-8548-7264.'
   # 샘플 기간에는 검색에 나오지 않게 (정식 공개 때 둘 다 true로)
   robots:
     index: false
     follow: false
   openGraph:
-    site_name: 초월공예사
+    site_name: 초월공예
     images:
       - url: '~/assets/images/og/og-ko.jpg'
         width: 1200
