@@ -37,6 +37,8 @@
     --aw-font-serif: 'Nanum Myeongjo', serif;
     --aw-font-heading: 'Nanum Myeongjo', 'AppleMyungjo', serif;
     --brand-font: 'Nanum Myeongjo', serif; /* 상호는 그림으로 바뀌어 거의 쓰지 않음 */
+    /* 작업 영상 자막: 고운바탕(손으로 쓴 듯 따뜻한 바탕체) — 장인 이야기에 어울리게 (사용자 의견 2026-11-21: 자막 글꼴을 진정성 있게) */
+    --font-cue: 'Gowun Batang', 'Nanum Myeongjo', 'AppleMyungjo', serif;
 
     --aw-color-primary: rgb(205 167 99);
     --aw-color-secondary: rgb(232 201 140);
@@ -58,10 +60,12 @@
   :root:lang(ja) {
     --aw-font-sans: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', system-ui, sans-serif;
     --aw-font-heading: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+    --font-cue: var(--aw-font-heading);
   }
   :root:lang(zh) {
     --aw-font-sans: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
     --aw-font-heading: 'Noto Serif SC', 'Songti SC', serif;
+    --font-cue: var(--aw-font-heading);
   }
 
   :root:lang(ko) body {

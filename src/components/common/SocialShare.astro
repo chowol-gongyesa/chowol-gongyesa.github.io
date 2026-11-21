@@ -50,12 +50,14 @@ const btn = onSign
 <script>
   class AwSocialShare extends HTMLElement {
     connectedCallback() {
-      const url = this.dataset.awUrl || location.href.split('#')[0];
-      const text = this.dataset.awText || document.title;
+      // 주소·제목은 누를 때 읽음 (사이트 안에서 페이지를 옮기면 바닥글이 새 주소로 바뀌기 전에 만들어질 수 있어서 — 예전엔 앞 페이지 주소가 공유됐음)
+      const getUrl = () => this.dataset.awUrl || location.href.split('#')[0];
+      const getText = () => this.dataset.awText || document.title;
       const label = this.querySelector<HTMLElement>('[data-aw-copy-label]');
       const { labelCopy = '', labelCopied = '', labelPrompt = '' } = this.dataset;
 
       const copy = async () => {
+        const url = getUrl();
         try {
           await navigator.clipboard.writeText(url);
           if (label) label.textContent = labelCopied;
@@ -70,7 +72,7 @@ const btn = onSign
       this.querySelector('[data-aw-share]')?.addEventListener('click', async () => {
         if (navigator.share) {
           try {
-            await navigator.share({ title: text, url });
+            await navigator.share({ title: getText(), url: getUrl() });
           } catch {
             /* 사용자가 공유 창을 닫음 */
           }

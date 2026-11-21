@@ -139,7 +139,7 @@ const shop = shopFor(lang);
       } else if (document.documentElement.classList.contains('intro-active'))
         window.addEventListener('cw:intro-closed', (e) => start((e as CustomEvent<{ time?: number }>).detail?.time), { once: true });
       else start();
-      const videoIo = new IntersectionObserver(([entry]) => (entry.isIntersecting ? play() : video.pause()), { threshold: 0.05 });
+      const videoIo = new IntersectionObserver((entries) => (entries[entries.length - 1].isIntersecting ? play() : video.pause()), { threshold: 0.05 });
       videoIo.observe(hero);
       cleanups.push(() => videoIo.disconnect());
       const sync = () => {
@@ -191,8 +191,8 @@ const shop = shopFor(lang);
     }
     let visible = true;
     let raf = 0;
-    const dustIo = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
+    const dustIo = new IntersectionObserver((entries) => {
+      visible = entries[entries.length - 1].isIntersecting;
       if (visible && !raf) raf = requestAnimationFrame(draw);
     });
     dustIo.observe(hero);

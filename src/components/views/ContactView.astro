@@ -75,6 +75,8 @@ const typeOptions = PRODUCTS.map((p) =>
         data-labels={JSON.stringify(labels)}
         data-error={c.error}
       >
+        <!-- 빠진 칸 알림: 맨 위에 둠 (보내기를 누르면 첫 빠진 칸으로 초점이 가므로 바로 위에 보이게) -->
+        <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert"></p>
         <label class="block">
           <span class="text-[0.97rem] font-bold text-ivory">{c.name} <span class="text-verm" aria-hidden="true">*</span></span>
           <input name="name" required aria-describedby="order-error" autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
@@ -118,7 +120,6 @@ const typeOptions = PRODUCTS.map((p) =>
           ></textarea>
         </label>
 
-        <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert"></p>
         <p class="flex gap-2 border-l-2 border-gold pl-3 text-ivory-2 sm:col-span-2">
           <Icon name="tabler:photo" class="mt-1 h-5 w-5 shrink-0 text-gold-2" aria-hidden="true" />{c.attachNote}
         </p>
@@ -158,10 +159,14 @@ const typeOptions = PRODUCTS.map((p) =>
       const labels = JSON.parse(form.dataset.labels || '{}') as Record<string, string>;
       const smsNumber = form.dataset.sms || '';
 
-      // 고쳐 쓰기 시작하면 빨간 표시를 지움
+      // 고쳐 쓰기 시작하면 빨간 표시를 지우고, 빠진 칸이 다 채워지면 위의 알림도 지움
       form.addEventListener('input', (e) => {
         const el = e.target as HTMLInputElement;
         if (el.getAttribute('aria-invalid') === 'true' && el.value.trim()) el.setAttribute('aria-invalid', 'false');
+        if (!form.querySelector('[aria-invalid="true"]')) {
+          error.classList.add('hidden');
+          error.textContent = '';
+        }
       });
 
       form.addEventListener('submit', async (event) => {
@@ -169,7 +174,9 @@ const typeOptions = PRODUCTS.map((p) =>
         const action = ((event as SubmitEvent).submitter as HTMLElement | null)?.dataset.action ?? 'sms';
         const data = new FormData(form);
         const get = (key: string) => String(data.get(key) ?? '').trim();
-        const missing = ['name', 'phone', 'message'].filter((key) => !get(key));
+        // 연락처는 숫자가 8자리 이상이어야 함 (글자만 적은 경우 막기)
+        const phoneOk = get('phone').replace(/\D/g, '').length >= 8;
+        const missing = ['name', 'phone', 'message'].filter((key) => !get(key) || (key === 'phone' && !phoneOk));
         form
           .querySelectorAll<HTMLInputElement>('[required]')
           .forEach((el) => el.setAttribute('aria-invalid', String(missing.includes(el.name))));

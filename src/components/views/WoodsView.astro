@@ -18,8 +18,8 @@ const t = useT(lang);
 const w = t.woods;
 const shop = shopFor(lang);
 const byKey = new Map(WOODS.map((wood) => [wood.key, wood]));
-// 단단함 옆 설명: 무름(1~2), 아주 단단(4~5)만 붙이고 보통(3)은 숫자만
-const hardLabel = (hard: number) => (hard <= 2 ? w.hardLow : hard >= 4 ? w.hardHigh : '');
+// 단단함 옆 설명: 1~5 단계마다 다른 말 (아주 무름 · 무른 편 · 보통 · 단단한 편 · 아주 단단함)
+const hardLabel = (hard: number) => w.hardLevels[Math.min(5, Math.max(1, hard)) - 1] ?? '';
 const baluster = verticalPath();
 
 // 견본판·동자의 나뭇결 그림: public/tex/woods/<나무>.webp, <나무>-v.webp (만드는 법: scripts/woods.py)

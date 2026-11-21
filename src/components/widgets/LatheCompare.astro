@@ -152,7 +152,8 @@ const SIDES = [
       video.addEventListener('play', sync);
       video.addEventListener('pause', sync);
       new IntersectionObserver(
-        ([entry]) => {
+        (entries) => {
+          const entry = entries[entries.length - 1]; // 가장 최근 상태
           if (entry.isIntersecting && !userPaused) play();
           else video.pause();
         },

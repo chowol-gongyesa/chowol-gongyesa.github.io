@@ -77,7 +77,8 @@ const shop = shopFor(lang);
             lang !== 'ko' && 'is-intl',
           ]}
         >
-          {shop.tel.label}
+          <!-- 번호를 한 덩어리 span으로 (inline-flex 안에 글자가 바로 있으면, 일본어·중국어 낱말 묶기 span 사이의 띄어쓰기가 사라져 '+8231-…'로 붙었음) -->
+          <span>{shop.tel.label}</span>
         </a>
         <span class="mt-3 flex items-center gap-2 font-bold text-wood">
           <Icon name="tabler:printer" class="h-5 w-5" aria-hidden="true" />{r.fax}

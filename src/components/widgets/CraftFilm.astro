@@ -51,16 +51,22 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 <section id="film" class="sec-night grain relative overflow-clip py-20 md:py-28" aria-labelledby="film-title">
   <div class="relative z-[2] mx-auto max-w-7xl px-5 lg:px-8">
-    <div class="max-w-3xl">
-      <p class="eyebrow">{f.eyebrow}</p>
-      <h2 id="film-title" class:list={['display mt-4', compact ? 'text-[clamp(2rem,4vw,3rem)]' : 'text-[clamp(2.2rem,4.6vw,3.6rem)]']} data-split>
-        {f.title}
-      </h2>
-    </div>
+    <!-- 배치 (tailwind.css의 .film-grid): 큰 화면은 [제목 | 설명] 아래에 [영상 | 장면 바로 보기].
+         장면 목록은 영상(+조작 단추) 높이 안에 꼭 맞게 들어가서 오른쪽만 길어지지 않음 (사용자 의견 2026-11-21: 칸이 커서 스크롤이 먼저 먹음)
+         휴대폰·태블릿은 제목 → 영상(+장면 단추) → 설명 -->
+    <div class="film-grid">
+      <div class="film-head">
+        <p class="eyebrow">{f.eyebrow}</p>
+        <h2 id="film-title" class:list={['display mt-4', compact ? 'text-[clamp(2rem,4vw,3rem)]' : 'text-[clamp(2.2rem,4.6vw,3.6rem)]']} data-split>
+          {f.title}
+        </h2>
+      </div>
 
-    <div class="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 lg:mt-12 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:gap-14">
-      <!-- 큰 화면: 오른쪽 설명을 읽는 동안 영상이 따라 내려옴 -->
-      <div class="min-w-0 lg:sticky lg:top-24 lg:self-start">
+      <div class="film-text space-y-4 text-[1.05rem] leading-[1.9] text-ivory-2">
+        {f.paragraphs.map((p) => <p>{p}</p>)}
+      </div>
+
+      <div class="film-video min-w-0">
         <div class="frame" data-reveal>
           <div
             class="inner film-frame aspect-[4/5] w-full md:aspect-video"
@@ -132,9 +138,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
             class="film-seek max-sm:order-first max-sm:basis-full sm:min-w-[5rem] sm:flex-1"
             min="0"
             max="60"
-            step="0.1"
+            step="1"
             value="0"
             aria-label={f.seek}
+            aria-valuetext="0:00 / 1:00"
             data-seek
           />
           <button type="button" class="film-btn" data-mute aria-label={f.unmute}>
@@ -169,17 +176,15 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         </div>
       </div>
 
-      <!-- 영상 설명 + 장면 목록 -->
-      <div>
-        <div class="space-y-4 text-[1.05rem] leading-[1.9] text-ivory-2">
-          {f.paragraphs.map((p) => <p>{p}</p>)}
-        </div>
-        <!-- 큰 화면: 장면 바로 보기 — 한 줄 한 줄이 단추 (왼쪽 금빛 재생 동그라미, 올리면 밝아짐, 지금 장면은 금빛) -->
-        <div class="mt-9 hidden lg:block">
-          <p class="font-bold text-gold">{f.chaptersTitle}</p>
-          <p class="mt-1 text-[0.95rem] text-ivory-2">{f.chaptersHint}</p>
-        </div>
-        <ol class="chapter-list mt-4 hidden lg:grid" data-chapters>
+      <!-- 큰 화면: 장면 바로 보기 — 한 줄 한 줄이 단추 (왼쪽 금빛 재생 동그라미, 올리면 밝아짐, 지금 장면은 금빛).
+           칸 높이는 왼쪽 영상이 정하고, 목록은 그 안을 6칸으로 나눠 채움. 칸이 넉넉하면 설명 한 줄도 보임 -->
+      <div class="film-side hidden lg:block">
+        <div class="film-side-inner">
+          <div>
+            <p class="font-bold text-gold">{f.chaptersTitle}</p>
+            <p class="mt-1 text-[0.95rem] text-ivory-2">{f.chaptersHint}</p>
+          </div>
+          <ol class="chapter-list" data-chapters>
           {
             f.chapters.map((ch, i) => (
               <li>
@@ -198,7 +203,8 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
               </li>
             ))
           }
-        </ol>
+          </ol>
+        </div>
       </div>
     </div>
 
@@ -252,6 +258,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     // 소리: 사이트 소리 설정(기본 켜짐)을 따름. userMuted = 이 영상의 소리 단추로 직접 끔, blocked = 브라우저가 막아 소리 없이 재생 중
     let userMuted = false;
     let blocked = false;
+    let inView = false; // 영상이 화면에 절반 넘게 보이는지 (아래 IntersectionObserver)
     const sitePref = () => (window.cwSound && window.cwSound.get ? window.cwSound.get() : true);
     const wantSound = () => sitePref() && !userMuted;
     // 이 문서에서 사람이 한 번이라도 눌렀는지 (안 눌렀으면 소리 나는 재생은 막히므로 처음부터 소리 없이)
@@ -295,6 +302,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       frame.style.setProperty('--cue-dim', String(dim));
       if (!seeking) seek.value = String(t);
       time.textContent = `${fmt(t)} / ${fmt(video.duration || 60)}`;
+      seek.setAttribute('aria-valuetext', time.textContent); // 화면 읽기 프로그램이 '0:30 / 1:00'처럼 읽게
       // 지금 장면 표시 (오른쪽 목록과 휴대폰 장면 단추 모두)
       let cur = -1;
       chapters.forEach((ch) => {
@@ -332,8 +340,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       const audible = withSound && mayHaveSound();
       video.muted = !audible;
       blocked = withSound && !audible;
-      video.play().catch(() => {
-        if (video.muted) return;
+      video.play().catch((err) => {
+        // '소리 때문에 막힘'일 때만 소리 없이 다시. 재생 중에 멈춤(스크롤로 화면 밖, 일시정지)으로 끊긴 것(AbortError)은 그대로 둠
+        // (예전 오류: 끊긴 것도 막힘으로 보고 화면 밖에서 소리 없이 계속 돌다가, 다음 누르기에 보이지 않는 영상 소리가 났음)
+        if (video.muted || !err || err.name !== 'NotAllowedError' || userPaused || (auto && !inView)) return;
         blocked = true;
         video.muted = true;
         video.play().catch(() => {});
@@ -373,11 +383,15 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     // 소리가 막혀 소리 없이 돌던 중이면, 화면 아무 데나 처음 누르는 순간 소리를 켬 (영상의 단추들은 각자 처리)
     const unblock = (e) => {
       if (!blocked || video.paused || !wantSound()) return;
-      if (e.target && e.target.closest && e.target.closest('[data-film], [data-film-controls], .sound-toggle')) return;
+      // 영상 단추·소리 단추는 각자 처리. 링크(전화·문자·다른 페이지)를 누를 때는 소리를 켜지 않음
+      if (e.target && e.target.closest && e.target.closest('[data-film], [data-film-controls], .sound-toggle, a[href], #order-form')) return;
+      // 스크롤 끝의 손 떼기처럼 브라우저가 '누르기'로 치지 않는 경우엔 켜지 않음 (켜면 크롬은 영상을 멈춰 버림)
+      if (navigator.userActivation && !navigator.userActivation.isActive) return;
       blocked = false;
       video.muted = false;
     };
-    ['click', 'keydown', 'touchend'].forEach((type) => document.addEventListener(type, unblock, { capture: true, passive: true }));
+    // 키보드(Tab·글자 입력)로는 켜지 않음 (주문서 입력·화면 읽기 프로그램과 겹치지 않게)
+    ['click', 'touchend'].forEach((type) => document.addEventListener(type, unblock, { capture: true, passive: true }));
     // 사이트 소리를 끄면 영상도 소리를 끄고, 켜면 (재생 중일 때) 다시 켬
     const onSite = (e) => {
       const on = !!(e.detail && e.detail.on);
@@ -403,6 +417,8 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       showCues();
     });
     seek.addEventListener('change', () => (seeking = false));
+    // 아이폰은 영상 칸 전체 화면이 안 되고 기본 플레이어로만 커지는데, 그러면 자막·끝 화면(대표 번호)이 사라짐 → 단추를 숨김
+    if (!frame.requestFullscreen && !document.fullscreenEnabled) btnFull.classList.add('hidden');
     btnFull.addEventListener('click', () => {
       if (document.fullscreenElement) document.exitFullscreen();
       else if (frame.requestFullscreen) frame.requestFullscreen().catch(() => {});
@@ -429,7 +445,9 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     const auto = !reduce && !saveData && !coarse;
     const io = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = entries[entries.length - 1]; // 가장 최근 상태
+        inView = entry.isIntersecting;
         if (entry.isIntersecting && !userPaused && (auto || loaded)) {
           if (video.paused) start(wantSound());
         } else if (!entry.isIntersecting && !video.paused) {
@@ -443,7 +461,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     io.observe(frame);
     cleanup = () => {
       io.disconnect();
-      ['click', 'keydown', 'touchend'].forEach((type) => document.removeEventListener(type, unblock, { capture: true }));
+      ['click', 'touchend'].forEach((type) => document.removeEventListener(type, unblock, { capture: true }));
       window.removeEventListener('cw:sound', onSite);
     };
     syncButtons();

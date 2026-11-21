@@ -41,6 +41,8 @@ const en: Dict = {
     sound: 'Sound on',
     soundOff: 'Sound off',
     tapSound: 'Tap anywhere for sound',
+    start: 'Play with sound',
+    startHint: 'Tap anywhere to start',
   },
   reach: {
     consult: 'Order line',
@@ -264,7 +266,7 @@ const en: Dict = {
     next: 'Next photo',
   },
   home: {
-    metaTitle: 'Chowol Craft — Woodturning Workshop in Gwangju, Korea',
+    metaTitle: 'Chowol Craft — Woodturning Workshop in Gwangju-si, Gyeonggi-do, Korea',
     metaDescription: `Woodturning workshop in Gwangju, Gyeonggi-do, Korea. ${YEARS} years at the lathe: furniture legs, balusters, dowels and wooden balls in volume. One-offs welcome.`,
     worksLink: 'See our work',
   },
@@ -340,8 +342,7 @@ const en: Dict = {
     lead: 'The same shape looks, weighs and wears differently in each wood. Here are eight woods commonly turned on the lathe, with their weight, hardness, how they cut on the lathe and how to finish them.',
     jump: 'Jump to a wood',
     hard: 'Hardness',
-    hardLow: 'Soft',
-    hardHigh: 'Very hard',
+    hardLevels: ['Very soft', 'Soft', 'Medium', 'Hard', 'Very hard'],
     look: 'Color & grain',
     uses: 'Good for',
     density: 'Weight (air-dry specific gravity)',
@@ -377,12 +378,12 @@ const en: Dict = {
   contact: {
     metaTitle: 'Orders & inquiries',
     metaDescription:
-      "Order from Chowol Craft in Gwangju, Korea. Order line +82 10-8548-7264; owner's mobile (text) +82 10-5216-4554; fax +82 31-797-0784.",
+      "Order from Chowol Craft in Gwangju-si, Gyeonggi-do, Korea. Order line +82 10-8548-7264; owner's mobile (text) +82 10-5216-4554; fax +82 31-797-0784.",
     title: 'Orders & inquiries',
     lead: 'Have something in mind? Feel free to get in touch. A single photo and a rough size are enough to start.',
     formTitle: 'Order form',
     formLead:
-      "Fill in the form and tap <b>Send as text</b> to open your messaging app with the order written out, addressed to the owner. On a computer, use <b>Copy</b> and send it as a text message from your phone.",
+      "Fill in the form and tap <b>Send as text</b> to open your messaging app with the order written out, addressed to the owner. Attach your photos or drawings, then tap <b>Send</b> in the messaging app. On a computer, use <b>Copy</b> and send it as a text message from your phone.",
     name: 'Name / company',
     namePh: 'Jane Doe / ABC Furniture',
     phone: 'Phone',

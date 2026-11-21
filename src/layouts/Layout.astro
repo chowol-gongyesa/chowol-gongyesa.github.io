@@ -57,7 +57,10 @@ const OG_IMAGES: Record<Lang, { url: string; width: number; height: number }[]> 
 
 // 글꼴: 제목 나눔명조(굵게)만 내려받고, 본문은 기기에 있는 고딕(휴대폰에서 2MB 넘게 아낌 — CustomStyles.astro).
 // 상호는 그림(public/brand/)이라 글꼴이 필요 없음. 일본어·중국어 페이지는 그 나라 명조를 더 불러옵니다.
+// 한국어·영어 페이지는 작업 영상 자막용 고운바탕(굵게)도 — 자막이 있는 페이지에서만 실제로 받아짐(글자가 쓰일 때 받음)
 const extraFonts: Partial<Record<Lang, string>> = {
+  ko: '&family=Gowun+Batang:wght@700',
+  en: '&family=Gowun+Batang:wght@700',
   ja: '&family=Shippori+Mincho+B1:wght@800',
   zh: '&family=Noto+Serif+SC:wght@700;900',
 };
@@ -79,7 +82,19 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@8
     <Favicons />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href={fontHref} />
+    {
+      lang === 'zh' ? (
+        <>
+          {/* 중국 본토에서는 구글 글꼴이 막혀 있어, 기다리느라 페이지가 하얗게 멈추지 않게 따로(비동기로) 받음 */}
+          <link rel="stylesheet" href={fontHref} media="print" onload="this.media='all'" />
+          <noscript>
+            <link rel="stylesheet" href={fontHref} />
+          </noscript>
+        </>
+      ) : (
+        <link rel="stylesheet" href={fontHref} />
+      )
+    }
     <CustomStyles />
     <ApplyColorMode />
     <Metadata

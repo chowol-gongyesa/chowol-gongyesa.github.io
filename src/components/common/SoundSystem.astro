@@ -3,7 +3,7 @@
 // - 소리는 처음부터 '켜짐'이 기본입니다(사용자 요청 2026-11-21). 상단 메뉴(Header.astro)·입장 화면의 소리 단추로 끄면
 //   그 선택을 이 브라우저에 기억합니다(localStorage 'cw-sound' = 'on' | 'off').
 // - 브라우저는 사람이 화면을 한 번 누르기 전에는 소리를 못 내게 막습니다. 그래서 켜짐이어도 처음엔 조용할 수 있고,
-//   화면을 처음 누르는(클릭·탭·키) 순간 배경 음악을 (소리 0에서) 시작해 천천히 키웁니다.
+//   화면을 처음 누르는(클릭·탭) 순간 배경 음악을 (소리 0에서) 시작해 천천히 키웁니다.
 //   막혀서 아직 안 들리는 동안 소리 단추는 '기다림'(data-state="wait": 꺼진 그림 + 반짝임)으로 보여 주고, 누르면 바로 소리가 납니다.
 //   음량은 Web Audio로 조절합니다(아이폰은 audio.volume을 무시하기 때문).
 // - 작업 영상의 소리가 나는 동안 배경 음악은 0으로 줄였다가, 영상 소리가 꺼지면 다시 키웁니다.
@@ -189,14 +189,15 @@ import { getAsset } from '~/utils/permalinks';
   // 소리를 켜 둔 채 새로 고침한 경우 등: 다음에 누를 때 배경 음악을 이어서 (될 때까지 매번 시도)
   const resume = (e: Event) => {
     if (!on) return;
-    // 소리 단추·입장 화면은 따로 처리, 전화·문자 링크를 누를 때는 음악을 시작하지 않음
-    if ((e.target as HTMLElement | null)?.closest?.('.sound-toggle, #intro, a[href^="tel:"], a[href^="sms:"]')) return;
+    // 소리 단추·입장 화면은 따로 처리, 전화·문자 링크와 주문서 '문자로 보내기'(문자 앱이 열림)를 누를 때는 음악을 시작하지 않음
+    if ((e.target as HTMLElement | null)?.closest?.('.sound-toggle, #intro, a[href^="tel:"], a[href^="sms:"], #order-form button[type="submit"]')) return;
     const a = bgm();
     if (ctx && ctx.state === 'running' && a && !a.paused) return;
     load();
     startBgm(0, 1.5);
   };
-  ['click', 'touchend', 'keydown'].forEach((type) => document.addEventListener(type, resume, { capture: true, passive: true }));
+  // 키보드(Tab·주문서 글자 입력)로는 시작하지 않음 — 화면 읽기 프로그램·입력과 겹치지 않게. Enter로 단추·링크를 누르면 click이라 시작됨
+  ['click', 'touchend'].forEach((type) => document.addEventListener(type, resume, { capture: true, passive: true }));
 
   // 단추·링크를 누르면 나무 '똑'
   document.addEventListener('pointerdown', (e) => {
@@ -212,12 +213,19 @@ import { getAsset } from '~/utils/permalinks';
     ducked = !!(e as CustomEvent<{ on: boolean }>).detail?.on;
     if (on) ramp(ducked ? 0 : BGM_VOL, ducked ? 0.6 : 1.6);
   });
-  // 다른 탭으로 가면 쉼
+  // 다른 탭·전화 앱·문자 앱으로 가면 쉬고, 돌아오면 (그 전에 실제로 흐르고 있었을 때만) 음량 조절기를 거쳐 다시 천천히
+  // (예전 오류: 한 번도 시작 안 한 음악이 돌아올 때 음량 조절 없이 크게 나왔음 — 전화·문자를 누르고 돌아온 경우)
+  let wasPlaying = false;
   document.addEventListener('visibilitychange', () => {
     const a = bgm();
-    if (!a || !on) return;
-    if (document.hidden) a.pause();
-    else a.play().catch(() => {});
+    if (!a) return;
+    if (document.hidden) {
+      wasPlaying = !a.paused;
+      if (wasPlaying) a.pause();
+    } else if (on && wasPlaying) {
+      wasPlaying = false;
+      startBgm(0, 0.8);
+    }
   });
   // 상단 메뉴의 소리 단추
   const bind = () => {

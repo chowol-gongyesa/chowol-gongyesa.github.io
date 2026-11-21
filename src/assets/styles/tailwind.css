@@ -243,6 +243,14 @@
   :root:lang(zh) .page-title {
     font-size: clamp(2.1rem, 6.4vw, 5rem); /* 휴대폰에서 한자·가나 한 낱말이 한 줄에 들어가게 */
   }
+  /* 아주 좁은 휴대폰(폭 352px 이하): 일본어·중국어 긴 낱말 제목도 넘치지 않게 (예: 'どの木でつくりましょう？') */
+  @media (max-width: 22rem) {
+    :root:lang(ja) .page-title,
+    :root:lang(zh) .page-title {
+      font-size: 1.65rem;
+      overflow-wrap: anywhere;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .page-title {
       animation: none;
@@ -279,6 +287,12 @@
   /* 로고: 붓글씨 상호(public/brand/name-brush.svg) + 작은 낙관 (Logo.astro) */
   .logo-brush {
     filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.75));
+  }
+  /* 폭 340px보다 좁은 휴대폰: 붉은 낙관을 숨김 (오른쪽 소리 단추와 겹쳐서) */
+  @media (max-width: 21.24rem) {
+    .seal.logo-seal {
+      display: none;
+    }
   }
   .seal.logo-seal {
     --seal-size: 1.6rem;
@@ -1274,6 +1288,96 @@
     background: rgb(205 167 99 / 0.2);
     border-color: var(--gold-2);
   }
+  /* 소리 나는 자동 재생이 막혔을 때 (Intro.astro의 openGate): 포스터 위 가운데 큰 금빛 재생 단추 '소리와 함께 보기' */
+  #intro .intro-gate {
+    position: absolute;
+    inset: 0;
+    z-index: 3; /* 아래 소리 단추 줄(.intro-ui, 4)보다 아래 — 소리 단추를 누를 수 있게 */
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    padding: 1.5rem;
+    text-align: center;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
+  }
+  #intro.is-gate {
+    cursor: pointer;
+  }
+  #intro.is-gate .intro-gate {
+    display: flex;
+    animation: introGateIn 0.6s ease both;
+  }
+  #intro.is-gate .intro-progress {
+    opacity: 0;
+  }
+  #intro .intro-start {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: var(--ivory);
+    font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.9);
+  }
+  #intro .intro-start-icon {
+    display: grid;
+    place-items: center;
+    width: clamp(5rem, 14vw, 6.5rem);
+    height: clamp(5rem, 14vw, 6.5rem);
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f5e0b2 0%, #cda763 55%, #a97f3c 100%);
+    color: #1b130b;
+    box-shadow:
+      inset 0 1px 0 rgb(255 250 235 / 0.7),
+      0 0 0 10px rgb(205 167 99 / 0.16),
+      0 20px 44px -14px rgb(0 0 0 / 0.95);
+    animation: introStartRing 2.2s ease-in-out infinite;
+    transition: transform 0.2s ease;
+  }
+  #intro .intro-start:hover .intro-start-icon {
+    transform: scale(1.05);
+  }
+  #intro .intro-start:focus-visible {
+    outline: none;
+  }
+  #intro .intro-start:focus-visible .intro-start-icon {
+    outline: 3px solid var(--ivory);
+    outline-offset: 6px;
+  }
+  #intro .intro-start-hint {
+    font-size: 0.95rem;
+    color: var(--ivory-2);
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.9);
+  }
+  @keyframes introGateIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes introStartRing {
+    0%,
+    100% {
+      box-shadow:
+        inset 0 1px 0 rgb(255 250 235 / 0.7),
+        0 0 0 8px rgb(205 167 99 / 0.14),
+        0 20px 44px -14px rgb(0 0 0 / 0.95);
+    }
+    50% {
+      box-shadow:
+        inset 0 1px 0 rgb(255 250 235 / 0.7),
+        0 0 0 16px rgb(205 167 99 / 0.06),
+        0 20px 44px -14px rgb(0 0 0 / 0.95);
+    }
+  }
   /* 브라우저가 소리를 막았을 때: 소리 단추가 금빛으로 숨 쉬고, 옆에 '화면을 누르면 소리가 나옵니다' */
   #intro .intro-tap {
     display: none;
@@ -1632,6 +1736,10 @@
   .call-bar-note b {
     font-weight: 800;
     color: var(--gold-2);
+    white-space: nowrap; /* 가게 이름이 '초월공/예사', 'チョ/ウォル'처럼 끊기지 않게 */
+  }
+  :root:lang(ja) :is(.hero-callnote, .reach-say, .call-bar-note) {
+    word-break: auto-phrase; /* 'とお / 伝えください'처럼 말 중간에서 줄이 바뀌지 않게 (크롬·엣지) */
   }
   @media (prefers-reduced-motion: reduce) {
     .cta-plate,
@@ -1748,9 +1856,14 @@
     font-weight: 700;
     text-shadow: 0 1px 4px rgb(0 0 0 / 0.8);
   }
+  /* 재생 중엔 '영상 보기' 단추를 숨김 — visibility까지 숨겨야 Tab 초점이 안 보이는 단추에 가지 않음 */
   .clip.is-playing .clip-play {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
+    transition:
+      opacity 0.35s ease,
+      visibility 0s linear 0.35s;
   }
   .clip:not(.is-playing) .loop-toggle {
     display: none;
@@ -1782,7 +1895,9 @@
     display: grid;
     place-items: center;
     background: radial-gradient(circle, rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.55));
-    transition: opacity 0.4s ease;
+    transition:
+      opacity 0.4s ease,
+      visibility 0s;
   }
   .film-bigplay span {
     display: grid;
@@ -1808,6 +1923,10 @@
   .film-frame.is-playing .film-bigplay {
     opacity: 0;
     pointer-events: none;
+    visibility: hidden; /* 재생 중엔 Tab 초점도 안 가게 */
+    transition:
+      opacity 0.4s ease,
+      visibility 0s linear 0.4s;
   }
   /* 자막이 나오는 동안 영상 가운데를 어둡게 (CraftFilm.astro 스크립트가 --cue-dim 0~1을 넣음) */
   .film-dim {
@@ -1850,8 +1969,8 @@
   .film-cue[data-kind='motto'] {
     top: 50%;
     transform: translateY(-50%);
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
+    font-family: var(--font-cue);
+    font-weight: 700;
     font-size: clamp(1.35rem, 6.3cqi, 3.2rem);
     line-height: 1.42;
     letter-spacing: 0.01em;
@@ -1892,8 +2011,8 @@
   /* 만드는 것 이름 (사진이 바뀔 때마다) */
   .film-cue[data-kind='word'] {
     top: 50%;
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
+    font-family: var(--font-cue);
+    font-weight: 700;
     font-size: clamp(1.7rem, 8.6cqi, 4.4rem);
     letter-spacing: 0.14em;
     color: #f6e1b0;
@@ -1927,8 +2046,8 @@
   }
   .film-cue[data-kind='name'] .cue-big {
     display: block;
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
+    font-family: var(--font-cue);
+    font-weight: 700;
     font-size: clamp(1.5rem, 6.4cqi, 3rem);
     letter-spacing: 0.06em;
     line-height: 1.2;
@@ -2078,8 +2197,97 @@
   }
   /* 장면 바로 보기 (CraftFilm.astro): 한 줄 한 줄이 '누르는 단추'로 보이게 — 옻칠 판 + 금테 + 왼쪽 금빛 재생 동그라미.
      마우스를 올리거나 지금 보는 장면이면 동그라미가 금박으로 차고 테가 밝아짐 (사용자 의견 2026-11-21: 단추 같지 않아 안 눌렀음) */
-  .chapter-list {
-    gap: 0.55rem;
+  /* 작업 영상 칸 배치 (CraftFilm.astro) — 큰 화면: [제목 | 설명] / [영상 | 장면 바로 보기], 휴대폰: 제목 → 영상 → 설명 */
+  .film-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'video' 'text';
+    row-gap: 2.5rem;
+  }
+  .film-head {
+    grid-area: head;
+  }
+  .film-text {
+    grid-area: text;
+  }
+  .film-video {
+    grid-area: video;
+  }
+  .film-side {
+    grid-area: side;
+  }
+  @media (min-width: 64rem) {
+    .film-grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      grid-template-areas: 'head text' 'video side';
+      column-gap: 3.5rem;
+      row-gap: 3rem;
+    }
+    .film-head,
+    .film-text {
+      align-self: start;
+    }
+    /* 장면 목록은 영상(+조작 단추) 높이를 넘지 않음: 칸 높이는 왼쪽 영상이 정하고(오른쪽 내용은 높이에 안 들어감),
+       목록은 남은 높이를 6칸으로 똑같이 나눔. 목록이 넉넉히 높으면(@container) 설명 한 줄도 보여 줌 */
+    .film-side {
+      position: relative;
+    }
+    .film-side-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .film-side .chapter-list {
+      container: chapters / size;
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .film-side .chapter-list > li {
+      display: flex;
+      flex: 1 1 0;
+      min-height: 0;
+    }
+    .film-side .chapter {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      gap: 0.8rem;
+      padding: 0.3rem 0.95rem 0.3rem 0.55rem;
+    }
+    .film-side .chapter-play {
+      width: 1.9rem;
+      height: 1.9rem;
+    }
+    .film-side .chapter strong {
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+    .film-side .chapter-text {
+      display: none;
+    }
+    @container chapters (min-height: 22.5rem) {
+      .film-side .chapter {
+        padding-block: 0.35rem;
+      }
+      .film-side .chapter-play {
+        width: 2.2rem;
+        height: 2.2rem;
+      }
+      .film-side .chapter-text {
+        display: block;
+        margin-top: 0.1rem;
+        overflow: hidden;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
   }
   .chapter {
     position: relative;
@@ -2370,7 +2578,7 @@
     width: 100%;
     min-height: 3.45rem;
     line-height: 1.5;
-    border: 1px solid rgb(205 167 99 / 0.3);
+    border: 1px solid rgb(205 167 99 / 0.6); /* 바탕과 3:1 넘게 (칸이 잘 보이게) */
     background: rgb(0 0 0 / 0.35);
     padding: 0.65rem 0.9rem;
     color: var(--ivory);
@@ -2384,7 +2592,8 @@
   .field:focus {
     border-color: var(--gold-2);
     background: rgb(0 0 0 / 0.55);
-    outline: none;
+    outline: 2px solid rgb(232 201 140 / 0.55);
+    outline-offset: 1px;
   }
   select.field option {
     background: #1a130d;
@@ -2531,6 +2740,8 @@
     }
     .sound-toggle .bars i,
     .sound-toggle[data-state='wait'],
+    #intro .intro-start-icon,
+    #intro.is-gate .intro-gate,
     #intro.needs-tap .intro-tap,
     #intro.needs-tap .intro-btn,
     .clip .clip-badge i {
