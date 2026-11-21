@@ -2,10 +2,10 @@
 import { SITE } from 'astrowind:config';
 
 // 검색 사이트 소유 확인 코드.
-// 네이버 서치어드바이저: 초월공예 사이트를 등록한 뒤 받은 코드를 아래에 넣으세요 (지금은 없음).
-//   ⚠️ 예전에 여기 있던 코드는 성창공예 사이트의 것이라 지웠습니다(2026-11-21) — 다른 사이트 코드를 넣으면 그 사이트 소유로 잡힙니다.
+// 네이버 서치어드바이저: 초월공예.com(xn--ob0bn98bprap2r.com) 소유 확인 코드 — 2026-11-21 아버지 네이버 계정으로 등록. 지우지 마세요.
+//   ⚠️ 다른 사이트(성창공예) 코드를 넣으면 그 사이트 소유로 잡힙니다.
 // 구글 코드는 src/config.yaml 의 googleSiteVerificationId 에 넣습니다.
-const NAVER_SITE_VERIFICATION: string | null = null;
+const NAVER_SITE_VERIFICATION: string | null = '52e85d75c73265b9caec6d11ee5861194b3b0992';
 ---
 
 {SITE.googleSiteVerificationId && <meta name="google-site-verification" content={SITE.googleSiteVerificationId} />}
