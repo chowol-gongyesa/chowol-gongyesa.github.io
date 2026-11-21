@@ -61,7 +61,11 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
   <!-- 브라우저가 소리 나는 자동 재생을 막았을 때만 보임: 누르면 예고편이 처음부터 소리와 함께 -->
   <div class="intro-gate" aria-hidden="true">
     <button type="button" class="intro-start" data-intro-start tabindex="-1">
-      <span class="intro-start-icon"><Icon name="tabler:player-play-filled" class="ml-1 h-9 w-9" aria-hidden="true" /></span>
+      <!-- 재생 세모는 <Icon> 대신 직접 그림: 입장 화면은 들어간 뒤 통째로 지워지는데, 아이콘 그림 모음(sprite)의 원본이
+           여기 먼저 들어가 있으면 같이 지워져서 페이지의 다른 재생 단추 세모가 모두 사라졌음 (2026-11-21 오류) -->
+      <span class="intro-start-icon">
+        <svg class="ml-1 h-9 w-9" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"></path></svg>
+      </span>
       <span class="intro-start-label">{t.start}</span>
     </button>
     <p class="intro-start-hint">{t.startHint}</p>

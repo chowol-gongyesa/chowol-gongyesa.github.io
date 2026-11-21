@@ -2257,11 +2257,11 @@
       min-height: 0;
       overflow: hidden;
       gap: 0.8rem;
-      padding: 0.3rem 0.95rem 0.3rem 0.55rem;
+      padding: 0.25rem 0.95rem 0.25rem 0.55rem;
     }
     .film-side .chapter-play {
-      width: 1.9rem;
-      height: 1.9rem;
+      width: 1.75rem;
+      height: 1.75rem;
     }
     .film-side .chapter strong {
       font-size: 1rem;
@@ -2270,7 +2270,7 @@
     .film-side .chapter-text {
       display: none;
     }
-    @container chapters (min-height: 22.5rem) {
+    @container chapters (min-height: 21.5rem) {
       .film-side .chapter {
         padding-block: 0.35rem;
       }
