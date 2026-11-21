@@ -2,7 +2,6 @@
 // 공유 버튼. 휴대폰에서는 '공유하기'를 누르면 카카오톡·문자 등 휴대폰 공유 창이 열리고,
 // 공유 창이 없는 컴퓨터에서는 주소를 복사합니다. url을 안 주면 지금 보고 있는 페이지 주소를 씁니다.
 import { Icon } from 'astro-icon/components';
-import { SITE } from 'astrowind:config';
 import { langFromPath, useT } from '~/i18n';
 
 export interface Props {
@@ -14,12 +13,8 @@ export interface Props {
 }
 
 const t = useT(langFromPath(Astro.url.pathname)).share;
-const {
-  text = '',
-  url = new URL(Astro.url.pathname, SITE.site),
-  class: className = 'inline-block',
-  onSign = false,
-} = Astro.props;
+// url을 안 주면 브라우저에 떠 있는 주소를 그대로 공유 (설정의 사이트 주소가 아직 임시라도 맞는 주소가 나감)
+const { text = '', url, class: className = 'inline-block', onSign = false } = Astro.props;
 const btn = onSign
   ? 'inline-flex min-h-11 items-center gap-2 rounded-full border border-gold/50 px-4 text-[0.95rem] font-bold text-ivory hover:border-gold-2 hover:bg-gold/10'
   : 'inline-flex min-h-11 items-center gap-2 rounded-full border-2 border-verm px-4 text-[0.95rem] font-bold text-verm hover:bg-verm hover:text-white';
@@ -27,7 +22,7 @@ const btn = onSign
 
 <aw-social-share
   class={className}
-  data-aw-url={String(url)}
+  data-aw-url={url ? String(url) : undefined}
   data-aw-text={text}
   data-label-copy={t.copy}
   data-label-copied={t.copied}
@@ -55,7 +50,7 @@ const btn = onSign
 <script>
   class AwSocialShare extends HTMLElement {
     connectedCallback() {
-      const url = this.dataset.awUrl || location.href;
+      const url = this.dataset.awUrl || location.href.split('#')[0];
       const text = this.dataset.awText || document.title;
       const label = this.querySelector<HTMLElement>('[data-aw-copy-label]');
       const { labelCopy = '', labelCopied = '', labelPrompt = '' } = this.dataset;

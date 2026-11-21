@@ -1,40 +1,27 @@
 ---
 // 공방 연출 모음 (모든 페이지)
-// 1) 금빛 커서: 작은 점은 바로, 고리는 천천히 따라옴. 링크 위에선 고리가 커지고, 사진·영상(data-cursor) 위에선 '보기'·'재생' 글자
-// 2) 등잔불: 마우스 주변을 따뜻하게 비춤 + 움직인 자리에 금빛 나무 가루
-// 3) 누르면 나이테처럼 금빛 고리가 퍼짐 (성창공예의 톱밥과 다르게)
-// 4) data-split 제목은 화면에 들어올 때 글자가 하나씩 떠오름
-// 5) data-tilt 카드는 마우스를 따라 살짝 기울고 빛이 비침
-// 6) data-reveal 칸이 화면에 들어오면 .is-in → 사진이 걷히고(.wipe) 글이 떠오름(.rise)
-// 마우스가 없는 휴대폰·태블릿에서는 1·2가 꺼지고, 움직임 줄이기 설정이면 2·3·5가 꺼집니다.
-import { useT, type Lang } from '~/i18n';
-
-export interface Props {
-  lang: Lang;
-}
-const { lang } = Astro.props;
-const c = useT(lang).cursor;
+// 1) 금빛 나무 가루: 마우스를 움직인 자리에 작은 금빛 가루가 날렸다가 사라짐 (마우스 효과는 이것만 — 사용자 요청 2026-11-21)
+//    예전의 금빛 점·따라오는 고리('보기'·'재생' 글자)·등잔불·누르면 퍼지는 고리·카드 기울기는 뺐습니다.
+//    마우스 모양은 원래 화살표 그대로. 휴대폰·태블릿(마우스 없음)과 '움직임 줄이기' 설정에서는 꺼짐
+// 2) data-split 제목은 화면에 들어올 때 글자가 하나씩 떠오름
+//    중국어·일본어는 낱말(Intl.Segmenter)을 묶어 낱말 안에서 줄이 바뀌지 않게 (예: '木｜头', 'チョウォ｜ル'이 되지 않게)
+// 3) data-reveal 칸이 화면에 들어오면 .is-in → 사진이 걷히고(.wipe) 글이 떠오름(.rise)
+// 4) 입장 화면(홈의 Intro.astro)은 사이트를 새로 열었을 때만 — 사이트 안에서 한 번이라도 페이지를 옮겼으면 다시 나오지 않게
+//    (이 파일은 모든 페이지에 있어서, 다른 페이지로 처음 들어와 홈으로 옮겨 가는 경우도 잡음)
 ---
 
-<div id="cw-lantern" transition:persist aria-hidden="true"></div>
 <canvas id="cursor-dust" transition:persist aria-hidden="true"></canvas>
-<div id="craft-fx" transition:persist aria-hidden="true"></div>
-<div id="cw-ring" transition:persist aria-hidden="true" data-view={c.view} data-play={c.play}><span></span></div>
-<div id="cw-dot" transition:persist aria-hidden="true"></div>
 
 <script>
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  // ---------- 1) 금빛 커서 + 2) 등잔불·나무 가루 ----------
-  let mx = -100;
-  let my = -100;
-  let rx = -100;
-  let ry = -100;
-  let started = false;
+  // ---------- 1) 금빛 나무 가루 ----------
+  // 가루가 있을 때만 그림(가루가 다 사라지면 그리기를 멈춰 쉬는 동안 힘을 쓰지 않음)
   type Speck = { x: number; y: number; vx: number; vy: number; life: number; max: number; size: number };
   const specks: Speck[] = [];
   let ctx: CanvasRenderingContext2D | null = null;
+  let running = false;
   const resize = () => {
     const cv = document.getElementById('cursor-dust') as HTMLCanvasElement | null;
     if (!cv) return;
@@ -47,119 +34,122 @@ const c = useT(lang).cursor;
   window.addEventListener('resize', resize);
 
   const tick = () => {
-    const dot = document.getElementById('cw-dot');
-    const ring = document.getElementById('cw-ring');
-    rx += (mx - rx) * 0.18;
-    ry += (my - ry) * 0.18;
-    if (dot) dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
-    if (ring) ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
-    // 나무 가루
     if (!ctx) resize();
-    if (ctx) {
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
-      ctx.globalCompositeOperation = 'lighter';
-      for (let i = specks.length - 1; i >= 0; i--) {
-        const s = specks[i];
-        s.life++;
-        s.vy += 0.02;
-        s.vx *= 0.97;
-        s.x += s.vx;
-        s.y += s.vy;
-        const t = s.life / s.max;
-        if (t >= 1) {
-          specks.splice(i, 1);
-          continue;
-        }
-        const a = (1 - t) * 0.85;
-        ctx.fillStyle = `rgba(240, 205, 140, ${a})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size * (1 - t * 0.5), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = `rgba(255, 220, 160, ${a * 0.18})`;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size * 3.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalCompositeOperation = 'source-over';
+    if (!ctx) {
+      running = false;
+      return;
     }
-    requestAnimationFrame(tick);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = specks.length - 1; i >= 0; i--) {
+      const s = specks[i];
+      s.life++;
+      s.vy += 0.02;
+      s.vx *= 0.97;
+      s.x += s.vx;
+      s.y += s.vy;
+      const t = s.life / s.max;
+      if (t >= 1) {
+        specks.splice(i, 1);
+        continue;
+      }
+      const a = (1 - t) * 0.85;
+      ctx.fillStyle = `rgba(240, 205, 140, ${a})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size * (1 - t * 0.5), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(255, 220, 160, ${a * 0.18})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size * 3.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    if (specks.length) requestAnimationFrame(tick);
+    else running = false;
   };
 
   let lastX = -1;
   let lastY = -1;
   document.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' || !fine()) return;
-    mx = e.clientX;
-    my = e.clientY;
-    if (!started) {
-      started = true;
-      rx = mx;
-      ry = my;
-      document.documentElement.classList.add('has-cursor');
-      requestAnimationFrame(tick);
-    }
-    const lantern = document.getElementById('cw-lantern');
-    lantern?.style.setProperty('--lx', `${mx}px`);
-    lantern?.style.setProperty('--ly', `${my}px`);
-    if (reduce()) return;
+    if (e.pointerType !== 'mouse' || !fine() || reduce()) return;
+    const mx = e.clientX;
+    const my = e.clientY;
     const dist = Math.hypot(mx - lastX, my - lastY);
-    if (dist > 6 && dist < 300 && specks.length < 30) {
-      const n = Math.min(2, 1 + Math.floor(dist / 30));
-      for (let i = 0; i < n; i++) {
-        specks.push({
-          x: mx + (Math.random() - 0.5) * 8,
-          y: my + (Math.random() - 0.5) * 8,
-          vx: (Math.random() - 0.5) * 0.7,
-          vy: -0.2 - Math.random() * 0.5,
-          life: 0,
-          max: 40 + Math.random() * 30,
-          size: 0.8 + Math.random() * 1.4,
-        });
-      }
-    }
     lastX = mx;
     lastY = my;
-  });
-  document.addEventListener('pointerleave', () => document.documentElement.classList.remove('has-cursor'));
-  document.addEventListener('pointerenter', (e) => {
-    if ((e as PointerEvent).pointerType === 'mouse' && started) document.documentElement.classList.add('has-cursor');
-  });
-  // 커서가 무엇 위에 있는지
-  document.addEventListener('pointerover', (e) => {
-    const ring = document.getElementById('cw-ring');
-    if (!ring) return;
-    const target = e.target as HTMLElement;
-    const media = target.closest<HTMLElement>('[data-cursor]');
-    const link = target.closest('a, button, summary, label, [role="button"], input[type="range"]');
-    ring.classList.toggle('is-media', !!media);
-    ring.classList.toggle('is-link', !media && !!link);
-    const label = ring.querySelector('span');
-    if (label) label.textContent = media ? (media.dataset.cursor === 'play' ? ring.dataset.play : ring.dataset.view) ?? '' : '';
-  });
-  document.addEventListener('pointerdown', () => document.getElementById('cw-ring')?.classList.add('is-down'));
-  document.addEventListener('pointerup', () => document.getElementById('cw-ring')?.classList.remove('is-down'));
-
-  // ---------- 3) 나이테 고리 ----------
-  document.addEventListener('pointerdown', (e) => {
-    if (e.button !== 0 || reduce()) return;
-    const target = e.target as HTMLElement;
-    if (target.closest('input, textarea, select, [contenteditable], dialog')) return;
-    if (!target.closest('a, button, summary, [data-tilt], [data-cursor], #intro')) return;
-    const layer = document.getElementById('craft-fx');
-    if (!layer) return;
-    [0, 0.08, 0.16].forEach((delay, i) => {
-      const ring = document.createElement('i');
-      ring.className = 'ring';
-      const size = 46 + i * 34;
-      ring.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;--delay:${delay}s`;
-      layer.appendChild(ring);
-      window.setTimeout(() => ring.remove(), 1200);
-    });
+    if (dist <= 6 || dist >= 300 || specks.length >= 30) return;
+    const n = Math.min(2, 1 + Math.floor(dist / 30));
+    for (let i = 0; i < n; i++) {
+      specks.push({
+        x: mx + (Math.random() - 0.5) * 8,
+        y: my + (Math.random() - 0.5) * 8,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: -0.2 - Math.random() * 0.5,
+        life: 0,
+        max: 40 + Math.random() * 30,
+        size: 0.8 + Math.random() * 1.4,
+      });
+    }
+    if (!running) {
+      running = true;
+      requestAnimationFrame(tick);
+    }
   });
 
-  // ---------- 4) 글자가 하나씩 떠오르는 제목 ----------
+  // ---------- 중국어·일본어 낱말 나누기 ----------
+  // 문장부호·작은 토씨는 앞 낱말에, お·ご·여는 괄호는 뒤 낱말에 붙여 그 사이에서 줄이 바뀌지 않게
+  const PUNCT = /^[、。，．・：；！？!?」』）〕】ー〜…,.)\]]+$/;
+  const PARTICLE = /^[のをにでがはとへもや]$/;
+  const segmentCJK = (text: string, lang: string): string[] => {
+    const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: object) => { segment: (t: string) => Iterable<{ segment: string }> } }).Segmenter;
+    if (!Seg) return Array.from(text);
+    const out: string[] = [];
+    let glue = false;
+    for (const { segment: w } of new Seg(lang, { granularity: 'word' }).segment(text)) {
+      if (/^\s+$/.test(w)) {
+        out.push(w);
+        glue = false;
+        continue;
+      }
+      const prev = out[out.length - 1];
+      const ja = lang.startsWith('ja');
+      // 일본어: 'つくり·ま·しょう'처럼 히라가나로 이어지는 어미도 앞 낱말에 붙임(한 덩어리가 너무 길어지지 않게 10자까지)
+      const ending = ja && !/^[おご]$/.test(w) && /^[\u3041-\u309f]+[？！。、]*$/.test(w) && /[\u3041-\u309f\u4e00-\u9fff]$/.test(prev ?? '') && [...(prev ?? '') + w].length <= 10;
+      const attach = prev !== undefined && !/^\s+$/.test(prev) && (glue || PUNCT.test(w) || (ja && PARTICLE.test(w)) || ending);
+      if (attach) out[out.length - 1] = prev + w;
+      else out.push(w);
+      glue = /^[おご「『（(〔【]$/.test(w);
+    }
+    return out;
+  };
+  // 글자만 든 제목·리드 문장에서 낱말을 <span class="kw">(줄바꿈 안 됨)로 묶음 — 스크립트가 없으면 그냥 글자 그대로
+  const keepWords = () => {
+    const lang = document.documentElement.lang;
+    if (!/^(ja|zh)/.test(lang)) return;
+    document
+      .querySelectorAll<HTMLElement>('main :is(h1, h2, h3, .display, .lead, .eyebrow):not([data-split]):not([data-kw])')
+      .forEach((el) => {
+        el.dataset.kw = '';
+        if (el.children.length || !el.textContent?.trim()) return;
+        const text = el.textContent;
+        el.textContent = '';
+        segmentCJK(text, lang).forEach((w) => {
+          if (/^\s+$/.test(w) || [...w].length < 2) {
+            el.appendChild(document.createTextNode(w));
+            return;
+          }
+          const span = document.createElement('span');
+          span.className = 'kw';
+          span.textContent = w;
+          el.appendChild(span);
+        });
+      });
+  };
+
+  // ---------- 2) 글자가 하나씩 떠오르는 제목 ----------
   const splitHeadings = () => {
-    const cjk = /^(ja|zh)/.test(document.documentElement.lang);
+    const lang = document.documentElement.lang;
+    const cjk = /^(ja|zh)/.test(lang);
     document.querySelectorAll<HTMLElement>('[data-split]:not([data-split-done])').forEach((el) => {
       el.dataset.splitDone = '';
       if (reduce()) return;
@@ -167,7 +157,7 @@ const c = useT(lang).cursor;
       if (!text) return;
       el.setAttribute('aria-label', text);
       let i = 0;
-      const pieces = cjk ? Array.from(text) : text.split(/([ \t\n]+)/);
+      const pieces = cjk ? segmentCJK(text, lang) : text.split(/([ \t\n]+)/);
       el.innerHTML = '';
       pieces.forEach((piece) => {
         if (/^[ \t\n]+$/.test(piece)) {
@@ -200,31 +190,7 @@ const c = useT(lang).cursor;
     });
   };
 
-  // ---------- 5) 기울어지는 카드 ----------
-  const tilt = () => {
-    if (!fine() || reduce()) return;
-    document.querySelectorAll<HTMLElement>('[data-tilt]:not([data-tilt-ready])').forEach((card) => {
-      card.dataset.tiltReady = '';
-      let raf = 0;
-      card.addEventListener('pointermove', (e) => {
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(() => {
-          const r = card.getBoundingClientRect();
-          const px = (e.clientX - r.left) / r.width;
-          const py = (e.clientY - r.top) / r.height;
-          card.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 5}deg) rotateY(${(px - 0.5) * 6}deg) translateY(-2px)`;
-          card.style.setProperty('--gx', `${px * 100}%`);
-          card.style.setProperty('--gy', `${py * 100}%`);
-        });
-      });
-      card.addEventListener('pointerleave', () => {
-        cancelAnimationFrame(raf);
-        card.style.transform = '';
-      });
-    });
-  };
-
-  // ---------- 6) 화면에 들어오면 드러나기 (키가 큰 칸도 위쪽이 보이면 바로) ----------
+  // ---------- 3) 화면에 들어오면 드러나기 (키가 큰 칸도 위쪽이 보이면 바로) ----------
   const reveal = () => {
     const items = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-in)');
     if (reduce() || !('IntersectionObserver' in window)) {
@@ -243,10 +209,18 @@ const c = useT(lang).cursor;
     items.forEach((el) => io.observe(el));
   };
 
+  // ---------- 4) 사이트 안에서 페이지를 옮기면 입장 화면은 끝난 것으로 ----------
+  // astro:after-swap은 사이트 안 이동에서만 생기고(처음 열 때는 없음), 새 페이지의 스크립트보다 먼저 옴
+  document.addEventListener('astro:after-swap', () => {
+    (window as Window & { __cwIntroDone?: boolean }).__cwIntroDone = true;
+    document.getElementById('intro')?.remove();
+    document.documentElement.classList.remove('intro-active');
+  });
+
   document.addEventListener('astro:page-load', () => {
     resize();
+    keepWords();
     splitHeadings();
-    tilt();
     reveal();
   });
 </script>

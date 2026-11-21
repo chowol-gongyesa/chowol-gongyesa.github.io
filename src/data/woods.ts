@@ -42,7 +42,7 @@ export const WOODS: Wood[] = [
     },
     turning: {
       ko: '물관 구멍이 굵은 나무라 깎으면 결이 힘차게 드러납니다. 단단해서 날을 자주 갈아 가며 깎습니다.',
-      en: 'Its large, open pores make the grain stand out boldly once turned. It is hard on tools, so we sharpen often.',
+      en: 'Its large, open pores make the grain stand out boldly once turned. It is hard on tools, so edges need frequent sharpening.',
       ja: '導管が太い木なので、挽くと木目が力強く現れます。硬いので刃をこまめに研ぎながら挽きます。',
       zh: '导管粗大，车削后纹理格外鲜明。木质坚硬，需要勤磨刀具。',
     },
@@ -73,14 +73,14 @@ export const WOODS: Wood[] = [
       zh: '浅黄褐色，纹理笔直粗犷',
     },
     feel: {
-      ko: '무겁고 튼튼해서 힘을 받는 곳에 잘 맞습니다. 결을 곧게 켜면 호랑이 무늬 같은 은결이 나타납니다.',
+      ko: '무겁고 튼튼해서 힘을 받는 곳에 잘 맞습니다. 곧은결(정목)로 켜면 호랑이 무늬 같은 은결이 나타납니다.',
       en: 'Heavy and strong, ideal for parts that bear weight. Quartersawn, it shows shimmering ray fleck, also called silver grain.',
       ja: '重くて丈夫なので、力のかかる部分に向きます。柾目に挽くと虎斑（とらふ）と呼ばれる模様が現れます。',
       zh: '沉重结实，适合承重部位。径切时会出现虎斑般的射线花纹。',
     },
     turning: {
       ko: '단단하고 결이 거칠어 날이 무디면 표면이 뜯깁니다. 덜 마른 나무는 마르면서 갈라지기 쉬워 충분히 말린 것을 씁니다.',
-      en: 'Hard and coarse, so a dull tool tears the surface. It checks easily while drying, so we use well-seasoned stock.',
+      en: 'Hard and coarse, so a dull tool tears the surface. It checks easily while drying, so well-seasoned stock is best.',
       ja: '硬く目が粗いため、刃が鈍ると表面がむしれます。乾燥途中で割れやすいので、十分に乾かした材を使います。',
       zh: '质硬纹粗，刀具一钝表面就会起毛撕裂。干燥过程中容易开裂，所以选用充分干燥的木料。',
     },
@@ -275,8 +275,8 @@ export const WOODS: Wood[] = [
       zh: '年轮中软硬部分差别很大，刀口必须锋利，否则纹理容易被撕裂。',
     },
     care: {
-      ko: '송진이 있어 칠 위로 배어 나올 수 있습니다. 잘 마른 나무를 고르고, 마감 전에 바탕칠로 한 번 막아 줍니다.',
-      en: 'Resin can bleed through a finish. We choose well-dried stock and seal it before the final coat.',
+      ko: '송진이 있어 칠 위로 배어 나올 수 있습니다. 잘 마른 나무를 쓰고, 마감 전에 바탕칠로 한 번 막아 주면 좋습니다.',
+      en: 'Resin can bleed through a finish, so use well-dried stock and seal it before the final coat.',
       ja: '松やにが塗膜の上ににじみ出ることがあります。よく乾いた材を選び、仕上げの前に下塗りで一度止めます。',
       zh: '松脂可能会渗出漆面。要挑选充分干燥的木料，并在上面漆前先打一层底漆封住。',
     },

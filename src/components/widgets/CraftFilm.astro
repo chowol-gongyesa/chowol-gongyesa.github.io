@@ -59,7 +59,14 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
       <!-- 큰 화면: 오른쪽 설명을 읽는 동안 영상이 따라 내려옴 -->
       <div class="min-w-0 lg:sticky lg:top-24 lg:self-start">
         <div class="frame" data-reveal>
-          <div class="inner film-frame aspect-[4/5] w-full md:aspect-video" data-film data-cursor="play">
+          <div
+            class="inner film-frame aspect-[4/5] w-full md:aspect-video"
+            data-film
+            data-label-play={f.resume}
+            data-label-pause={f.pause}
+            data-label-mute={f.mute}
+            data-label-unmute={f.unmute}
+          >
             <video
               playsinline
               muted
@@ -131,7 +138,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
             <Icon name="tabler:volume-off" class="icon-off h-5 w-5" aria-hidden="true" />
             <Icon name="tabler:volume" class="icon-on hidden h-5 w-5" aria-hidden="true" />
           </button>
-          <button type="button" class="film-btn" data-subs aria-pressed="true" data-on={f.subsOff} data-off={f.subsOn}>
+          <button type="button" class="film-btn" data-subs data-on={f.subsOff} data-off={f.subsOn}>
             <Icon name="tabler:badge-cc" class="h-5 w-5" aria-hidden="true" /><span class="max-sm:sr-only">{f.subsOff}</span>
           </button>
           <button type="button" class="film-btn" data-fullscreen aria-label={f.fullscreen}>
@@ -142,7 +149,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         <!-- 휴대폰·태블릿: 영상 바로 아래 장면 바로 가기 -->
         <div class="mt-4 lg:hidden">
           <p class="sr-only">{f.chaptersJump}</p>
-          <div class="-mx-5 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2">
+          <div class="scroll-gold -mx-5 flex snap-x scroll-px-5 gap-2 overflow-x-auto px-5 pb-2">
             {
               f.chapters.map((ch, i) => (
                 <button type="button" class="chapter-chip snap-start" data-chapter={CHAPTER_TIMES[i]}>
@@ -186,12 +193,21 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
   </div>
 </section>
 
-<script define:vars={{ labels: { play: f.resume, pause: f.pause, mute: f.mute, unmute: f.unmute } }}>
+<script>
+  // @ts-nocheck — 짧은 화면 조작 코드라 타입 표시 없이 씀
+  // 이 스크립트는 문서마다 한 번만 돎(페이지를 옮겨도 다시 돌지 않음). 영상이 있는 페이지에 올 때마다 astro:page-load로 setup
   const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  let cleanup = null;
   const setup = () => {
     const frame = document.querySelector('[data-film]');
     if (!frame || frame.dataset.ready) return;
     frame.dataset.ready = '1';
+    const labels = {
+      play: frame.dataset.labelPlay,
+      pause: frame.dataset.labelPause,
+      mute: frame.dataset.labelMute,
+      unmute: frame.dataset.labelUnmute,
+    };
     const video = frame.querySelector('video');
     const controls = document.querySelector('[data-film-controls]');
     const chapters = [...document.querySelectorAll('[data-chapter]')];
@@ -321,7 +337,6 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     });
     btnSubs.addEventListener('click', () => {
       subs = !subs;
-      btnSubs.setAttribute('aria-pressed', String(subs));
       const label = btnSubs.querySelector('span');
       if (label) label.textContent = subs ? btnSubs.dataset.on : btnSubs.dataset.off;
       showCues();
@@ -347,7 +362,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         };
         if (video.readyState >= 1) go();
         else video.addEventListener('loadedmetadata', go, { once: true });
-        // 영상과 조작 단추가 머리·아래 띠에 가리지 않게 (scroll-margin-top은 tailwind.css)
+        // 영상과 조작 단추가 머리·아래 띠에 가리지 않게 (머리 높이만큼 띄우는 것은 tailwind.css의 html scroll-padding-top)
         const r = frame.getBoundingClientRect();
         const short = window.innerWidth < 1024;
         if (short || r.top < 0 || r.bottom > window.innerHeight)
@@ -358,7 +373,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
     // 화면에 절반쯤 들어오면 소리 없이 재생(큰 화면만), 벗어나면 멈춤
     const coarse = window.matchMedia('(pointer: coarse)').matches;
     const auto = !reduce && !saveData && !coarse;
-    new IntersectionObserver(
+    const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !userPaused && (auto || loaded)) {
           ensureSrc();
@@ -370,10 +385,15 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
         }
       },
       { threshold: 0.5 }
-    ).observe(frame);
+    );
+    io.observe(frame);
+    cleanup = () => io.disconnect();
     syncButtons();
   };
-  setup();
   document.addEventListener('astro:page-load', setup);
-  document.addEventListener('astro:before-swap', () => window.dispatchEvent(new CustomEvent('cw:film-sound', { detail: { on: false } })));
+  document.addEventListener('astro:before-swap', () => {
+    cleanup?.();
+    cleanup = null;
+    window.dispatchEvent(new CustomEvent('cw:film-sound', { detail: { on: false } }));
+  });
 </script>

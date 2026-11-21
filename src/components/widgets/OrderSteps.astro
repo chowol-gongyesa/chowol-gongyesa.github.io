@@ -15,7 +15,7 @@ const ICONS = ['tabler:photo-up', 'tabler:file-invoice', 'tabler:eye-check', 'ta
   <div class="mx-auto max-w-[76rem]">
     <p class="eyebrow">{t.steps.eyebrow}</p>
     <h2 id="steps-title" class="display mt-4 text-[clamp(2.2rem,4.6vw,3.6rem)]" data-split>{t.steps.title}</h2>
-    <ol class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal>
+    <ol class="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-reveal>
       {
         t.steps.items.map((step, i) => (
           <li class="rise relative border border-[var(--line)] border-t-gold/70 bg-black/25 p-6" style={`--d:${0.15 + i * 0.15}s`}>

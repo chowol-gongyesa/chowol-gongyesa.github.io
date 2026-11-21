@@ -71,7 +71,7 @@ const ALL = [
   // ───── 기둥 · 난간 · 가구 다리 ─────
   w(
       'column-171',
-      '한 묶음으로 묶은 구슬 모양 기둥',
+      '구슬 모양 기둥 한 묶음',
       'Bundled bead-turned spindles',
       '束ねた玉形の柱',
       '成捆的串珠形柱子'
@@ -120,7 +120,7 @@ const ALL = [
       '束ねて梱包した木の丸棒',
       '成捆包装的实木车削杆'
     ),
-  w('column-155', '난간 엄지기둥 여러 개', 'A batch of newel posts', '親柱をまとめて', '一批栏杆端柱'),
+  w('column-155', '난간 엄지기둥 여러 개', 'A batch of newel posts', 'まとめて挽いた親柱', '一批栏杆端柱'),
   w(
       'column-156',
       '흰색으로 칠한 원목 난간',
@@ -130,7 +130,7 @@ const ALL = [
     ),
   w(
       'column-157',
-      '배불뚝이 모양 테이블 다리 네 개',
+      '가운데가 볼록한 테이블 다리 네 개',
       'Four bulbous table legs',
       'ふくらみのあるテーブル脚 4本',
       '四根鼓腹形桌腿'
@@ -171,27 +171,27 @@ const ALL = [
       'ろくろで加工中の柱',
       '车床上正在加工的柱子'
     ),
-  w('column-12', '테이블 다리 수량 제작', 'Table legs made in volume', 'テーブル脚の量産', '批量制作的桌腿'),
-  w('column-13', '난간 동자 수량 제작', 'Balusters made in volume', '手すり子の量産', '批量制作的栏杆柱'),
+  w('column-12', '테이블 다리 대량 제작', 'Table legs made in volume', 'テーブル脚の量産', '批量制作的桌腿'),
+  w('column-13', '난간 동자 대량 제작', 'Balusters made in volume', '手すり子の量産', '批量制作的栏杆柱'),
   w('column-06', '계단 난간 동자', 'Stair balusters', '階段の手すり子', '楼梯栏杆柱'),
   w('column-15', '사각 난간 동자', 'Square balusters', '角形の手すり子', '方形栏杆柱'),
   w('column-29', '난간 동자 출고 준비', 'Balusters ready for shipping', '出荷準備中の手すり子', '待出货的栏杆柱'),
   w('column-49', '난간 동자 적재', 'Stacked balusters', '積み上げた手すり子', '堆放的栏杆柱'),
-  w('column-37', '기둥 수량 생산', 'Columns in volume production', '柱の量産', '批量生产的柱子'),
+  w('column-37', '기둥 대량 생산', 'Columns in volume production', '柱の量産', '批量生产的柱子'),
   w('column-19', '테이블 다리 묶음', 'Bundled table legs', '束ねたテーブル脚', '成捆的桌腿'),
   w('column-26', '화병형 가구 다리', 'Vase-shaped furniture legs', '花瓶形の家具脚', '花瓶形家具腿'),
   w('column-32', '가구 다리 견본', 'Furniture leg samples', '家具脚の見本', '家具腿样品'),
   w('column-10', '장식 기둥 머리', 'Decorative column tops', '装飾柱の頭', '装饰柱头'),
   w('column-17', '장식 기둥 머리 세트', 'Set of decorative column tops', '装飾柱の頭 セット', '装饰柱头套装'),
   w('column-36', '금색 장식 기둥 머리', 'Gold-finished column tops', '金色の装飾柱頭', '金色装饰柱头'),
-  w('column-43', '금색 볼 장식 봉', 'Rods with gold ball finials', '金色の玉飾り付きの棒', '金色圆球装饰杆'),
+  w('column-43', '금색 구슬 장식 봉', 'Rods with gold ball finials', '金色の玉飾り付きの棒', '金色圆球装饰杆'),
   w('column-11', '뾰족 장식 기둥', 'Pointed decorative columns', '先のとがった装飾柱', '尖顶装饰柱'),
   w('column-30', '긴 장식 기둥 묶음', 'Bundle of long decorative columns', '長い装飾柱の束', '成捆的长装饰柱'),
   w('column-09', '긴 원목 기둥', 'Long solid wood columns', '長い無垢材の柱', '长实木柱'),
   w('column-35', '원목 봉 묶음', 'Bundle of wooden rods', '木の丸棒の束', '成捆的实木圆棒'),
   w(
       'column-18',
-      '둥근 손잡이 막대 수량 가공',
+      '둥근 손잡이 막대 대량 가공',
       'Round handle rods made in volume',
       '丸い取っ手棒の量産加工',
       '批量加工的圆把手棒'
@@ -429,7 +429,7 @@ const ALL = [
     ),
   w(
       'lathe-103',
-      '병 모양 원목 소품 수량 제작',
+      '병 모양 원목 소품 대량 제작',
       'Bottle-shaped wooden pieces made in volume',
       '瓶形の木製小物の量産',
       '批量制作的瓶形木件'

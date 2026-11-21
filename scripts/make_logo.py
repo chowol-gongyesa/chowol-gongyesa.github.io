@@ -2,7 +2,7 @@
 2026-11-21에 상호를 '먹 붓글씨 + 붉은 낙관'(public/brand/name-brush.svg)으로 바꿔서, 여기서 만드는 그림은 지금 사이트에서 쓰지 않습니다.
 파비콘은 scripts/make_favicon.py 가 만듭니다 (이 파일을 다시 돌려도 파비콘은 건드리지 않음).
 
-결과 (public/brand/):
+결과 (design-preview/old-logo/ — 예전엔 public/brand/):
   wordmark.webp        나무를 깎아 만든 것 같은 '초월공예사' 글자 (투명 바탕)
   wordmark-mask.webp   로고 위 반짝임 효과용 글자 모양 (흰색)
   emblem.webp, logo-h.webp, logo-mask.webp  나이테 원판과 원판+글자 가로형
@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / 'public/brand'
+OUT = ROOT / 'design-preview/old-logo'  # 사이트에서 쓰지 않으므로 public 밖에 둠 (배포되지 않게)
 OUT.mkdir(parents=True, exist_ok=True)
 FONT = '/usr/share/fonts/opentype/noto/NotoSerifCJK-Black.ttc'
 KR = 1  # 글꼴 묶음 안의 한국어(KR) 순서

@@ -88,6 +88,24 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@8
     {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
     <SiteVerification />
     <Analytics />
+    <!-- 스크립트가 꺼진 브라우저: 화면에 들어올 때 드러나는 글·사진을 처음부터 보이게 -->
+    <noscript>
+      <style>
+        [data-reveal] .rise,
+        [data-reveal] .wipe {
+          opacity: 1 !important;
+          clip-path: none !important;
+          transform: none !important;
+        }
+        .call-bar {
+          visibility: visible !important;
+          transform: none !important;
+        }
+        #intro {
+          display: none !important;
+        }
+      </style>
+    </noscript>
 
     <!-- Comment the line below to disable View Transitions -->
     <ClientRouter fallback="swap" />
@@ -108,7 +126,7 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@8
     <slot />
 
     <LangSuggest lang={lang} />
-    <Effects lang={lang} />
+    <Effects />
     <PageShutter />
     <SoundSystem />
   </body>

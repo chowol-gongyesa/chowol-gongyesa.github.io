@@ -78,10 +78,10 @@ const SIDES = [
                   return (
                     <figure>
                       <div class="frame">
-                        <div class:list={['inner aspect-[3/2]', file.startsWith('chowol-') && 'grade-strong']} data-cursor="view">
+                        <div class:list={['inner aspect-[3/2]', file.startsWith('chowol-') && 'grade-strong']}>
                           <Image
                             src={p.src}
-                            alt={p.alt}
+                            alt={p.alt === p.caption ? '' : p.alt}
                             widths={[240, 400]}
                             sizes="(max-width: 767px) 44vw, 290px"
                             width={400}

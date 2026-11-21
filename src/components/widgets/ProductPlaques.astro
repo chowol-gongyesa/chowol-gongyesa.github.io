@@ -33,19 +33,20 @@ const p = t.products;
       }
     </div>
 
-    <ul class="mt-12 grid grid-cols-2 gap-x-3 gap-y-10 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3">
+    <ul class="mt-12 grid grid-cols-1 gap-x-3 gap-y-10 min-[440px]:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3">
       {
         PRODUCTS.map((product, i) => {
           const item = p.items[product.key];
           const ph = photo(product.photo, lang);
           return (
             <li data-reveal>
+              {/* 링크 이름은 명패·설명 글이 맡으므로 사진의 대체 글은 비움 (같은 말이 세 번 읽히지 않게) */}
               <a href={`${localize(lang, '/works')}#${product.anchor}`} class="group block">
                 <div class="frame relative">
-                  <div class="inner wipe aspect-[4/3]" style={`--d:${(i % 3) * 0.12}s`} data-cursor="view">
+                  <div class="inner wipe aspect-[4/3]" style={`--d:${(i % 3) * 0.12}s`}>
                     <Image
                       src={ph.src}
-                      alt={ph.alt}
+                      alt=""
                       widths={[360, 560, 760]}
                       sizes="(max-width: 1023px) 46vw, 400px"
                       width={760}

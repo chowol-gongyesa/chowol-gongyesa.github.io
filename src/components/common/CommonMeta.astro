@@ -4,5 +4,7 @@ import { getAsset } from '~/utils/permalinks';
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- 아이폰이 글자로 적힌 번호(대표 휴대폰·팩스)를 저절로 전화 링크로 바꾸지 않게. 전화·문자 단추(tel:, sms:)는 그대로 됨 -->
+<meta name="format-detection" content="telephone=no" />
 
 <link rel="sitemap" href={getAsset('/sitemap-index.xml')} />

@@ -42,7 +42,7 @@ const columnsClass =
   columns === 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : columns === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-2 lg:grid-cols-3';
 ---
 
-<section id={id} class={`px-5 py-12 md:py-16 lg:px-8 scroll-mt-28 ${classes?.container ?? ''}`}>
+<section id={id} class={`px-5 py-12 md:py-16 lg:px-8 ${classes?.container ?? ''}`}>
   <div class="mx-auto max-w-[76rem]">
   {
     (title || subtitle) && (
@@ -72,7 +72,6 @@ const columnsClass =
               <button
                 type="button"
                 class="frame group relative block w-full cursor-zoom-in"
-                data-cursor="view"
                 data-aw-gallery-open={lightbox ? index : undefined}
                 data-aw-gallery-photos={JSON.stringify(viewerPhotos[index])}
                 disabled={!lightbox}

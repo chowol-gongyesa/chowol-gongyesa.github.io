@@ -67,17 +67,25 @@ const typeOptions = PRODUCTS.map((p) =>
         <p class="display mt-4 text-[1.6rem] tabular-nums text-ink">{shop.mobile.label}</p>
       </div>
 
-      <form id="order-form" class="grid gap-6 border border-[var(--line)] border-t-gold bg-black/25 p-5 pt-7 sm:grid-cols-2 md:p-8" novalidate>
+      <form
+        id="order-form"
+        class="grid gap-6 border border-[var(--line)] border-t-gold bg-black/25 p-5 pt-7 sm:grid-cols-2 md:p-8"
+        novalidate
+        data-sms={shop.mobile.number}
+        data-labels={JSON.stringify(labels)}
+        data-error={c.error}
+      >
         <label class="block">
-          <span class="text-[0.97rem] font-bold text-ivory">{c.name} <span class="text-verm" aria-label={c.required}>*</span></span>
-          <input name="name" required autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
+          <span class="text-[0.97rem] font-bold text-ivory">{c.name} <span class="text-verm" aria-hidden="true">*</span></span>
+          <input name="name" required aria-describedby="order-error" autocomplete="name" class="field mt-1.5" placeholder={c.namePh} />
         </label>
         <label class="block">
-          <span class="text-[0.97rem] font-bold text-ivory">{c.phone} <span class="text-verm" aria-label={c.required}>*</span></span>
+          <span class="text-[0.97rem] font-bold text-ivory">{c.phone} <span class="text-verm" aria-hidden="true">*</span></span>
           <input
             name="phone"
             type="tel"
             required
+            aria-describedby="order-error"
             autocomplete="tel"
             inputmode="tel"
             class="field mt-1.5"
@@ -105,27 +113,25 @@ const typeOptions = PRODUCTS.map((p) =>
           <input name="due" autocomplete="off" class="field mt-1.5" placeholder={c.duePh} />
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-[0.97rem] font-bold text-ivory">{c.message} <span class="text-verm" aria-label={c.required}>*</span></span>
-          <textarea name="message" required rows="5" autocomplete="off" class="field mt-1.5" placeholder={c.messagePh}
+          <span class="text-[0.97rem] font-bold text-ivory">{c.message} <span class="text-verm" aria-hidden="true">*</span></span>
+          <textarea name="message" required aria-describedby="order-error" rows="5" autocomplete="off" class="field mt-1.5" placeholder={c.messagePh}
           ></textarea>
         </label>
 
-        <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert">{c.error}</p>
+        <p id="order-error" class="hidden font-bold text-verm sm:col-span-2" role="alert"></p>
         <p class="flex gap-2 border-l-2 border-gold pl-3 text-ivory-2 sm:col-span-2">
           <Icon name="tabler:photo" class="mt-1 h-5 w-5 shrink-0 text-gold-2" aria-hidden="true" />{c.attachNote}
         </p>
 
         <div class="flex flex-wrap gap-3 sm:col-span-2">
-          <button type="submit" data-action="sms" class="btn-primary">
+          <button type="submit" data-action="sms" class="btn-primary w-full sm:w-auto">
             <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{c.sms}
           </button>
-          <button type="submit" data-action="copy" class="btn-secondary">
+          <button type="submit" data-action="copy" class="btn-secondary w-full sm:w-auto">
             <Icon name="tabler:copy" class="h-5 w-5" aria-hidden="true" />{c.copy}
           </button>
         </div>
-        <p id="order-copied" class="hidden font-bold text-verm sm:col-span-2" role="status">
-          {c.copied(shop.mobile.label)}
-        </p>
+        <p id="order-copied" class="hidden font-bold text-verm sm:col-span-2" role="status" data-text={c.copied(shop.mobile.label)}></p>
       </form>
     </div>
   </section>
@@ -133,57 +139,73 @@ const typeOptions = PRODUCTS.map((p) =>
   <ShopFAQ class="sec-paper2" />
 
   <VisitInfo />
-</Layout>
 
-<script is:inline define:vars={{ smsNumber: shop.mobile.number, labels }}>
-  const setup = () => {
-    const form = document.getElementById('order-form');
-    if (!form || form.dataset.ready) return;
-    form.dataset.ready = '1';
-    const error = document.getElementById('order-error');
-    const copied = document.getElementById('order-copied');
+  <script>
+    // 주문서: 문자 앱에 주문 내용을 채워 열거나(휴대폰), 내용을 복사(컴퓨터). 받는 번호·글자는 form의 data-*에서
+    // 페이지에 오는 것은 astro:page-load로 잡고, 스크립트 자체는 문서마다 한 번만 돎
+    const say = (el: HTMLElement, text: string) => {
+      // 화면 낭독기가 알림을 확실히 읽도록, 보이게 한 뒤에 글을 넣음
+      el.classList.remove('hidden');
+      el.textContent = '';
+      requestAnimationFrame(() => (el.textContent = text));
+    };
+    const setup = () => {
+      const form = document.getElementById('order-form') as HTMLFormElement | null;
+      if (!form || form.dataset.ready) return;
+      form.dataset.ready = '1';
+      const error = document.getElementById('order-error')!;
+      const copied = document.getElementById('order-copied')!;
+      const labels = JSON.parse(form.dataset.labels || '{}') as Record<string, string>;
+      const smsNumber = form.dataset.sms || '';
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const action = event.submitter?.dataset.action ?? 'sms';
-      const data = new FormData(form);
-      const get = (key) => String(data.get(key) ?? '').trim();
-      const missing = ['name', 'phone', 'message'].filter((key) => !get(key));
-      form
-        .querySelectorAll('[required]')
-        .forEach((el) => el.setAttribute('aria-invalid', String(missing.includes(el.name))));
-      if (missing.length) {
-        error.classList.remove('hidden');
-        form.querySelector(`[name="${missing[0]}"]`)?.focus();
-        return;
-      }
-      error.classList.add('hidden');
+      // 고쳐 쓰기 시작하면 빨간 표시를 지움
+      form.addEventListener('input', (e) => {
+        const el = e.target as HTMLInputElement;
+        if (el.getAttribute('aria-invalid') === 'true' && el.value.trim()) el.setAttribute('aria-invalid', 'false');
+      });
 
-      const lines = [
-        labels.header,
-        `${labels.name}: ${get('name')}`,
-        `${labels.phone}: ${get('phone')}`,
-        get('type') && `${labels.type}: ${get('type')}`,
-        get('qty') && `${labels.qty}: ${get('qty')}`,
-        get('size') && `${labels.size}: ${get('size')}`,
-        get('due') && `${labels.due}: ${get('due')}`,
-        `${labels.message}: ${get('message')}`,
-      ].filter(Boolean);
-      const text = lines.join('\n');
-
-      if (action === 'copy') {
-        try {
-          await navigator.clipboard.writeText(text);
-          copied.classList.remove('hidden');
-        } catch {
-          window.prompt(labels.prompt, text);
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const action = ((event as SubmitEvent).submitter as HTMLElement | null)?.dataset.action ?? 'sms';
+        const data = new FormData(form);
+        const get = (key: string) => String(data.get(key) ?? '').trim();
+        const missing = ['name', 'phone', 'message'].filter((key) => !get(key));
+        form
+          .querySelectorAll<HTMLInputElement>('[required]')
+          .forEach((el) => el.setAttribute('aria-invalid', String(missing.includes(el.name))));
+        if (missing.length) {
+          say(error, form.dataset.error || '');
+          form.querySelector<HTMLElement>(`[name="${missing[0]}"]`)?.focus();
+          return;
         }
-        return;
-      }
-      // '?&body=' 는 아이폰·안드로이드 모두 알아듣는 형식
-      window.location.href = `sms:${smsNumber}?&body=${encodeURIComponent(text)}`;
-    });
-  };
-  setup();
-  document.addEventListener('astro:page-load', setup);
-</script>
+        error.classList.add('hidden');
+        error.textContent = '';
+
+        const lines = [
+          labels.header,
+          `${labels.name}: ${get('name')}`,
+          `${labels.phone}: ${get('phone')}`,
+          get('type') && `${labels.type}: ${get('type')}`,
+          get('qty') && `${labels.qty}: ${get('qty')}`,
+          get('size') && `${labels.size}: ${get('size')}`,
+          get('due') && `${labels.due}: ${get('due')}`,
+          `${labels.message}: ${get('message')}`,
+        ].filter(Boolean);
+        const text = lines.join('\n');
+
+        if (action === 'copy') {
+          try {
+            await navigator.clipboard.writeText(text);
+            say(copied, copied.dataset.text || '');
+          } catch {
+            window.prompt(labels.prompt, text);
+          }
+          return;
+        }
+        // '?&body=' 는 아이폰·안드로이드 모두 알아듣는 형식
+        window.location.href = `sms:${smsNumber}?&body=${encodeURIComponent(text)}`;
+      });
+    };
+    document.addEventListener('astro:page-load', setup);
+  </script>
+</Layout>

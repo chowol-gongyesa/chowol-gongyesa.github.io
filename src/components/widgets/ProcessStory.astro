@@ -10,7 +10,7 @@ export interface Props {
 const { lang } = Astro.props;
 const p = useT(lang).process;
 // 3번은 영상에서 뽑은 '깎여 나온 부품' 가까이 (초록 기계 사진이 두 번 이어지지 않게)
-const PHOTOS = ['chowol-08', 'chowol-11', 'chowol-13', 'column-152'];
+const PHOTOS = ['chowol-08', 'chowol-11', 'chowol-09', 'column-152']; // 3번은 예전 chowol-13(너무 어두움) 대신
 ---
 
 <section class="sec-night grain relative overflow-hidden px-5 py-20 md:py-28 lg:px-8" aria-labelledby="process-title">
@@ -23,13 +23,13 @@ const PHOTOS = ['chowol-08', 'chowol-11', 'chowol-13', 'column-152'];
 
     <div class="relative mt-14" data-reveal>
       <div class="steps-line hidden lg:block" aria-hidden="true"></div>
-      <ol class="relative -mx-5 grid snap-x snap-mandatory scroll-px-5 auto-cols-[78%] grid-flow-col gap-5 overflow-x-auto px-5 pb-4 sm:mx-0 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-2 sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 lg:gap-7">
+      <ol class="scroll-gold relative -mx-5 grid snap-x snap-mandatory scroll-px-5 auto-cols-[78%] grid-flow-col gap-5 overflow-x-auto px-5 pb-4 sm:mx-0 sm:auto-cols-auto sm:grid-flow-row sm:grid-cols-2 sm:gap-10 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 lg:gap-7">
       {
         p.steps.map((step, i) => (
           <li class="rise relative snap-start" style={`--d:${0.15 + i * 0.18}s`}>
             <span class="step-num">{i + 1}</span>
             <div class="frame mt-6">
-              <div class:list={['inner aspect-[4/5]', PHOTOS[i] === 'chowol-11' && 'grade-strong']} data-cursor="view">
+              <div class:list={['inner aspect-[4/5]', (PHOTOS[i] === 'chowol-11' || PHOTOS[i] === 'chowol-09') && 'grade-strong']}>
                 <Image
                   src={`~/assets/images/works/${PHOTOS[i]}.jpg`}
                   alt={step.alt}

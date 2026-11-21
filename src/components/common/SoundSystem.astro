@@ -136,7 +136,7 @@
 
   const syncButtons = () => {
     document.querySelectorAll<HTMLButtonElement>('.sound-toggle').forEach((btn) => {
-      btn.setAttribute('aria-pressed', String(on));
+      btn.dataset.state = on ? 'on' : 'off'; // 모양(tailwind.css)만 바꿈. 이름은 '켜기/끄기'로 바뀌므로 aria-pressed는 쓰지 않음
       btn.setAttribute('aria-label', on ? btn.dataset.labelOff! : btn.dataset.labelOn!);
       btn.title = on ? btn.dataset.labelOff! : btn.dataset.labelOn!;
     });

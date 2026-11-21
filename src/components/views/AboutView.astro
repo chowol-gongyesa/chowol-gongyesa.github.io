@@ -53,7 +53,7 @@ const TIMELINE_PHOTOS = ['', 'chowol-shop', 'chowol-10'];
           <div class="inner wipe aspect-[4/5]">
             <Image
               src="~/assets/images/works/chowol-06.jpg"
-              alt={a.photoAlt}
+              alt=
               widths={[400, 640, 900]}
               sizes="(max-width: 1023px) 88vw, 480px"
               width={900}
@@ -83,12 +83,14 @@ const TIMELINE_PHOTOS = ['', 'chowol-shop', 'chowol-10'];
               <div class="frame">
                 {i === 0 ? (
                   <div class="inner sec-wood flex aspect-[4/3] flex-col items-center justify-center text-center" aria-hidden="true">
-                    <span class="display text-[clamp(4.5rem,9vw,7rem)] leading-none text-gold-2 [text-shadow:0_4px_18px_rgb(0_0_0/0.6)]">{YEARS}</span>
+                    <span class="display text-[clamp(4.5rem,9vw,7rem)] leading-none text-gold-2 [text-shadow:0_4px_18px_rgb(0_0_0/0.6)]">
+                      {YEARS}<span class:list={['text-[0.42em]', lang === 'en' && 'ml-[0.2em]']}>{a.timelineUnit}</span>
+                    </span>
                     <span class="mt-3 h-px w-14 bg-gold/70" />
                     <span class="display mt-3 text-[1.15rem] tracking-[0.3em] text-gold-2">{a.timelineYears}</span>
                   </div>
                 ) : (
-                  <div class="inner aspect-[4/3]" data-cursor="view">
+                  <div class="inner aspect-[4/3]">
                     <Image
                       src={`~/assets/images/works/${TIMELINE_PHOTOS[i]}.jpg`}
                       alt={item.alt}
@@ -119,7 +121,8 @@ const TIMELINE_PHOTOS = ['', 'chowol-shop', 'chowol-10'];
     <div class="mx-auto grid max-w-[76rem] gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] md:items-center lg:gap-16">
       <div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-4" data-reveal>
         <div class="frame">
-          <div class="inner wipe aspect-[6/5] h-full">
+          <!-- 높이는 너비에서(6:5) 정하고, 옆 사진 칸이 이 높이에 맞춰 늘어남 (h-full을 같이 주면 칸보다 넓어져 오른쪽이 잘림) -->
+          <div class="inner wipe aspect-[6/5]">
             <Image
               src="~/assets/images/works/chowol-05.jpg"
               alt={a.signAlt}
@@ -134,6 +137,7 @@ const TIMELINE_PHOTOS = ['', 'chowol-shop', 'chowol-10'];
           </div>
         </div>
         <div class="frame">
+          <!-- 이 사진은 칸 높이를 정하지 않고(absolute) 왼쪽 간판 사진(6:5)이 정한 높이를 채움 → 두 사진의 위아래가 맞음 -->
           <div class="inner wipe h-full" style="--d:0.15s">
             <Image
               src="~/assets/images/works/chowol-08.jpg"
@@ -144,7 +148,7 @@ const TIMELINE_PHOTOS = ['', 'chowol-shop', 'chowol-10'];
               height={720}
               layout="cover"
               format="webp"
-              class="h-full w-full object-cover"
+              class="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </div>

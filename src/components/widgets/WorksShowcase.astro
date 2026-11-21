@@ -31,12 +31,12 @@ const works = localize(lang, '/works');
       {
         items.map((p, i) => (
           <li class:list={['rise', i === 0 && 'col-span-2 row-span-2']} style={`--d:${(i % 4) * 0.07}s`}>
-            <a href={`${works}#${p.category}`} class="group block h-full" data-cursor="view">
+            <a href={`${works}#${p.category}`} class="group block h-full">
               <figure class="frame flex h-full flex-col">
                 <div class:list={['inner flex-1', i === 0 ? 'aspect-square md:aspect-auto' : 'aspect-square']}>
                   <Image
                     src={p.src}
-                    alt={p.alt}
+                    alt={p.alt === p.caption ? '' : p.alt}
                     widths={i === 0 ? [480, 720, 960] : [240, 360, 480]}
                     sizes={i === 0 ? '(max-width: 767px) 92vw, 600px' : '(max-width: 767px) 45vw, 290px'}
                     width={i === 0 ? 960 : 480}

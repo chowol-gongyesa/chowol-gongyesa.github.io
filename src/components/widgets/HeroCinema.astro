@@ -35,7 +35,7 @@ const shop = shopFor(lang);
   <canvas class="hero-dust" aria-hidden="true"></canvas>
 
   <div class="relative z-[2] mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-end px-5 pt-32 pb-24 md:pb-28 lg:px-8">
-    <div class="hero-enter max-w-[44rem]">
+    <div class="hero-enter max-w-[48rem]">
       <p style="--d:0" class="eyebrow">{h.vlabel}</p>
       <h1 id="hero-title" class="display hero-title mt-5" style="--d:1">
         <span class="block">{h.title1}</span>
@@ -45,11 +45,11 @@ const shop = shopFor(lang);
         {h.lead}
       </p>
       <div style="--d:3" class="mt-8 flex flex-wrap gap-3">
-        <a href={shop.consult.href} class="btn-gold">
+        <a href={shop.consult.href} class="btn-gold w-full sm:w-auto">
           <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />{t.nav.call}
           <span class="tabular-nums">{shop.consult.label}</span>
         </a>
-        <a href={shop.mobile.sms} class="btn-ghost">
+        <a href={shop.mobile.sms} class="btn-ghost w-full sm:w-auto">
           <Icon name="tabler:message" class="h-5 w-5" aria-hidden="true" />{h.sms}
           <!-- 컴퓨터에서는 문자 앱이 안 열릴 수 있어 번호를 함께 보여 줌 -->
           <span class="hidden tabular-nums [@media(hover:hover)_and_(pointer:fine)]:inline">{shop.mobile.label}</span>
@@ -88,9 +88,14 @@ const shop = shopFor(lang);
     if (!hero || hero.dataset.ready) return;
     hero.dataset.ready = '1';
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // 휴대폰 '데이터 절약' 설정이면 배경 영상을 저절로 받지 않음(포스터만, 재생 단추로 볼 수 있음)
+    const saveData = !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
     const video = hero.querySelector<HTMLVideoElement>('.hero-video');
     const toggle = hero.querySelector<HTMLButtonElement>('.hero-toggle');
-    let userPaused = reduce;
+    let userPaused = reduce || saveData;
+    // 다른 페이지로 옮길 때 이 첫 화면이 쓰던 감시·그리기를 정리 (홈에 올 때마다 쌓이지 않게)
+    const cleanups: Array<() => void> = [];
+    document.addEventListener('astro:before-swap', () => cleanups.splice(0).forEach((fn) => fn()), { once: true });
 
     if (video) {
       const tall = window.matchMedia('(max-width: 767px)').matches;
@@ -116,12 +121,14 @@ const shop = shopFor(lang);
           );
         play();
       };
-      if (document.documentElement.classList.contains('intro-active'))
+      if (saveData) {
+        /* 데이터 절약: 재생 단추를 누를 때만 받음 */
+      } else if (document.documentElement.classList.contains('intro-active'))
         window.addEventListener('cw:intro-closed', (e) => start((e as CustomEvent<{ time?: number }>).detail?.time), { once: true });
       else start();
-      new IntersectionObserver(([entry]) => (entry.isIntersecting ? play() : video.pause()), { threshold: 0.05 }).observe(
-        hero
-      );
+      const videoIo = new IntersectionObserver(([entry]) => (entry.isIntersecting ? play() : video.pause()), { threshold: 0.05 });
+      videoIo.observe(hero);
+      cleanups.push(() => videoIo.disconnect());
       const sync = () => {
         toggle?.setAttribute('aria-label', userPaused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!);
         toggle?.querySelector('.icon-pause')?.classList.toggle('hidden', userPaused);
@@ -130,6 +137,7 @@ const shop = shopFor(lang);
       toggle?.addEventListener('click', () => {
         userPaused = !userPaused;
         if (userPaused) video.pause();
+        else if (!video.src) start();
         else video.play().catch(() => {});
         sync();
       });
@@ -155,6 +163,7 @@ const shop = shopFor(lang);
     };
     size();
     window.addEventListener('resize', size);
+    cleanups.push(() => window.removeEventListener('resize', size));
     const count = w < 768 ? 34 : 64;
     for (let i = 0; i < count; i++) {
       motes.push({
@@ -168,11 +177,19 @@ const shop = shopFor(lang);
       });
     }
     let visible = true;
-    new IntersectionObserver(([entry]) => {
+    let raf = 0;
+    const dustIo = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
-      if (visible) requestAnimationFrame(draw);
-    }).observe(hero);
+      if (visible && !raf) raf = requestAnimationFrame(draw);
+    });
+    dustIo.observe(hero);
+    cleanups.push(() => {
+      dustIo.disconnect();
+      cancelAnimationFrame(raf);
+      raf = 0;
+    });
     const draw = () => {
+      raf = 0;
       if (!visible || !hero.isConnected) return;
       ctx.clearRect(0, 0, w, h);
       for (const m of motes) {
@@ -189,9 +206,9 @@ const shop = shopFor(lang);
         ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
         ctx.fill();
       }
-      requestAnimationFrame(draw);
+      raf = requestAnimationFrame(draw);
     };
-    requestAnimationFrame(draw);
+    // 첫 그리기는 IntersectionObserver가 처음 알려 줄 때 시작 (여기서 따로 시작하면 고리가 둘이 됨)
   };
   document.addEventListener('astro:page-load', setup);
 </script>

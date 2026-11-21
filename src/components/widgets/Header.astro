@@ -42,7 +42,8 @@ const persistKey = `header-${lang}`;
     {...isSticky ? { 'data-aw-sticky-header': true } : {}}
     {...id ? { id } : {}}
   >
-    <div class="relative">
+    <!-- 윗줄(로고·단추)을 탭 줄보다 위 층에: 언어 메뉴가 탭 줄 아래로 깔리지 않게 -->
+    <div class="relative z-20">
       <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-2.5 lg:px-8 lg:py-3">
         <a class="flex min-h-11 items-center" href={localize(lang, '/')} translate="no" aria-label={t.brand}>
           <Logo lang={lang} />
@@ -69,7 +70,7 @@ const persistKey = `header-${lang}`;
           <button
             type="button"
             class="sound-toggle inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-gold/50 px-3 text-gold-2 transition-colors hover:border-gold-2 hover:bg-gold/10"
-            aria-pressed="false"
+            data-state="off"
             aria-label={t.sound.on}
             data-label-on={t.sound.on}
             data-label-off={t.sound.off}
@@ -83,22 +84,21 @@ const persistKey = `header-${lang}`;
           {
             callAction && (
               <>
+                <!-- 상담전화 명패: 짙은 판 + 금테 + 금빛 전화 원. 넓은 화면에서는 '상담전화' 아래 번호까지 두 줄로
+                     (외국어 번호는 +82가 붙어 길어서 더 넓은 화면부터). 모양은 tailwind.css의 .call-plate -->
                 <a
                   href={callAction.href}
-                  class="btn-gold hidden !min-h-11 !px-5 text-[0.95rem] whitespace-nowrap lg:inline-flex"
+                  class:list={['call-plate hidden lg:inline-flex', lang === 'ko' ? 'is-ko' : 'is-intl']}
                   aria-label={`${callAction.text} ${shop.consult.label}`}
                 >
-                  <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />
-                  <!-- 넓은 화면에서는 번호를 바로 보여 줌 (외국어 번호는 길어서 더 넓은 화면부터) -->
-                  <span class:list={[lang === 'ko' ? 'xl:hidden' : '2xl:hidden']}>{callAction.text}</span>
-                  <span class:list={['hidden tabular-nums', lang === 'ko' ? 'xl:inline' : '2xl:inline']}>{shop.consult.label}</span>
+                  <span class="call-plate-icon" aria-hidden="true"><Icon name="tabler:phone" class="h-[1.15rem] w-[1.15rem]" /></span>
+                  <span class="call-plate-text" aria-hidden="true">
+                    <span class="call-plate-label">{callAction.text}</span>
+                    <span class="call-plate-num">{shop.consult.label}</span>
+                  </span>
                 </a>
-                <a
-                  href={callAction.href}
-                  class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-gold text-bg lg:hidden"
-                  aria-label={callAction.text}
-                >
-                  <Icon name="tabler:phone" class="h-5 w-5" />
+                <a href={callAction.href} class="call-plate-icon call-plate-solo lg:hidden" aria-label={`${callAction.text} ${shop.consult.label}`}>
+                  <Icon name="tabler:phone" class="h-5 w-5" aria-hidden="true" />
                 </a>
               </>
             )
@@ -108,7 +108,7 @@ const persistKey = `header-${lang}`;
     </div>
 
     <!-- 휴대폰·태블릿: 늘 보이는 메뉴 탭 (옆으로 밀어서 넘김) -->
-    <nav class="mobile-tabs relative lg:hidden" aria-label={t.nav.main}>
+    <nav class="mobile-tabs relative z-10 lg:hidden" aria-label={t.nav.main}>
       <ul class="mobile-tabs-list">
         {
           links.map(({ text, href }, i) => (
