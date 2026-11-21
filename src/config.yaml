@@ -15,10 +15,10 @@ metadata:
     default: 초월공예 — 자동 로구로 전문
     template: '%s — 초월공예'
   description: '경기도 광주시 초월읍의 로구로 공방 초월공예. 자동 로구로로 가구 다리·난간 동자·봉·원목 공을 같은 모양으로 대량 생산하고, 개인 주문도 받습니다. 상담전화 010-8548-7264.'
-  # 샘플 기간에는 검색에 나오지 않게 (정식 공개 때 둘 다 true로)
+  # 정식 공개(2026-11-21): 검색에 나오게 허용. 다시 숨기려면 둘 다 false로
   robots:
-    index: false
-    follow: false
+    index: true
+    follow: true
   openGraph:
     site_name: 초월공예
     images:
