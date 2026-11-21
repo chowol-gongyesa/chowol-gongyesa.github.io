@@ -3,6 +3,7 @@
 // 왼쪽에 큰 제목과 연락 단추, 공중에 떠다니는 금빛 나무 가루. 입장 화면과 같은 영상이라 자연스럽게 이어짐.
 // 영상: public/video/hero-1280.mp4(가로), hero-540.mp4(휴대폰 세로). 움직임 줄이기 설정이면 정지 사진만.
 import { Icon } from 'astro-icon/components';
+import { getAsset } from '~/utils/permalinks';
 import { shopFor } from '~/data/shop';
 import { useT, type Lang } from '~/i18n';
 
@@ -17,8 +18,8 @@ const shop = shopFor(lang);
 
 <section class="hero-cinema" data-hero aria-labelledby="hero-title">
   <picture>
-    <source media="(max-width: 767px)" srcset="/video/hero-poster-m.jpg" />
-    <img class="hero-poster" src="/video/hero-poster.jpg" alt="" fetchpriority="high" />
+    <source media="(max-width: 767px)" srcset={getAsset("/video/hero-poster-m.jpg")} />
+    <img class="hero-poster" src={getAsset("/video/hero-poster.jpg")} alt="" fetchpriority="high" />
   </picture>
   <video
     class="hero-video"
@@ -26,11 +27,11 @@ const shop = shopFor(lang);
     loop
     playsinline
     preload="metadata"
-    poster="/video/hero-poster.jpg"
+    poster={getAsset("/video/hero-poster.jpg")}
     aria-label={h.videoLabel}
-    data-src-wide="/video/hero-1280.mp4"
-    data-src-tall="/video/hero-540.mp4"
-    data-poster-tall="/video/hero-poster-m.jpg"></video>
+    data-src-wide={getAsset("/video/hero-1280.mp4")}
+    data-src-tall={getAsset("/video/hero-540.mp4")}
+    data-poster-tall={getAsset("/video/hero-poster-m.jpg")}></video>
   <div class="hero-shade" aria-hidden="true"></div>
   <canvas class="hero-dust" aria-hidden="true"></canvas>
 

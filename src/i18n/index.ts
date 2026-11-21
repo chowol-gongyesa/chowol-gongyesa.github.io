@@ -28,15 +28,22 @@ export const TRANSLATED_PAGES = ['/', '/about', '/services', '/works', '/woods',
 
 export const isLang = (value: unknown): value is Lang => LOCALES.includes(value as Lang);
 
-/** 주소에서 언어를 읽습니다. 예: /ja/works/ → 'ja' */
+// 사이트가 하위 폴더에 있을 때(예: /chowol-homepage/) 주소 앞의 그 폴더 이름
+const BASE = trimSlash(import.meta.env.BASE_URL || '/');
+const withoutBase = (pathname: string): string => {
+  const p = trimSlash(pathname);
+  return BASE && (p === BASE || p.startsWith(`${BASE}/`)) ? p.slice(BASE.length) : p;
+};
+
+/** 주소에서 언어를 읽습니다. 예: /ja/works/ → 'ja' (하위 폴더가 있으면 떼고 읽음) */
 export const langFromPath = (pathname: string): Lang => {
-  const first = trimSlash(pathname).split('/')[0];
+  const first = trimSlash(withoutBase(pathname)).split('/')[0];
   return isLang(first) ? first : DEFAULT_LANG;
 };
 
 /** 언어 앞머리를 뗀 주소. 예: /ja/works/ → /works */
 export const stripLang = (pathname: string): string => {
-  const parts = trimSlash(pathname).split('/').filter(Boolean);
+  const parts = trimSlash(withoutBase(pathname)).split('/').filter(Boolean);
   if (isLang(parts[0])) parts.shift();
   return '/' + parts.join('/');
 };

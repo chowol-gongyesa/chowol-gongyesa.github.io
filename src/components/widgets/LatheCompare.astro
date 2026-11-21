@@ -3,6 +3,7 @@
 // 영상인 줄 알 수 있게: 왼쪽 위 '작업 영상' 표시, 멈춰 있을 때는 가운데 큰 재생 단추(영상 보기).
 // 아래에 수량·깎는 방식·잘 맞는 주문을 나란히 비교한 표. 영상: public/video/auto-loop.mp4, hand-loop.mp4
 import { Icon } from 'astro-icon/components';
+import { getAsset } from '~/utils/permalinks';
 import Image from '~/components/common/Image.astro';
 import { photo } from '~/data/works';
 import { useT, type Lang } from '~/i18n';
@@ -16,8 +17,8 @@ export interface Props {
 const { lang, class: className = 'sec-wood', table = true } = Astro.props;
 const m = useT(lang).compare;
 const SIDES = [
-  { key: 'auto' as const, video: '/video/auto-loop.mp4', poster: '/video/auto-poster.jpg', photos: ['chowol-10', 'column-37'] },
-  { key: 'hand' as const, video: '/video/hand-loop.mp4', poster: '/video/hand-poster.jpg', photos: ['chowol-03', 'column-124'] },
+  { key: 'auto' as const, video: getAsset('/video/auto-loop.mp4'), poster: getAsset('/video/auto-poster.jpg'), photos: ['chowol-10', 'column-37'] },
+  { key: 'hand' as const, video: getAsset('/video/hand-loop.mp4'), poster: getAsset('/video/hand-poster.jpg'), photos: ['chowol-03', 'column-124'] },
 ];
 ---
 

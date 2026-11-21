@@ -8,6 +8,7 @@
 // 영상: public/video/chowol-film.mp4(가로 16:9), chowol-film-mobile.mp4(휴대폰 4:5)
 // 휴대폰에서는 데이터를 아끼려고 저절로 재생하지 않고, 재생 단추를 눌러야 받습니다.
 import { Icon } from 'astro-icon/components';
+import { getAsset } from '~/utils/permalinks';
 import { SHOP } from '~/data/shop';
 import { useT, type Lang } from '~/i18n';
 
@@ -71,11 +72,11 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
               playsinline
               muted
               preload="none"
-              poster="/video/chowol-film-poster.jpg"
+              poster={getAsset("/video/chowol-film-poster.jpg")}
               aria-label={f.label}
-              data-src-wide="/video/chowol-film.mp4"
-              data-src-tall="/video/chowol-film-mobile.mp4"
-              data-poster-tall="/video/chowol-film-mobile-poster.jpg"></video>
+              data-src-wide={getAsset("/video/chowol-film.mp4")}
+              data-src-tall={getAsset("/video/chowol-film-mobile.mp4")}
+              data-poster-tall={getAsset("/video/chowol-film-mobile-poster.jpg")}></video>
 
             <div class="film-dim" aria-hidden="true"></div>
             {
@@ -84,7 +85,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
                   {cue.kind === 'end' ? (
                     <>
                       <span class="cue-lock">
-                        <img class="cue-word" src="/brand/name-brush.svg" alt={SHOP.name} width="631" height="207" loading="lazy" decoding="async" />
+                        <img class="cue-word" src={getAsset("/brand/name-brush.svg")} alt={SHOP.name} width="631" height="207" loading="lazy" decoding="async" />
                         <span class="seal cue-seal" aria-hidden="true">초월</span>
                       </span>
                       <span class="cue-small">{cue.small}</span>

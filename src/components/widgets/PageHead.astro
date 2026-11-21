@@ -2,6 +2,7 @@
 // 하위 페이지 머리: 어두운 나무 바탕에 작업 사진이 어둡게 깔리고(스크롤하면 천천히 움직임),
 // '홈 > 페이지', 글자가 하나씩 떠오르는 큰 제목, 오른쪽 세로 글씨. 아래 가장자리는 금색 줄.
 import Breadcrumbs from '~/components/common/Breadcrumbs.astro';
+import { getAsset } from '~/utils/permalinks';
 import Image from '~/components/common/Image.astro';
 import { localize, useT, type Lang } from '~/i18n';
 import { tcy } from '~/utils/tcy';
@@ -56,7 +57,7 @@ const { lang, title, lead, crumb, image, imagePos = '50% 40%', vlabel, brandTitl
           <h1 class="m-0">
             <span class="inline-flex items-center gap-3">
               <img
-                src="/brand/name-brush.svg"
+                src={getAsset("/brand/name-brush.svg")}
                 alt={title}
                 width="631"
                 height="207"

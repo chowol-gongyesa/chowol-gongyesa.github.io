@@ -363,7 +363,7 @@
     background-color: var(--bg-2);
     background-image:
       linear-gradient(rgb(26 19 13 / 0.76), rgb(26 19 13 / 0.76)),
-      url('/tex/walnut.webp');
+      var(--tex-walnut); /* = url(<사이트 주소>/tex/walnut.webp), Layout.astro의 <html style>에서 넣음 */
     background-size:
       auto,
       1024px 512px;

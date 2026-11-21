@@ -14,7 +14,7 @@ import LangSuggest from '~/components/common/LangSuggest.astro';
 import Effects from '~/components/common/Effects.astro';
 import PageShutter from '~/components/common/PageShutter.astro';
 import SoundSystem from '~/components/common/SoundSystem.astro';
-import { getCanonical } from '~/utils/permalinks';
+import { getAsset, getCanonical } from '~/utils/permalinks';
 import { LANG_META, LOCALES, TRANSLATED_PAGES, langFromPath, localize, stripLang, useT, type Lang } from '~/i18n';
 
 // Comment the line below to disable View Transitions
@@ -71,6 +71,7 @@ const fontHref = `https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@8
   dir={textDirection}
   class:list={['2xl:text-[19px]', { 'header-over': headerOver }]}
   data-lang={lang}
+  style={`--tex-walnut:url('${getAsset('/tex/walnut.webp')}')`}
 >
   <head>
     <CommonMeta />

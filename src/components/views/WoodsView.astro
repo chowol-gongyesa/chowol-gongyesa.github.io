@@ -2,6 +2,7 @@
 // 나무 고르기 페이지. 한국어(/woods)와 다른 언어 페이지가 함께 씁니다. 나무 목록은 src/data/woods.ts
 // 나무마다 그 나무 색으로 깎은 동자와 결 무늬 견본판을 그려 보여 줍니다.
 import { Icon } from 'astro-icon/components';
+import { getAsset } from '~/utils/permalinks';
 import Layout from '~/layouts/PageLayout.astro';
 import PageHead from '~/components/widgets/PageHead.astro';
 import { WOODS, PICKS } from '~/data/woods';
@@ -68,7 +69,7 @@ const metadata = {
                   <defs>
                     <!-- 그 나무의 세로 결 그림을 입히고, 둥글게 깎인 느낌으로 양쪽을 어둡게 -->
                     <pattern id={`wt-${wood.key}`} patternUnits="userSpaceOnUse" width="36" height="300">
-                      <image href={`/tex/woods/${wood.key}-v.webp`} width="36" height="300" preserveAspectRatio="none" />
+                      <image href={getAsset(`/tex/woods/${wood.key}-v.webp`)} width="36" height="300" preserveAspectRatio="none" />
                     </pattern>
                     <linearGradient id={`ws-${wood.key}`} x1="0" x2="1">
                       <stop offset="0" stop-color="#000" stop-opacity="0.5" />
@@ -82,7 +83,7 @@ const metadata = {
                   <use href="#wd-shape" fill={`url(#ws-${wood.key})`} />
                 </svg>
                 <img
-                  src={`/tex/woods/${wood.key}.webp`}
+                  src={getAsset(`/tex/woods/${wood.key}.webp`)}
                   alt=""
                   width="480"
                   height="240"
