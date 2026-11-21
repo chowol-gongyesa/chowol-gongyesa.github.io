@@ -7,7 +7,7 @@ site:
   base: '/'
   trailingSlash: true
 
-  googleSiteVerificationId: null # TODO: 구글 서치 콘솔 등록 때 새로 받기
+  googleSiteVerificationId: 'uDX9zaCZBnK85R05wiu0d0GBTTX33coeQ8pypWRweT4' # 구글 서치 콘솔 소유 확인(URL 접두어 https://xn--ob0bn98bprap2r.com/, 2026-11-21). 지우지 마세요
 
 # Default SEO metadata
 metadata:
