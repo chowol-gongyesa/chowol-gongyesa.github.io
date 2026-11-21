@@ -1,10 +1,10 @@
 """초월공예사 로고 그림 만들기 — '나무로 깎은 글자' + '나이테 원판'.
 
 결과 (public/brand/):
-  wordmark.webp   나무를 깎아 만든 것 같은 '초월공예사' 글자 (투명 바탕)
-  emblem.webp     나이테가 보이는 둥근 나무 원판
-  logo-h.webp     원판 + 글자 가로형 (상단 메뉴·바닥글)
-  logo-mask.webp  반짝임 효과용 모양 (흰색)
+  wordmark.webp        나무를 깎아 만든 것 같은 '초월공예사' 글자 (투명 바탕) — 상단 로고·소개 제목·영상 끝 화면·공유 그림
+  wordmark-mask.webp   로고 위 반짝임 효과용 글자 모양 (흰색)
+  emblem.webp, logo-h.webp, logo-mask.webp  나이테 원판과 원판+글자 가로형 (사용자 의견으로 지금은 쓰지 않음)
+  + src/assets/favicons/ 파비콘: '초' 한 글자 (짙은 바탕)
 필요한 것: Python 3 + numpy + scipy + Pillow, Noto Serif CJK 글꼴. Claude 작업 환경(리눅스)에서 만들었습니다.
 """
 from pathlib import Path
@@ -120,6 +120,9 @@ word = to_img(carved(mask, wood, bevel=6 * S))
 word = trim(word, pad=6 * S)
 word_s = word.resize((word.width // S, word.height // S), Image.LANCZOS)
 word_s.save(OUT / 'wordmark.webp', quality=88, method=6)
+wmask = Image.new('RGBA', word_s.size, (255, 255, 255, 0))
+wmask.putalpha(word_s.getchannel('A').point(lambda v: 255 if v > 200 else 0))
+wmask.save(OUT / 'wordmark-mask.webp', quality=90, method=6)
 
 # ── 2) 나이테 원판
 R = 300 * S
@@ -190,3 +193,38 @@ prev.paste(canvas, (40, 30), canvas)
 prev.paste(canvas, (40, canvas.height + 90), canvas)
 prev.save('/tmp/logo_preview.jpg', quality=90)
 print('wordmark', word_s.size, 'emblem', emblem_s.size, 'logo-h', canvas.size)
+
+
+# ── 4) 파비콘: 상호 첫 글자 '초'를 짙은 바탕에
+def favicon():
+    import base64
+    import io
+    a = np.array(word_s.getchannel('A'))
+    cols = (a > 40).sum(axis=0)
+    x0 = int(np.argmax(cols > 0))
+    x1 = x0 + int(np.argmax(cols[x0:] == 0))
+    ys = np.nonzero((a[:, x0:x1] > 40).sum(axis=1))[0]
+    g = word_s.crop((x0, ys[0], x1, ys[-1] + 1))
+
+    def icon(size, pad, radius=0.22):
+        im = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+        mk = Image.new('L', (size, size), 0)
+        ImageDraw.Draw(mk).rounded_rectangle([0, 0, size - 1, size - 1], radius=int(size * radius), fill=255)
+        im.paste((24, 16, 10, 255), (0, 0), mk)
+        s = (size - 2 * pad) / max(g.width, g.height)
+        gg = g.resize((max(1, round(g.width * s)), max(1, round(g.height * s))), Image.LANCZOS)
+        im.alpha_composite(gg, ((size - gg.width) // 2, (size - gg.height) // 2))
+        return im
+
+    fav = ROOT / 'src/assets/favicons'
+    icon(180, 26, 0).convert('RGB').save(fav / 'apple-touch-icon.png')
+    icon(256, 30).save(fav / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
+    buf = io.BytesIO()
+    icon(128, 14).save(buf, 'PNG')
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    (fav / 'favicon.svg').write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 128 128">'
+        f'<image width="128" height="128" xlink:href="data:image/png;base64,{b64}"/></svg>')
+
+
+favicon()

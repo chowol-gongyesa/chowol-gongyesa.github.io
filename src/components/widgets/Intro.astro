@@ -1,14 +1,14 @@
 ---
-// 입장 화면 (홈, 같은 방문 중 한 번만) — 모션 그래픽:
-//  0.0초  화면 가운데 금빛 선이 양쪽으로 그어짐 (로구로의 축)
-//  0.3초  금빛 나이테 고리가 가운데부터 차례로 그려지며 퍼짐 (40년의 세월)
-//  0.9초  뒤로 실제 작업 영상이 어둡게 떠오름
-//  1.2초  나이테 원판이 로구로처럼 빠르게 돌며 들어와 멈춤
-//  2.0초  '초월공예사' 나무 글자가 날이 지나가듯 왼쪽부터 깎여 나타남 (빛나는 날 + 불꽃 가루)
-//  3.0초  낙관이 찍히고, 글귀의 숫자가 0에서 40까지 올라감 → '입장하기'
-// 화면을 눌러야 들어갑니다. 누르면 고리가 크게 퍼지고 원판이 돌며 다가와 사라지고, 같은 영상의 첫 화면으로 이어짐.
-// '소리 없이 입장'은 소리를 끈 채로. 로고 그림은 public/brand/ (scripts/make_logo.py), 문구는 src/i18n/ 의 intro
-import { YEARS } from '~/data/years';
+// 입장 화면 (홈, 같은 방문 중 한 번만) — 7.6초짜리 예고편. 누르지 않아도 저절로 사이트로 넘어갑니다.
+//  0.0초  어둠 속에서 느린 화면: 깎여 나가는 나무        글귀 ① '로구로 40년'
+//  1.6초  장인의 눈 (안경 너머)                           글귀 ② '소리 대신, 눈으로'
+//  3.0초  손 → 빠른 컷 셋 (자동 로구로, 깎이는 나무)
+//  5.0초  번쩍 + 큰 울림, 나무 글자 상호 '초월공예사'가 크게 나타남
+//  7.6초  위아래 검은 띠가 열리며 첫 화면으로
+// 화면을 누르거나 '건너뛰기'를 누르면 바로 들어갑니다. '소리 켜기'를 누르면 예고편 소리가 나고, 들어간 뒤 배경 음악이 이어집니다.
+// 영상: public/video/intro-trailer.mp4(가로) · intro-trailer-m.mp4(휴대폰 세로). 만드는 도구 design-preview/film-v3/ (film4.py trailer-*)
+// 글귀는 src/i18n/ 의 intro. 시간을 바꾸면 영상(film4.py의 TRAILER_SHOTS)과 같이 바꾸세요.
+import { Icon } from 'astro-icon/components';
 import { useT, type Lang } from '~/i18n';
 
 export interface Props {
@@ -16,81 +16,65 @@ export interface Props {
 }
 const { lang } = Astro.props;
 const t = useT(lang).intro;
-
-// 나이테 고리: 가운데에서 멀어질수록 간격이 조금씩 좁아지고, 고리마다 살짝 일그러짐 (매번 같은 모양)
-const rings: string[] = [];
-for (let k = 0; k < 15; k++) {
-  const base = 70 + k * 30 * (1 - k * 0.012);
-  const pts: string[] = [];
-  for (let s = 0; s <= 96; s++) {
-    const a = (s / 96) * Math.PI * 2;
-    const r =
-      base * (1 + 0.035 * Math.sin(a * 3 + k * 0.9) + 0.02 * Math.sin(a * 5 + k * 1.7) + 0.012 * Math.sin(a * 9 + k * 0.4));
-    pts.push(`${(Math.cos(a) * r).toFixed(1)},${(Math.sin(a) * r).toFixed(1)}`);
-  }
-  rings.push(`M${pts.join('L')}Z`);
-}
-const [lineBefore, lineAfter] = t.line.includes(String(YEARS)) ? t.line.split(String(YEARS)) : [t.line, ''];
+const END = 7.6;
 ---
 
-<div id="intro" role="dialog" aria-modal="true" aria-label={t.label} data-intro>
-  <picture>
-    <source media="(max-width: 767px)" srcset="/video/hero-poster-m.jpg" />
-    <img class="intro-poster" src="/video/hero-poster.jpg" alt="" aria-hidden="true" />
-  </picture>
+<div id="intro" role="dialog" aria-modal="true" aria-label={t.label} data-intro data-end={END}>
   <video
+    class="intro-video"
     muted
-    loop
     playsinline
     preload="auto"
     aria-hidden="true"
-    data-src-wide="/video/hero-1280.mp4"
-    data-src-tall="/video/hero-540.mp4"
-    data-poster-tall="/video/hero-poster-m.jpg"></video>
+    data-src-wide="/video/intro-trailer.mp4"
+    data-src-tall="/video/intro-trailer-m.mp4"
+    data-poster-wide="/video/intro-trailer-poster.jpg"
+    data-poster-tall="/video/intro-trailer-poster-m.jpg"></video>
   <div class="intro-shade" aria-hidden="true"></div>
-  <canvas class="intro-dust" aria-hidden="true"></canvas>
+  <div class="intro-bar intro-bar-top" aria-hidden="true"></div>
+  <div class="intro-bar intro-bar-bottom" aria-hidden="true"></div>
 
-  <div class="intro-stage">
-    <div class="intro-emblem-wrap" aria-hidden="true">
-      <svg class="intro-rings" viewBox="-560 -560 1120 1120">
-        <g class="intro-rings-g">
-          {rings.map((d, i) => <path d={d} pathLength="1" style={`--i:${i}`} />)}
-        </g>
-      </svg>
-      <svg class="intro-axis" viewBox="0 0 1000 2" preserveAspectRatio="none">
-        <line x1="500" y1="1" x2="1000" y2="1" pathLength="1" />
-        <line x1="500" y1="1" x2="0" y2="1" pathLength="1" />
-      </svg>
-      <img class="intro-emblem" src="/brand/emblem.webp" alt="" width="641" height="647" />
-    </div>
-    <div class="intro-word-wrap">
-      <img class="intro-word" src="/brand/wordmark.webp" alt="초월공예사" width="1280" height="284" />
-      <span class="intro-blade" aria-hidden="true"></span>
-      <span class="seal intro-seal" aria-hidden="true">초월</span>
-    </div>
-    <p class="intro-line">
-      {lineBefore}<span class="intro-count" data-to={YEARS}>{YEARS}</span>{lineAfter}
-    </p>
-    <p class="intro-sub">{t.sub}</p>
-    <div class="intro-enter">
-      <button type="button" class="enter-ring" data-enter>{t.enter}</button>
-      <p class="intro-hint">{t.hint}</p>
-      <button type="button" class="intro-quiet" data-enter-quiet>{t.quiet}</button>
-    </div>
+  <p class="intro-beat" data-at="0.45" data-out="1.5">{t.beat1}</p>
+  <p class="intro-beat" data-at="1.85" data-out="3.35">{t.beat2}</p>
+  <div class="intro-title" data-at="5.05">
+    <img src="/brand/wordmark.webp" alt="초월공예사" width="1280" height="284" />
+    <p>{t.sub}</p>
   </div>
+
+  <div class="intro-ui">
+    <button type="button" class="intro-btn" data-intro-sound aria-pressed="false" data-on={t.soundOff} data-off={t.sound}>
+      <Icon name="tabler:volume-off" class="icon-off h-5 w-5" aria-hidden="true" />
+      <Icon name="tabler:volume" class="icon-on hidden h-5 w-5" aria-hidden="true" />
+      <span>{t.sound}</span>
+    </button>
+    <button type="button" class="intro-btn" data-intro-skip>
+      <span>{t.skip}</span>
+      <Icon name="tabler:player-track-next" class="h-5 w-5" aria-hidden="true" />
+    </button>
+  </div>
+  <div class="intro-progress" aria-hidden="true"><i></i></div>
 </div>
 
 <script is:inline>
-  // 같은 방문 중 이미 들어왔으면 그리기 전에 바로 없앰 (깜빡임 방지)
+  // 같은 방문 중 이미 들어왔으면 그리기 전에 바로 없앰. 처음이면 예고편을 바로 받기 시작
   (function () {
     var el = document.getElementById('intro');
+    if (!el) return;
     try {
       if (sessionStorage.getItem('cw-intro')) {
-        el && el.remove();
+        el.remove();
         return;
       }
     } catch (e) {}
     document.documentElement.classList.add('intro-active');
+    var v = el.querySelector('video');
+    var tall = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
+    v.poster = tall ? v.dataset.posterTall : v.dataset.posterWide;
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      v.src = tall ? v.dataset.srcTall : v.dataset.srcWide;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    }
   })();
 </script>
 
@@ -110,88 +94,6 @@ const [lineBefore, lineAfter] = t.line.includes(String(YEARS)) ? t.line.split(St
     }
   });
 
-  type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number; r: number; hot: boolean };
-
-  // 금빛 가루: 천천히 떠오르는 가루 + 글자가 깎일 때 날 끝에서 튀는 불꽃
-  const startDust = (intro: HTMLElement, reduce: boolean) => {
-    const canvas = intro.querySelector<HTMLCanvasElement>('.intro-dust');
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx || reduce) return () => {};
-    const blade = intro.querySelector<HTMLElement>('.intro-blade');
-    let w = 0;
-    let h = 0;
-    const size = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    size();
-    window.addEventListener('resize', size);
-    const parts: Spark[] = [];
-    const ambient = w < 768 ? 26 : 50;
-    for (let i = 0; i < ambient; i++)
-      parts.push({ x: Math.random() * w, y: Math.random() * h, vx: (Math.random() - 0.5) * 0.15, vy: -0.1 - Math.random() * 0.25, life: Math.random() * 400, max: 400 + Math.random() * 300, r: 0.6 + Math.random() * 1.6, hot: false });
-    let raf = 0;
-    const tick = () => {
-      ctx.clearRect(0, 0, w, h);
-      ctx.globalCompositeOperation = 'lighter';
-      // 날 끝 불꽃 (글자가 깎이는 동안만)
-      if (blade) {
-        const r = blade.getBoundingClientRect();
-        const op = parseFloat(getComputedStyle(blade).opacity || '0');
-        if (op > 0.3 && r.height > 0) {
-          for (let i = 0; i < 3; i++)
-            parts.push({ x: r.left + r.width / 2, y: r.top + Math.random() * r.height, vx: 1.2 + Math.random() * 3.2, vy: (Math.random() - 0.7) * 2.4, life: 0, max: 30 + Math.random() * 30, r: 0.7 + Math.random() * 1.4, hot: true });
-        }
-      }
-      for (let i = parts.length - 1; i >= 0; i--) {
-        const p = parts[i];
-        p.life++;
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.hot) p.vy += 0.06;
-        const k = p.life / p.max;
-        if (k >= 1) {
-          if (p.hot) parts.splice(i, 1);
-          else Object.assign(p, { x: Math.random() * w, y: h + 10, life: 0 });
-          continue;
-        }
-        const a = p.hot ? (1 - k) * 0.95 : Math.sin(k * Math.PI) * 0.55;
-        ctx.fillStyle = p.hot ? `rgba(255,214,140,${a})` : `rgba(232,201,140,${a})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', size);
-    };
-  };
-
-  // 글귀의 숫자를 0부터 올림
-  const countUp = (el: HTMLElement | null, delay: number, reduce: boolean) => {
-    if (!el) return;
-    const to = Number(el.dataset.to || el.textContent || 0);
-    if (reduce || !to) return;
-    el.textContent = '0';
-    window.setTimeout(() => {
-      const t0 = performance.now();
-      const dur = 1300;
-      const step = (now: number) => {
-        const k = Math.min(1, (now - t0) / dur);
-        el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
-        if (k < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay);
-  };
-
   const setup = () => {
     const intro = document.querySelector<HTMLElement>('[data-intro]');
     if (!intro || intro.dataset.ready) return;
@@ -201,50 +103,93 @@ const [lineBefore, lineAfter] = t.line.includes(String(YEARS)) ? t.line.split(St
       return;
     }
     intro.dataset.ready = '1';
+    const END = Number(intro.dataset.end || 7.6);
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const video = intro.querySelector<HTMLVideoElement>('video');
-    if (video) {
-      const tall = window.matchMedia('(max-width: 767px)').matches;
-      video.src = tall ? video.dataset.srcTall! : video.dataset.srcWide!;
-      if (tall) video.poster = video.dataset.posterTall!;
-      if (!reduce) video.play().catch(() => {});
-    }
-    const stopDust = startDust(intro, reduce);
-    countUp(intro.querySelector<HTMLElement>('.intro-count'), 3100, reduce);
-    const enterBtn = intro.querySelector<HTMLButtonElement>('[data-enter]');
-    window.setTimeout(() => enterBtn?.focus({ preventScroll: true }), 300);
-
+    const video = intro.querySelector<HTMLVideoElement>('video')!;
+    const timed = [...intro.querySelectorAll<HTMLElement>('[data-at]')].map((el) => ({
+      el,
+      at: Number(el.dataset.at),
+      out: el.dataset.out ? Number(el.dataset.out) : Infinity,
+    }));
+    const bar = intro.querySelector<HTMLElement>('.intro-progress i');
+    const btnSound = intro.querySelector<HTMLButtonElement>('[data-intro-sound]')!;
+    let soundOn = false;
     let closed = false;
-    const close = (withSound: boolean) => {
+    let raf = 0;
+
+    // 시계: 영상이 재생되면 영상 시간. 1.2초가 지나도 영상이 안 나오면(자동 재생이 막힘·느린 인터넷)
+    // 포스터 위에서 실제 시간으로 글귀를 진행
+    const t0 = performance.now() + 1200;
+    let useVideo = false;
+    const now = () => (useVideo ? video.currentTime : Math.max(0, (performance.now() - t0) / 1000));
+    const onVideo = () => {
+      if (useVideo || video.currentTime <= 0) return;
+      useVideo = true;
+      intro.classList.remove('no-video-yet');
+    };
+    // 영상은 이 스크립트보다 먼저(위의 inline 스크립트에서) 재생을 시작할 수 있으므로 지금 상태도 확인
+    if (!video.paused && video.currentTime > 0) onVideo();
+    else intro.classList.add('no-video-yet');
+    video.addEventListener('playing', onVideo);
+    video.addEventListener('timeupdate', onVideo);
+
+    const tick = () => {
+      const t = reduce ? END : now();
+      for (const x of timed) x.el.classList.toggle('is-on', t >= x.at && t < x.out);
+      intro.classList.toggle('is-impact', t >= 5.0 && t < 5.5);
+      if (bar) bar.style.transform = `scaleX(${Math.min(1, t / END)})`;
+      if (t >= END) close();
+      else raf = requestAnimationFrame(tick);
+    };
+
+    const close = () => {
       if (closed) return;
       closed = true;
+      cancelAnimationFrame(raf);
       try {
         sessionStorage.setItem('cw-intro', '1');
       } catch {
         /* storage unavailable */
       }
+      // 예고편에서 소리를 켰으면 들어간 뒤 배경 음악이 이어짐
       const sound = (window as unknown as { cwSound?: { enter: (on: boolean) => void } }).cwSound;
-      sound?.enter(withSound);
+      sound?.enter(soundOn);
       intro.classList.add('is-out');
       document.documentElement.classList.remove('intro-active');
-      // 첫 화면 영상이 입장 화면 영상과 같은 순간부터 이어서 재생되도록 시간을 넘김 (HeroCinema.astro)
-      window.dispatchEvent(new CustomEvent('cw:intro-closed', { detail: { time: video && !video.paused ? video.currentTime : 0 } }));
-      // 키보드·화면 읽기 프로그램 사용자를 본문으로
+      window.dispatchEvent(new CustomEvent('cw:intro-closed', { detail: { time: 0 } }));
       document.getElementById('main')?.focus({ preventScroll: true });
       window.setTimeout(() => {
-        stopDust();
+        video.pause();
         intro.remove();
-      }, 1800);
+      }, 1300);
     };
-    intro.querySelector('[data-enter-quiet]')?.addEventListener('click', (e) => {
+
+    btnSound.addEventListener('click', (e) => {
       e.stopPropagation();
-      close(false);
+      soundOn = !soundOn;
+      video.muted = !soundOn;
+      if (soundOn && video.paused && !reduce) video.play().catch(() => {});
+      btnSound.setAttribute('aria-pressed', String(soundOn));
+      btnSound.querySelector('.icon-off')?.classList.toggle('hidden', soundOn);
+      btnSound.querySelector('.icon-on')?.classList.toggle('hidden', !soundOn);
+      const label = btnSound.querySelector('span');
+      if (label) label.textContent = soundOn ? btnSound.dataset.on! : btnSound.dataset.off!;
     });
-    // 화면 어디를 눌러도 입장 (소리와 함께)
-    intro.addEventListener('click', () => close(true));
+    intro.querySelector('[data-intro-skip]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      close();
+    });
+    // 화면 어디를 눌러도 바로 들어감
+    intro.addEventListener('click', close);
     intro.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') close(false);
+      if (e.key === 'Escape') close();
     });
+    window.setTimeout(() => intro.querySelector<HTMLButtonElement>('[data-intro-skip]')?.focus({ preventScroll: true }), 200);
+    if (video.ended) close();
+    video.addEventListener('ended', close);
+    // 영상이 받아지지 않거나 중간에 멈춰도 12초 뒤에는 꼭 들어감
+    window.setTimeout(close, 12000);
+    raf = requestAnimationFrame(tick);
   };
   document.addEventListener('astro:page-load', setup);
 </script>

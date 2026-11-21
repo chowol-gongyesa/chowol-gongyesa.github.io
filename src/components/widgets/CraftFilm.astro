@@ -1,10 +1,10 @@
 ---
-// 작업 영상 '소리 대신 눈으로' (1분). 시끄러운 기계 소리 → 소리가 사라지고 → 눈으로 일하는 장인 → 결을 읽는 40년의 감각
+// 작업 영상 '소리 대신 눈으로' (1분, v4). 시끄러운 기계 소리 → 소리가 사라지고 → 눈으로 일하는 장인 → 결을 읽는 40년의 감각
 // → 견본은 손으로, 수량은 자동 로구로로 → 만드는 것 → 이름 → '같은 모양을, 한결같이' → 상호·전화.
 // 화면에 들어오면 소리 없이 저절로 재생(큰 화면)되고, '소리 켜고 처음부터'를 누르면 처음부터 소리와 함께 봅니다.
 // 자막·상호는 영상에 새기지 않고 사이트가 영상 위에 글자로 겹쳐 보여 줌 → 언어마다 자막이 바뀌고, 문구는 src/i18n/ 의 film.cues.
 // 자막이 나오는 동안 영상 가운데를 살짝 어둡게 해서(.film-dim) 글씨가 잘 보이게 합니다.
-// 아래 CUES·CHAPTER_TIMES의 숫자는 영상 속 시간(초)입니다. 영상을 다시 만들면 /home/claude/film/film3.py의 SHOTS와 맞추세요.
+// 아래 CUES·CHAPTER_TIMES의 숫자는 영상 속 시간(초)입니다. 영상을 다시 만들면 design-preview/film-v3/film4.py의 FILM과 맞추세요.
 // 영상: public/video/chowol-film.mp4(가로 16:9), chowol-film-mobile.mp4(휴대폰 4:5)
 // 휴대폰에서는 데이터를 아끼려고 저절로 재생하지 않고, 재생 단추를 눌러야 받습니다.
 import { Icon } from 'astro-icon/components';
@@ -22,7 +22,7 @@ const c = f.cues;
 
 // kind: line = 가운데 큰 글귀, motto = 구호(더 크게), word = 만드는 것 이름(사진마다), name = 이름(왼쪽 아래), end = 상호·전화
 // dim = 그동안 영상 가운데를 어둡게 하는 정도
-type Cue = { start: number; end: number; kind: 'line' | 'motto' | 'word' | 'name' | 'end'; lines?: string[]; small?: string; big?: string; tel?: string; dim: number };
+type Cue = { start: number; end: number; kind: 'line' | 'motto' | 'word' | 'name' | 'end'; lines?: string[]; small?: string; big?: string; tel?: string; sms?: string; dim: number };
 const L = (x: string | string[]) => (Array.isArray(x) ? x : [x]);
 const line = (start: number, end: number, x: string | string[]): Cue => ({ start, end, kind: 'line', lines: L(x), dim: 1 });
 const CUES: Cue[] = [
@@ -36,11 +36,11 @@ const CUES: Cue[] = [
   line(32.7, 34.9, c.copy),
   line(35.3, 37.4, c.same),
   ...c.words.map((text, i): Cue => ({ start: 37.6 + i * 1.25, end: 38.7 + i * 1.25, kind: 'word', lines: [text], dim: 0.75 })),
-  line(45.3, 47.4, c.range),
+  line(45.3, 47.6, c.home),
   { start: 47.8, end: 49.9, kind: 'name', big: c.owner.big, small: c.owner.small, dim: 0.5 },
   { start: 50.4, end: 54.7, kind: 'motto', lines: L(c.motto), dim: 1 },
   // 영상이 끝난 뒤에도 상호와 전화번호가 남도록 끝 시간을 영상 길이(60초)보다 길게
-  { start: 55.4, end: 61, kind: 'end', small: c.endSmall, tel: c.endTel, dim: 0.7 },
+  { start: 55.4, end: 61, kind: 'end', small: c.endSmall, tel: c.endTel, sms: c.endSms, dim: 0.7 },
 ];
 const CHAPTER_TIMES = [0, 15.0, 30.0, 37.5, 47.5, 50.0];
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -76,10 +76,10 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
                 <div class="film-cue" data-kind={cue.kind} data-start={cue.start} data-end={cue.end} data-dim={cue.dim} aria-hidden="true">
                   {cue.kind === 'end' ? (
                     <>
-                      <img class="cue-emblem" src="/brand/emblem.webp" alt="" width="641" height="647" loading="lazy" decoding="async" />
                       <img class="cue-word" src="/brand/wordmark.webp" alt={SHOP.name} width="1280" height="284" loading="lazy" decoding="async" />
                       <span class="cue-small">{cue.small}</span>
                       <span class="cue-tel">{cue.tel}</span>
+                      <span class="cue-sms">{cue.sms}</span>
                     </>
                   ) : cue.kind === 'name' ? (
                     <>
@@ -178,7 +178,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
     <!-- 화면 읽기 프로그램용 자막 전문 -->
     <ol class="sr-only">
-      {CUES.map((cue) => <li>{cue.lines ? cue.lines.join(' ') : cue.kind === 'end' ? `${SHOP.name}, ${cue.small}, ${cue.tel}` : `${cue.big}, ${cue.small}`}</li>)}
+      {CUES.map((cue) => <li>{cue.lines ? cue.lines.join(' ') : cue.kind === 'end' ? `${SHOP.name}, ${cue.small}, ${cue.tel}, ${cue.sms}` : `${cue.big}, ${cue.small}`}</li>)}
     </ol>
   </div>
 </section>

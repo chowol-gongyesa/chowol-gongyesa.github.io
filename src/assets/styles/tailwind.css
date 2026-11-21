@@ -234,13 +234,13 @@
   }
 
   /* ───────────────────────── 상호 (금박 붓글씨, 빛이 주기적으로 스침) ───────────────────────── */
-  /* 로고 그림 위로 지나가는 빛 (Logo.astro). 글자 모양(logo-mask.webp)으로만 보임 */
+  /* 로고 그림 위로 지나가는 빛 (Logo.astro). 글자 모양(wordmark-mask.webp)으로만 보임 */
   .logo-shine {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    -webkit-mask: url('/brand/logo-mask.webp') center / 100% 100% no-repeat;
-    mask: url('/brand/logo-mask.webp') center / 100% 100% no-repeat;
+    -webkit-mask: url('/brand/wordmark-mask.webp') center / 100% 100% no-repeat;
+    mask: url('/brand/wordmark-mask.webp') center / 100% 100% no-repeat;
     background: linear-gradient(105deg, transparent 38%, rgb(255 246 222 / 0.7) 50%, transparent 62%);
     background-size: 300% 100%;
     background-position: 120% 0;
@@ -311,6 +311,7 @@
     padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
     background: rgb(13 9 6 / 0.94);
     border-top: 1px solid rgb(205 167 99 / 0.3);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     transform: translateY(110%);
     transition: transform 0.35s ease;
@@ -539,10 +540,7 @@
   }
   [data-reveal] .rise {
     opacity: 0;
-    transform: translateY(1.2rem);
-    transition:
-      opacity 0.8s ease,
-      transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: opacity 0.9s ease;
     transition-delay: var(--d, 0s);
   }
   [data-reveal].is-in .rise {
@@ -552,13 +550,8 @@
   .split-ready .split-char {
     display: inline-block;
     opacity: 0;
-    transform: translateY(0.5em);
-    filter: blur(4px);
-    transition:
-      opacity 0.6s ease,
-      transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
-      filter 0.6s ease;
-    transition-delay: calc(var(--i) * 40ms);
+    transition: opacity 0.7s ease;
+    transition-delay: calc(var(--i) * 30ms);
   }
   .split-word {
     display: inline-block;
@@ -566,13 +559,13 @@
   }
   .split-in .split-char {
     opacity: 1;
-    transform: none;
-    filter: none;
   }
   @supports (animation-timeline: view()) {
-    .parallax {
-      animation: parallax linear both;
-      animation-timeline: view();
+    @media (pointer: fine) and (min-width: 64rem) {
+      .parallax:not(.page-head-img) {
+        animation: parallax linear both;
+        animation-timeline: view();
+      }
     }
     @keyframes parallax {
       from {
@@ -605,6 +598,7 @@
   #header > div:first-child {
     background: rgb(13 9 6 / 0.94);
     border-bottom: 1px solid rgb(205 167 99 / 0.18);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     transition:
       background-color 0.35s ease,
@@ -613,6 +607,7 @@
   html.header-over #header:not(.scroll) > div:first-child {
     background: linear-gradient(rgb(0 0 0 / 0.55), transparent);
     border-color: transparent;
+    -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   html.header-over #header {
@@ -653,12 +648,14 @@
   }
   html.header-over #header:not(.scroll) .mobile-tabs {
     background: rgb(18 13 9 / 0.6);
+    -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
   }
   .mobile-tabs-list {
     display: flex;
     gap: 0.1rem;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding-left: 0.75rem;
     scrollbar-width: none;
   }
@@ -696,7 +693,10 @@
   }
   #header .mobile-tab.aw-link-active {
     color: var(--ivory);
-    font-weight: 700;
+  }
+  .mobile-tab,
+  .desktop-nav a {
+    -webkit-tap-highlight-color: transparent;
   }
   #header .mobile-tab.aw-link-active::after {
     transform: scaleX(1);
@@ -705,8 +705,8 @@
     color: var(--gold-2);
     font-weight: 700;
   }
-  /* 아주 좁은 휴대폰(360px 등)에서도 탭이 한 줄에 다 들어가게 */
-  @media (max-width: 374px) {
+  /* 좁은 휴대폰(360·375px)에서도 탭이 한 줄에 다 들어가게 (넘치면 손가락에 탭 줄이 출렁임) */
+  @media (max-width: 389px) {
     .mobile-tabs-list {
       padding-left: 0.5rem;
     }
@@ -812,7 +812,7 @@
     }
   }
 
-  /* ───────────────────────── 입장 화면 (Intro.astro): 모션 그래픽 ───────────────────────── */
+  /* ───────────────────────── 입장 화면 (Intro.astro): 7.6초 예고편 ───────────────────────── */
   html.intro-active,
   html.intro-active body {
     overflow: hidden;
@@ -821,391 +821,291 @@
     position: fixed;
     inset: 0;
     z-index: 150;
-    display: grid;
-    place-items: center;
     overflow: hidden;
     background: #000;
     cursor: pointer;
+    color: var(--ivory);
     transition:
-      opacity 1.1s ease 0.45s,
-      visibility 0s linear 1.6s;
+      opacity 0.9s ease 0.35s,
+      visibility 0s linear 1.3s;
   }
-  #intro video,
-  #intro .intro-poster {
+  #intro .intro-video {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.5) sepia(0.3) saturate(0.6);
-    transform: scale(1.06);
-    opacity: 0;
-    animation: introVideo 2.4s ease forwards 0.9s;
+    background: #000;
     transition:
-      transform 2.4s cubic-bezier(0.2, 0.7, 0.2, 1),
-      filter 1.4s ease;
+      transform 1.4s cubic-bezier(0.3, 0, 0.2, 1),
+      filter 1s ease;
   }
-  @keyframes introVideo {
+  /* 영상이 아직 안 나오면 포스터가 천천히 다가옴 */
+  #intro.no-video-yet .intro-video {
+    animation: introPosterDrift 9s ease-out forwards;
+  }
+  @keyframes introPosterDrift {
+    from {
+      transform: scale(1.08);
+      filter: brightness(0.6);
+    }
     to {
-      opacity: 1;
       transform: scale(1);
+      filter: brightness(0.85);
     }
   }
   #intro .intro-shade {
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background:
-      radial-gradient(55% 50% at 50% 46%, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.86)),
-      linear-gradient(0deg, rgb(0 0 0 / 0.7), transparent 40%);
+      radial-gradient(80% 70% at 50% 45%, transparent 35%, rgb(0 0 0 / 0.55)),
+      linear-gradient(0deg, rgb(0 0 0 / 0.45), transparent 30%);
   }
-  #intro .intro-dust {
+  /* 영화처럼 위아래 검은 띠 */
+  #intro .intro-bar {
     position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-  }
-  #intro .intro-stage {
-    position: relative;
+    left: 0;
+    right: 0;
+    height: 9vh;
+    height: 9dvh;
+    background: #000;
     z-index: 2;
-    width: min(92vw, 60rem);
+    transition: transform 1.1s cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  #intro .intro-bar-top {
+    top: 0;
+  }
+  #intro .intro-bar-bottom {
+    bottom: 0;
+  }
+  @media (max-aspect-ratio: 1/1) {
+    #intro .intro-bar {
+      height: 6vh;
+      height: 6dvh;
+    }
+  }
+  /* 글귀: 흐릿하게 커졌다가 또렷하게 자리 잡음 */
+  #intro .intro-beat {
+    position: absolute;
+    z-index: 3;
+    left: 6%;
+    right: 6%;
+    top: 50%;
+    margin: 0;
     text-align: center;
-    color: var(--ivory);
-    transition:
-      opacity 0.8s ease,
-      transform 1.3s cubic-bezier(0.2, 0.7, 0.2, 1),
-      filter 0.8s ease;
-  }
-
-  /* 나이테 원판 + 고리 + 축선 */
-  #intro .intro-emblem-wrap {
-    --em: clamp(5.6rem, 15vh, 9rem);
-    position: relative;
-    width: var(--em);
-    height: var(--em);
-    margin: 0 auto;
-  }
-  #intro .intro-rings {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: calc(var(--em) * 9);
-    height: calc(var(--em) * 9);
-    transform: translate(-50%, -50%);
-    overflow: visible;
-    pointer-events: none;
-    transition:
-      transform 1.4s cubic-bezier(0.3, 0, 0.2, 1),
-      opacity 1s ease;
-  }
-  #intro .intro-rings-g {
-    transform-origin: 0 0;
-    animation: ringsTurn 60s linear infinite;
-  }
-  #intro .intro-rings path {
-    fill: none;
-    stroke: rgb(232 201 140 / calc(0.5 - var(--i) * 0.026));
-    stroke-width: 1.4;
-    vector-effect: non-scaling-stroke;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    filter: drop-shadow(0 0 4px rgb(232 201 140 / 0.35));
-    animation: ringDraw 1.6s cubic-bezier(0.55, 0, 0.25, 1) forwards;
-    animation-delay: calc(0.3s + var(--i) * 0.09s);
-  }
-  @keyframes ringDraw {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  @keyframes ringsTurn {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  #intro .intro-axis {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 200vw;
-    height: 2px;
-    transform: translate(-50%, -50%);
-    overflow: visible;
-    pointer-events: none;
-    opacity: 0.85;
-    animation: axisFade 1.2s ease forwards 1.6s;
-  }
-  #intro .intro-axis line {
-    stroke: rgb(255 226 165 / 0.9);
-    stroke-width: 1.5;
-    vector-effect: non-scaling-stroke;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    filter: drop-shadow(0 0 6px rgb(255 214 140 / 0.8));
-    animation: ringDraw 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards 0.05s;
-  }
-  @keyframes axisFade {
-    to {
-      opacity: 0.18;
-    }
-  }
-  #intro .intro-emblem {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    font-family: var(--aw-font-heading);
+    font-weight: 800;
+    font-size: 2.2rem;
+    font-size: clamp(1.9rem, 6.4vw, 5rem);
+    line-height: 1.25;
+    letter-spacing: 0.06em;
+    word-break: keep-all;
+    text-shadow:
+      0 2px 4px rgb(0 0 0 / 0.9),
+      0 0 30px rgb(0 0 0 / 0.75);
     opacity: 0;
-    transform: scale(0.25) rotate(-720deg);
-    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.7));
-    animation: emblemSpin 1.5s cubic-bezier(0.15, 0.7, 0.2, 1) forwards 1.15s;
-    transition: transform 1.3s cubic-bezier(0.3, 0, 0.2, 1);
+    filter: blur(14px);
+    transform: translateY(-50%) scale(1.08);
+    transition:
+      opacity 0.55s ease,
+      filter 0.8s ease,
+      transform 1.6s cubic-bezier(0.15, 0.7, 0.2, 1);
+    pointer-events: none;
   }
-  @keyframes emblemSpin {
-    40% {
-      opacity: 1;
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  #intro .intro-beat.is-on {
+    opacity: 1;
+    filter: none;
+    transform: translateY(-50%) scale(1);
   }
-
-  /* '초월공예사' 나무 글자: 날이 지나가듯 왼쪽부터 깎여 나타남 */
-  #intro .intro-word-wrap {
+  :root:lang(en) #intro .intro-beat {
+    font-size: clamp(1.6rem, 5.4vw, 4.2rem);
+    letter-spacing: 0.03em;
+  }
+  /* 상호: 번쩍 + 흔들림과 함께 크게 */
+  #intro .intro-title {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    width: min(80vw, 48rem);
+    text-align: center;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.25);
+    filter: blur(10px) brightness(1.8);
+    transition:
+      opacity 0.35s ease,
+      transform 1.4s cubic-bezier(0.12, 0.8, 0.2, 1),
+      filter 1.2s ease;
+    pointer-events: none;
+  }
+  #intro .intro-title.is-on {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: none;
+  }
+  /* 상호 뒤를 넓게 어둡게 (뒤 화면이 밝아도 글자가 또렷하게) */
+  #intro .intro-title::before {
+    content: '';
+    position: absolute;
+    inset: -60% -30%;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.35) 60%, transparent);
+    pointer-events: none;
+  }
+  #intro .intro-title img {
     position: relative;
-    display: inline-block;
-    width: clamp(15rem, 64vw, 38rem);
-    margin-top: clamp(1rem, 2.4vh, 1.6rem);
-  }
-  #intro .intro-word {
     display: block;
     width: 100%;
     height: auto;
-    clip-path: inset(-12% 100% -12% 0);
-    animation: wordCarve 1.1s cubic-bezier(0.6, 0, 0.3, 1) forwards 2s;
+    filter: drop-shadow(0 10px 30px rgb(0 0 0 / 0.85)) drop-shadow(0 0 40px rgb(255 200 120 / 0.25));
   }
-  @keyframes wordCarve {
-    to {
-      clip-path: inset(-12% -4% -12% 0);
-    }
-  }
-  #intro .intro-blade {
-    position: absolute;
-    top: -8%;
-    bottom: -8%;
-    left: 0;
-    width: 3px;
-    border-radius: 3px;
-    background: linear-gradient(180deg, transparent, #fff3d0 20%, #ffd890 50%, #fff3d0 80%, transparent);
-    box-shadow:
-      0 0 12px 3px rgb(255 214 140 / 0.85),
-      0 0 34px 8px rgb(255 190 100 / 0.35);
-    opacity: 0;
-    animation: bladeRun 1.1s cubic-bezier(0.6, 0, 0.3, 1) forwards 2s;
-  }
-  @keyframes bladeRun {
-    0% {
-      left: 0;
-      opacity: 0;
-    }
-    8% {
-      opacity: 1;
-    }
-    88% {
-      opacity: 1;
-    }
-    100% {
-      left: 100%;
-      opacity: 0;
-    }
-  }
-  #intro .intro-seal {
-    --seal-size: clamp(2.4rem, 5.4vw, 3.6rem);
-    position: absolute;
-    right: calc(-1 * var(--seal-size) - 0.4rem);
-    bottom: 4%;
-    opacity: 0;
-    animation: stampIn 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) forwards 3.05s;
-  }
-  @keyframes stampIn {
-    0% {
-      opacity: 0;
-      transform: rotate(-3deg) scale(1.9);
-    }
-    60% {
-      opacity: 1;
-      transform: rotate(-3deg) scale(0.92);
-    }
-    100% {
-      opacity: 1;
-      transform: rotate(-3deg) scale(1);
-    }
-  }
-  #intro .intro-line {
-    margin-top: clamp(1.1rem, 2.6vh, 1.6rem);
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
-    font-size: clamp(1.25rem, 3.2vw, 2.1rem);
-    line-height: 1.5;
-    letter-spacing: 0.02em;
-    color: var(--ivory);
-    text-shadow: 0 2px 18px rgb(0 0 0 / 0.85);
-    opacity: 0;
-    transform: translateY(0.8rem);
-    animation: introRise 0.9s ease forwards 3s;
-  }
-  #intro .intro-count {
-    display: inline-block;
-    min-width: 1.3em;
-    color: var(--gold-2);
-    font-variant-numeric: tabular-nums;
-  }
-  #intro .intro-sub {
-    margin-top: 0.6rem;
-    font-size: clamp(0.95rem, 2vw, 1.1rem);
-    letter-spacing: 0.18em;
-    color: var(--gold-2);
-    opacity: 0;
-    animation: introRise 0.9s ease forwards 3.5s;
-  }
-  #intro .intro-enter {
-    margin-top: clamp(1.6rem, 4vh, 2.6rem);
-    opacity: 0;
-    animation: introRise 0.9s ease forwards 4s;
-  }
-  #intro .enter-ring {
-    position: relative;
-    display: inline-grid;
-    place-items: center;
-    width: 6.4rem;
-    height: 6.4rem;
-    border-radius: 999px;
-    border: 1px solid rgb(232 201 140 / 0.85);
-    color: var(--ivory);
-    font-family: var(--aw-font-heading);
-    font-weight: 800;
-    font-size: 1.05rem;
-    letter-spacing: 0.08em;
-    background: rgb(0 0 0 / 0.3);
-    transition:
-      background-color 0.3s ease,
-      transform 0.3s ease;
-  }
-  #intro .enter-ring::before,
-  #intro .enter-ring::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: 999px;
-    border: 1px solid rgb(232 201 140 / 0.6);
-    animation: ringPulse 2.4s ease-out infinite;
-  }
-  #intro .enter-ring::after {
-    animation-delay: 1.2s;
-  }
-  #intro .enter-ring:hover {
-    background: rgb(205 167 99 / 0.18);
-    transform: scale(1.04);
-  }
-  @keyframes ringPulse {
-    from {
-      transform: scale(1);
-      opacity: 0.9;
-    }
-    to {
-      transform: scale(1.7);
-      opacity: 0;
-    }
-  }
-  @keyframes introRise {
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  #intro .intro-hint {
+  #intro .intro-title p {
     margin-top: 1.1rem;
-    font-size: 1rem;
-    color: rgb(243 233 216 / 0.88);
+    font-size: 0.95rem;
+    font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+    letter-spacing: 0.24em;
+    color: var(--gold-2);
+    text-shadow: 0 2px 10px rgb(0 0 0 / 0.9);
+    opacity: 0;
+    transition: opacity 0.9s ease 0.7s;
   }
-  #intro .intro-quiet {
-    margin-top: 0.9rem;
-    min-height: 44px;
+  #intro .intro-title.is-on p {
+    opacity: 1;
+  }
+  :root:lang(en) #intro .intro-title p {
+    letter-spacing: 0.08em;
+  }
+  /* 가로로 눕힌 휴대폰처럼 낮은 화면: 상호를 조금 작게 (아래 단추와 겹치지 않게) */
+  @media (max-height: 500px) {
+    #intro .intro-title {
+      width: min(58vw, 30rem);
+    }
+    #intro .intro-title p {
+      margin-top: 0.6rem;
+    }
+    #intro .intro-beat {
+      font-size: clamp(1.6rem, 5vw, 3rem);
+    }
+  }
+  #intro.is-impact .intro-title {
+    animation: introShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes introShake {
+    10%,
+    90% {
+      margin-left: -1px;
+    }
+    20%,
+    80% {
+      margin-left: 3px;
+    }
+    30%,
+    50%,
+    70% {
+      margin-left: -5px;
+    }
+    40%,
+    60% {
+      margin-left: 5px;
+    }
+  }
+  /* 아래 단추: 소리 켜기 / 건너뛰기 */
+  #intro .intro-ui {
+    position: absolute;
+    z-index: 4;
+    left: 0;
+    right: 0;
+    bottom: calc(9vh + 0.9rem);
+    bottom: calc(9dvh + 0.9rem);
+    display: flex;
+    justify-content: space-between;
     padding: 0 1.25rem;
-    border: 1px solid rgb(232 201 140 / 0.5);
-    border-radius: 999px;
-    font-size: 1rem;
-    color: rgb(243 233 216 / 0.9);
-    background: rgb(0 0 0 / 0.3);
+    padding: 0 max(1.25rem, env(safe-area-inset-right)) 0 max(1.25rem, env(safe-area-inset-left));
   }
-  #intro .intro-quiet:hover {
+  @media (max-aspect-ratio: 1/1) {
+    #intro .intro-ui {
+      bottom: calc(6vh + 0.9rem + env(safe-area-inset-bottom));
+      bottom: calc(6dvh + 0.9rem + env(safe-area-inset-bottom));
+    }
+  }
+  #intro .intro-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    padding: 0 1.05rem;
+    border: 1px solid rgb(232 201 140 / 0.55);
+    border-radius: 999px;
+    background: rgb(0 0 0 / 0.45);
     color: var(--ivory);
+    font-size: 0.95rem;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+  #intro .intro-btn:hover {
+    background: rgb(205 167 99 / 0.2);
     border-color: var(--gold-2);
   }
-  @media (max-height: 640px) {
-    #intro .intro-hint {
-      display: none;
-    }
+  #intro .intro-progress {
+    position: absolute;
+    z-index: 4;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: rgb(255 255 255 / 0.08);
   }
-  /* 들어갈 때: 고리가 크게 퍼지고, 원판이 돌며 다가와 사라지고, 배경 영상이 밝아지며 첫 화면으로 */
+  #intro .intro-progress i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-3), var(--gold-2));
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  /* 들어갈 때: 위아래 띠가 열리고, 화면이 살짝 다가오며 사라짐 */
   #intro.is-out {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
-  #intro.is-out .intro-rings {
-    transform: translate(-50%, -50%) scale(2.6);
-    opacity: 0;
+  #intro.is-out .intro-bar-top {
+    transform: translateY(-100%);
   }
-  #intro.is-out .intro-emblem {
-    transform: rotate(360deg) scale(1.25);
+  #intro.is-out .intro-bar-bottom {
+    transform: translateY(100%);
   }
-  #intro.is-out .intro-stage {
+  #intro.is-out .intro-video {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+  }
+  #intro.is-out .intro-title,
+  #intro.is-out .intro-beat {
+    transform: translate(-50%, -50%) scale(1.12);
     opacity: 0;
-    transform: scale(1.18);
     filter: blur(6px);
   }
-  #intro.is-out video,
-  #intro.is-out .intro-poster {
-    transform: scale(1.12);
-    filter: brightness(0.8) saturate(1);
+  #intro.is-out .intro-beat {
+    transform: translateY(-50%) scale(1.12);
+  }
+  #intro.is-out .intro-ui {
+    opacity: 0;
   }
   @media (prefers-reduced-motion: reduce) {
     #intro *,
-    #intro *::before,
-    #intro *::after {
-      animation-duration: 0.01s !important;
-      animation-delay: 0s !important;
+    #intro {
       transition-duration: 0.2s !important;
-    }
-    #intro .intro-rings-g {
+      transition-delay: 0s !important;
       animation: none !important;
     }
   }
 
-  /* ───────────────────────── 페이지 이동 + 스크롤 진행선 (PageShutter.astro) ───────────────────────── */
-  #shutter {
-    position: fixed;
-    inset: 0;
-    z-index: 140;
-    pointer-events: none;
-    display: grid;
-    grid-template-columns: repeat(var(--slats, 10), 1fr);
-  }
-  #shutter i {
-    display: block;
-    background: #0d0906;
-    background-image: linear-gradient(90deg, rgb(205 167 99 / 0.16), transparent 10%, transparent 90%, rgb(0 0 0 / 0.4));
-    transform: translateY(-101%);
-  }
-  #shutter.is-closing i {
-    transform: translateY(0);
-    transition: transform 0.28s cubic-bezier(0.76, 0, 0.24, 1);
-    transition-delay: calc(var(--k) * 14ms);
-  }
-  #shutter.is-open i {
-    transform: translateY(101%);
-    transition: transform 0.42s cubic-bezier(0.76, 0, 0.24, 1);
-    transition-delay: calc(var(--k) * 18ms);
+  /* 페이지를 옮길 때는 화면 전체가 짧게 겹쳐 바뀌기만 함 (예전 세로 띠 셔터는 들썩여 보여서 없앰) */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.22s;
   }
   #progress {
     position: fixed;
@@ -1358,9 +1258,20 @@
     }
   }
 
+  /* 옛 사파리(15.3 이하)는 svh·dvh를 몰라서 화면 높이 단위를 한 번 더 적음 */
+  @supports not (height: 100dvh) {
+    .hero-cinema > div {
+      min-height: 100vh;
+    }
+    dialog.h-dvh {
+      height: 100vh;
+    }
+  }
+
   /* ───────────────────────── 첫 화면 (HeroCinema.astro) ───────────────────────── */
   .hero-cinema {
     position: relative;
+    min-height: 100vh; /* 옛 사파리용 */
     min-height: 100svh;
     overflow: hidden;
     isolation: isolate;
@@ -1627,7 +1538,7 @@
     letter-spacing: 0.06em;
     color: #f3e1b8;
   }
-  /* 마지막 화면: 나이테 원판이 돌며 들어오고 → 나무 글자 상호가 깎이듯 나타나고 → 전화번호 */
+  /* 마지막 화면: 나무 글자 상호가 깎이듯 나타나고 → 로구로 40년 → 대표 휴대폰 → 문자 부탁 */
   .film-cue[data-kind='end'] {
     top: 50%;
     transform: translateY(-50%);
@@ -1635,73 +1546,91 @@
     flex-direction: column;
     align-items: center;
   }
-  .film-cue .cue-emblem {
-    width: clamp(4rem, 21cqi, 9rem);
-    height: auto;
-    filter: drop-shadow(0 8px 18px rgb(0 0 0 / 0.7));
-    opacity: 0;
-    transform: rotate(-540deg) scale(0.4);
-    transition:
-      opacity 0.6s ease,
-      transform 1.6s cubic-bezier(0.15, 0.7, 0.2, 1);
-  }
   .film-cue .cue-word {
-    width: clamp(13rem, 70cqi, 30rem);
+    width: 72cqi;
+    max-width: 30rem;
     height: auto;
-    margin-top: clamp(0.6rem, 3cqi, 1.3rem);
     filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.75));
     clip-path: inset(-12% 100% -12% 0);
-    transition: clip-path 1.1s cubic-bezier(0.6, 0, 0.3, 1) 0.6s;
+    transition: clip-path 1.1s cubic-bezier(0.6, 0, 0.3, 1) 0.2s;
   }
   .film-cue[data-kind='end'] .cue-small {
-    margin-top: clamp(0.6rem, 2.6cqi, 1.1rem);
+    margin-top: 0.9rem;
     font-family: var(--aw-font-heading);
     font-weight: 800;
+    font-size: 1.05rem;
     font-size: clamp(1rem, 3.6cqi, 1.5rem);
     letter-spacing: 0.2em;
     color: #f3e1b8;
   }
   .film-cue[data-kind='end'] .cue-tel {
-    margin-top: 0.5rem;
+    margin-top: 0.7rem;
     font-weight: 800;
-    font-size: clamp(1.1rem, 4.6cqi, 1.9rem);
-    letter-spacing: 0.04em;
+    font-size: 1.3rem;
+    font-size: clamp(1.2rem, 6cqi, 2.3rem);
+    letter-spacing: 0.03em;
     color: #fffaf0;
+    font-variant-numeric: tabular-nums;
+  }
+  .film-cue[data-kind='end'] .cue-sms {
+    margin-top: 0.35rem;
+    font-weight: 700;
+    font-size: 1rem;
+    font-size: clamp(0.95rem, 3.8cqi, 1.5rem);
+    color: #f6dfa8;
   }
   .film-cue[data-kind='end'] .cue-small,
-  .film-cue[data-kind='end'] .cue-tel {
+  .film-cue[data-kind='end'] .cue-tel,
+  .film-cue[data-kind='end'] .cue-sms {
     opacity: 0;
     transform: translateY(0.5rem);
     transition:
-      opacity 0.7s ease 1.3s,
-      transform 0.9s ease 1.3s;
+      opacity 0.7s ease 0.9s,
+      transform 0.9s ease 0.9s;
   }
-  .film-cue[data-kind='end'].is-on .cue-emblem {
-    opacity: 1;
-    transform: none;
+  .film-cue[data-kind='end'] .cue-sms {
+    transition-delay: 1.4s;
   }
   .film-cue[data-kind='end'].is-on .cue-word {
     clip-path: inset(-12% -4% -12% 0);
   }
   .film-cue[data-kind='end'].is-on .cue-small,
-  .film-cue[data-kind='end'].is-on .cue-tel {
+  .film-cue[data-kind='end'].is-on .cue-tel,
+  .film-cue[data-kind='end'].is-on .cue-sms {
     opacity: 1;
     transform: none;
   }
   @media (min-width: 768px) {
-    .film-cue .cue-emblem {
-      width: clamp(4rem, 12cqi, 8rem);
-    }
     .film-cue .cue-word {
-      width: clamp(13rem, 52cqi, 30rem);
+      width: 54cqi;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .film-cue .cue-line,
-    .film-cue .cue-emblem,
     .film-cue .cue-word {
       transition-duration: 0.01s !important;
       transition-delay: 0s !important;
+    }
+  }
+  /* 영상 크기 단위(cqi)를 모르는 옛 브라우저(사파리 15 이하 등)에서도 자막이 적당한 크기로 */
+  @supports not (font-size: 1cqi) {
+    .film-cue[data-kind='line'] {
+      font-size: 1.45rem;
+    }
+    .film-cue[data-kind='motto'] {
+      font-size: 2rem;
+    }
+    .film-cue[data-kind='word'] {
+      font-size: 1.8rem;
+    }
+    .film-cue[data-kind='name'] .cue-big {
+      font-size: 1.6rem;
+    }
+    .film-cue[data-kind='name'] .cue-small {
+      font-size: 1rem;
+    }
+    .film-cue .cue-word {
+      width: 70%;
     }
   }
   .film-btn {
@@ -2044,7 +1973,6 @@
     .parallax {
       animation: none !important;
     }
-    #shutter,
     #cw-lantern,
     #cursor-dust {
       display: none;
