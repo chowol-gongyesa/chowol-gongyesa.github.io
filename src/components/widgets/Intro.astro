@@ -13,6 +13,10 @@
 // 브라우저는 사람이 화면을 한 번 누르기 전에는 소리 나는 자동 재생을 막습니다(크롬·사파리·휴대폰 대부분, 처음 방문).
 // 그래서 소리와 함께 재생을 먼저 해 보고, 막히면 소리 없이 그대로 자동 재생하면서 '화면을 누르면 소리가 나옵니다'를 보여 주고
 // 화면을 처음 누르는 순간 소리를 켭니다. (가운데 '소리와 함께 보기' 단추를 띄우던 방식은 사용자 의견으로 되돌림 2026-11-21)
+// 2026-11-22 (사용자: 휴대폰에서 예고편이 바로 안 나옴): 예고편은 언제나 소리 없이 바로 재생을 시작하고, 소리가 되는지는 따로 알아봄
+// (소리와 함께 먼저 해 보면 아이폰 사파리는 영상을 조금 받아 소리가 있는 걸 확인한 뒤에야 거절해서 그동안 멈춰 있었음).
+// 포스터(대표님 얼굴 장면)는 예고편 중간 장면이라, 영상이 1.2초 넘게 늦을 때만 살며시 보여 줌 — 예고편은 검은 화면에서 밝아지며 시작함.
+// 자동 재생이 아예 막힌 휴대폰(아이폰 저전력 모드 등)은 화면을 누르면 재생을 시작함
 // 영상: public/video/intro-trailer.mp4(가로) · intro-trailer-m.mp4(휴대폰 세로). 만드는 도구 design-preview/film-v3/ (film5.py trailer-*)
 // 글귀는 src/i18n/ 의 intro. 시간을 바꾸면 영상(film5.py의 TRAILER_SHOTS)과 같이 바꾸세요.
 import { Icon } from 'astro-icon/components';
@@ -39,6 +43,7 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     data-src-tall={getAsset("/video/intro-trailer-m.mp4")}
     data-poster-wide={getAsset("/video/intro-trailer-poster.jpg")}
     data-poster-tall={getAsset("/video/intro-trailer-poster-m.jpg")}></video>
+  <div class="intro-poster" aria-hidden="true"></div>
   <div class="intro-shade" aria-hidden="true"></div>
   <div class="intro-bar intro-bar-top" aria-hidden="true"></div>
   <div class="intro-bar intro-bar-bottom" aria-hidden="true"></div>
@@ -92,7 +97,9 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var video = intro.querySelector('video');
     var tall = window.matchMedia('(max-aspect-ratio: 1/1)').matches;
-    video.poster = tall ? video.dataset.posterTall : video.dataset.posterWide;
+    // 포스터는 바로 띄우지 않음: 영상이 늦을 때만 .intro-poster로 살며시 (아래 begin)
+    var posterUrl = tall ? video.dataset.posterTall : video.dataset.posterWide;
+    var posterEl = intro.querySelector('.intro-poster');
     var btnSound = intro.querySelector('[data-intro-sound]');
     // 소리: 기본은 켜짐(끈 적이 있으면 꺼짐). blocked = 브라우저가 소리 나는 자동 재생을 막아 화면을 누르기를 기다리는 중
     var soundOn = true;
@@ -138,6 +145,7 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     var raf = 0;
     var waitTimer = 0;
     var fallback = 0;
+    var posterTimer = 0;
 
     // 예고편이 끝날 때까지 뒤의 페이지(머리 메뉴·본문·바닥글·떠 있는 단추)를 누르거나 Tab으로 갈 수 없게
     var locked = [];
@@ -170,6 +178,12 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       if (useVideo || video.currentTime <= 0) return;
       useVideo = true;
       intro.classList.remove('no-video-yet');
+      intro.classList.add('video-on'); // 포스터가 떠 있었으면 살며시 사라짐
+      // 늦게 시작했어도(화면을 눌러 시작 등) 끝까지 보이게, 마감 시계를 영상 기준으로 다시 맞춤
+      if (started && !ended && !closed) {
+        window.clearTimeout(fallback);
+        fallback = window.setTimeout(finish, (END - video.currentTime + 3) * 1000);
+      }
     };
     intro.classList.add('no-video-yet');
     video.addEventListener('playing', onVideo);
@@ -193,6 +207,14 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       t0 = performance.now() + 1200;
       fallback = window.setTimeout(finish, 12000);
       raf = requestAnimationFrame(tick);
+      // 영상이 늦으면(느린 인터넷·자동 재생 막힘): 0.6초에 포스터를 받기 시작해 1.2초에 살며시 보여 줌
+      posterTimer = window.setTimeout(function () {
+        if (useVideo || closed) return;
+        if (posterEl) posterEl.style.backgroundImage = 'url("' + posterUrl + '")';
+        posterTimer = window.setTimeout(function () {
+          if (!useVideo && !closed) intro.classList.add('poster-on');
+        }, 600);
+      }, 600);
     };
     // 5초 세기 (단추 밑 금줄이 차오름). 한 번만 셈 — 마우스를 움직이거나 키를 눌러도 다시 세지 않음
     var countdown = function () {
@@ -223,6 +245,7 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       cancelAnimationFrame(raf);
       window.clearTimeout(waitTimer);
       window.clearTimeout(fallback);
+      window.clearTimeout(posterTimer);
       unlock();
     };
 
@@ -262,7 +285,11 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
     // 끝난 뒤: 어디를 눌러도·밀어도·스크롤해도 들어감. 재생 중: (소리가 막혀 있었으면) 소리만 켬
     intro.addEventListener('click', function () {
       if (ended) close();
-      else unmuteNow();
+      else {
+        unmuteNow();
+        // 자동 재생이 아예 막힌 경우(아이폰 저전력 모드, 일부 앱 안 브라우저 등): 화면을 누르면 재생 시작
+        if (video.paused && !video.ended && !reduce) video.play().catch(function () {});
+      }
     });
     intro.addEventListener(
       'wheel',
@@ -306,30 +333,85 @@ const WAIT = 5; // 끝난 뒤 가만히 있으면 들어가기까지(초)
       if (!closed && !ended) intro.focus({ preventScroll: true });
     }, 100);
     if (reduce) {
-      // 움직임 줄이기: 예고편 없이 상호와 '입장하기'를 바로 보여 줌
+      // 움직임 줄이기: 예고편 없이 상호와 '입장하기'를 바로 보여 줌 (뒤에는 포스터)
+      video.poster = posterUrl;
       finish();
       return;
     }
+    // 이 브라우저가 소리 나는 자동 재생을 허락하는지 조용히 알아봄: 소리 없는 0.05초짜리 소리를 재생해 봄 (막히면 곧바로 거절됨)
+    var SILENCE = 'data:audio/wav;base64,UklGRrQBAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YZABAACA' + new Array(134).join('gICA');
+    var soundAllowed = function (cb) {
+      var done = false;
+      var answer = function (ok) {
+        if (done) return;
+        done = true;
+        cb(ok);
+      };
+      try {
+        if (navigator.getAutoplayPolicy) {
+          answer(navigator.getAutoplayPolicy('mediaelement') === 'allowed');
+          return;
+        }
+      } catch (e) {
+        /* 이 방법을 모르는 브라우저 → 아래 시험 재생 */
+      }
+      try {
+        var probe = new Audio(SILENCE);
+        var pr = probe.play();
+        if (!pr || !pr.then) {
+          answer(!probe.paused);
+          return;
+        }
+        pr.then(
+          function () {
+            probe.pause();
+            answer(true);
+          },
+          function () {
+            answer(false);
+          }
+        );
+        window.setTimeout(function () {
+          answer(false);
+        }, 1000);
+      } catch (e) {
+        answer(false);
+      }
+    };
+    // 소리를 켰더니 브라우저가 영상을 멈춰 버리면(드묾) 소리 없이 다시 이어 가고 누르기를 기다림
+    var keepPlaying = function () {
+      var undo = function () {
+        video.removeEventListener('pause', undo);
+        if (video.ended || ended || closed) return;
+        blocked = true;
+        video.muted = true;
+        paintSound();
+        video.play().catch(function () {});
+      };
+      video.addEventListener('pause', undo);
+      window.setTimeout(function () {
+        video.removeEventListener('pause', undo);
+      }, 1500);
+    };
+
     video.addEventListener('ended', finish);
-    if (!soundOn) {
-      // 소리를 꺼 둔 방문: 소리 없이 재생
-      video.muted = true;
-      var pm = video.play();
-      if (pm && pm.catch) pm.catch(function () {});
-      begin();
-    } else {
-      // 소리와 함께 자동 재생을 먼저 해 봄 → 막히면(대부분의 첫 방문) 소리 없이 그대로 이어 가고, 화면을 처음 누를 때 소리를 켬
-      video.muted = false;
-      var ps = video.play();
-      if (ps && ps.catch)
-        ps.catch(function (err) {
-          if (video.muted || (err && err.name && err.name !== 'NotAllowedError')) return;
-          blocked = true;
-          video.muted = true;
-          paintSound();
-          video.play().catch(function () {});
-        });
-      begin();
+    // 예고편은 언제나 소리 없이 바로 재생을 시작함 (휴대폰은 소리 나는 자동 재생을 막으므로 소리부터 해 보면 늦어짐)
+    video.muted = true;
+    var p0 = video.play();
+    if (p0 && p0.catch) p0.catch(function () {});
+    begin();
+    if (soundOn) {
+      // 소리가 허락되면(데스크톱에서 자주 온 방문 등) 바로 켜고, 아니면(휴대폰·첫 방문 대부분) '화면을 누르면 소리가 나옵니다' → 처음 누를 때 켬
+      blocked = true;
+      soundAllowed(function (ok) {
+        if (!blocked || closed) return; // 그 사이 화면을 눌러 이미 켰거나 들어감
+        if (ok) {
+          blocked = false;
+          video.muted = false;
+          keepPlaying();
+        }
+        paintSound();
+      });
     }
   })();
 </script>

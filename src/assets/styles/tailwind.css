@@ -994,9 +994,22 @@
       transform 1.4s cubic-bezier(0.3, 0, 0.2, 1),
       filter 1s ease;
   }
-  /* 영상이 아직 안 나오면 포스터가 천천히 다가옴 */
-  #intro.no-video-yet .intro-video {
+  /* 포스터(대표님 얼굴 장면)는 영상이 1.2초 넘게 늦을 때만 살며시 보이며 천천히 다가오고, 영상이 시작되면 사라짐 (Intro.astro).
+     예고편은 검은 화면에서 밝아지며 시작하므로, 제때 나오면 검은 화면 → 영상으로 바로 이어짐 (2026-11-22) */
+  #intro .intro-poster {
+    position: absolute;
+    inset: 0;
+    background: #000 center / cover no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+  }
+  #intro.poster-on .intro-poster {
+    opacity: 1;
     animation: introPosterDrift 9s ease-out forwards;
+  }
+  #intro.video-on .intro-poster {
+    opacity: 0;
   }
   @keyframes introPosterDrift {
     from {
