@@ -6,6 +6,8 @@
 // 2) data-split 제목은 화면에 들어올 때 글자가 하나씩 떠오름
 //    중국어·일본어는 낱말(Intl.Segmenter)을 묶어 낱말 안에서 줄이 바뀌지 않게 (예: '木｜头', 'チョウォ｜ル'이 되지 않게)
 // 3) data-reveal 칸이 화면에 들어오면 .is-in → 사진이 걷히고(.wipe) 글이 떠오름(.rise)
+// 5) 사이트 안에서 페이지를 옮기면(휴대폰 탭 누름 등) 새 페이지의 첫 화면은 등장 연출 없이 바로 보여 줌
+//    (탭을 누를 때마다 위쪽 제목·글씨가 떠오르며 들썩여 보였음 — 2026-11-22 사용자 의견). 아래로 내려가며 드러나는 연출은 그대로
 // 4) 입장 화면(홈의 Intro.astro)은 사이트를 새로 열었을 때만 — 사이트 안에서 한 번이라도 페이지를 옮겼으면 다시 나오지 않게
 //    (이 파일은 모든 페이지에 있어서, 다른 페이지로 처음 들어와 홈으로 옮겨 가는 경우도 잡음)
 ---
@@ -155,6 +157,10 @@
       });
   };
 
+  // ---------- 5) 사이트 안 이동인지 (html.soft-nav) + 지금 첫 화면에 보이는지 ----------
+  const softNav = () => document.documentElement.classList.contains('soft-nav');
+  const inFirstScreen = (el: Element) => el.getBoundingClientRect().top < window.innerHeight;
+
   // ---------- 2) 글자가 하나씩 떠오르는 제목 ----------
   const splitHeadings = () => {
     const lang = document.documentElement.lang;
@@ -162,6 +168,7 @@
     document.querySelectorAll<HTMLElement>('[data-split]:not([data-split-done])').forEach((el) => {
       el.dataset.splitDone = '';
       if (reduce()) return;
+      if (softNav() && inFirstScreen(el)) return; // 사이트 안 이동: 첫 화면 제목은 글자 나누지 않고 그대로
       const text = el.textContent?.trim() ?? '';
       if (!text) return;
       el.setAttribute('aria-label', text);
@@ -215,8 +222,18 @@
         }),
       { threshold: 0, rootMargin: '0px 0px -8% 0px' }
     );
-    items.forEach((el) => io.observe(el));
+    const instant = softNav();
+    items.forEach((el) => {
+      // 사이트 안 이동: 첫 화면에 이미 보이는 칸은 바로 다 보이게(연출 없이)
+      if (instant && inFirstScreen(el)) el.classList.add('is-in', 'no-anim');
+      else io.observe(el);
+    });
   };
+
+  // ---------- 5) 사이트 안 이동 표시: 새 페이지의 <html>에 soft-nav를 붙여 둠 (처음 열 때·새로고침 때는 없음) ----------
+  document.addEventListener('astro:before-swap', (e) => {
+    (e as unknown as { newDocument: Document }).newDocument.documentElement.classList.add('soft-nav');
+  });
 
   // ---------- 4) 사이트 안에서 페이지를 옮기면 입장 화면은 끝난 것으로 ----------
   // astro:after-swap은 사이트 안 이동에서만 생기고(처음 열 때는 없음), 새 페이지의 스크립트보다 먼저 옴

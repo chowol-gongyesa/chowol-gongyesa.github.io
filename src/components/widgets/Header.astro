@@ -149,9 +149,18 @@ const persistKey = `header-${lang}`;
 <script>
   class AwHeader extends HTMLElement {
     private onScroll?: () => void;
+    private tabScroll = 0;
     private onPageLoad = () => {
       this.updateActiveLinks();
       this.revealActiveTab();
+    };
+    // 상단 메뉴는 페이지를 옮길 때 새 페이지로 옮겨 붙는데, 그때 탭 줄의 밀린 위치가 0으로 돌아가 글씨가 튀어 보였음 → 저장했다가 되돌림
+    private onBeforeSwap = () => {
+      this.tabScroll = this.querySelector<HTMLElement>('.mobile-tabs-list')?.scrollLeft ?? 0;
+    };
+    private onAfterSwap = () => {
+      const list = this.querySelector<HTMLElement>('.mobile-tabs-list');
+      if (list) list.scrollLeft = this.tabScroll;
     };
 
     connectedCallback() {
@@ -159,6 +168,8 @@ const persistKey = `header-${lang}`;
       // 상단 메뉴는 페이지를 옮겨도 남아 있으므로, 페이지가 바뀔 때마다 지금 페이지 표시를 다시 맞춤
       this.updateActiveLinks();
       document.addEventListener('astro:page-load', this.onPageLoad);
+      document.addEventListener('astro:before-swap', this.onBeforeSwap);
+      document.addEventListener('astro:after-swap', this.onAfterSwap);
 
       if (header?.hasAttribute('data-aw-sticky-header')) {
         let ticking = false;
@@ -180,17 +191,26 @@ const persistKey = `header-${lang}`;
     disconnectedCallback() {
       if (this.onScroll) document.removeEventListener('scroll', this.onScroll);
       document.removeEventListener('astro:page-load', this.onPageLoad);
+      document.removeEventListener('astro:before-swap', this.onBeforeSwap);
+      document.removeEventListener('astro:after-swap', this.onAfterSwap);
     }
 
-    // 휴대폰 탭 줄에서 지금 페이지 탭이 화면 밖에 있으면 가운데로 밀어 보여 줌
+    // 휴대폰 탭 줄: 지금 페이지 탭이 가려져 있을 때만 보일 만큼 조금 밀어 줌.
+    // (예전에는 탭을 누를 때마다 지금 탭을 가운데로 다시 맞춰서, 이미 보이던 탭 글씨도 옆으로 튀었음 — 2026-11-22)
     private revealActiveTab() {
       const list = this.querySelector<HTMLElement>('.mobile-tabs-list');
       const active = list?.querySelector<HTMLElement>('.aw-link-active');
-      if (!list || !active) return;
+      if (!list || !active || list.scrollWidth <= list.clientWidth + 1) return;
       const cta = list.querySelector<HTMLElement>('li:has(> .is-cta)');
       const visible = list.clientWidth - (cta && !cta.contains(active) ? cta.offsetWidth : 0);
-      const left = active.offsetLeft - (visible - active.offsetWidth) / 2;
-      list.scrollTo({ left: Math.max(0, left), behavior: 'instant' });
+      const box = list.getBoundingClientRect();
+      const tab = active.getBoundingClientRect();
+      const left = tab.left - box.left;
+      const right = tab.right - box.left;
+      if (left >= 0 && right <= visible) return; // 다 보이면 그대로
+      const pad = 12;
+      const delta = left < 0 ? left - pad : right - visible + pad;
+      list.scrollTo({ left: Math.max(0, list.scrollLeft + delta), behavior: 'instant' });
     }
 
     private updateActiveLinks() {

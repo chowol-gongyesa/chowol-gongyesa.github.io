@@ -256,6 +256,20 @@
       animation: none;
     }
   }
+  /* 사이트 안에서 페이지를 옮길 때(휴대폰 탭 누름 등)는 위쪽 글씨가 움직이지 않게: 제목·첫 화면 글은 바로 보임
+     (처음 열 때만 떠오르는 연출. html.soft-nav는 Effects.astro가 붙임) */
+  html.soft-nav .page-title {
+    animation: none;
+  }
+  html.soft-nav .hero-cinema .hero-enter > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  [data-reveal].no-anim .wipe,
+  [data-reveal].no-anim .rise {
+    transition: none;
+  }
   /* 일본어 제목이 'ご注文・お / 問い合わせ'처럼 말 중간에서 끊기지 않게, 말 마디에서 줄을 바꿈 (크롬·엣지) */
   :root:lang(ja) :is(h1, h2, h3, .display, .eyebrow, .lead) {
     word-break: auto-phrase;
